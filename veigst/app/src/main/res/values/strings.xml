@@ -1,3 +1,30 @@
 <resources>
+    <!-- GERAL -->
+    <!-- LOGIN -->
     <string name="app_name">VeiGest</string>
+    <string name="hello_blank_fragment">onde estou?</string>
+
+    <!-- PT -->
+    <!-- LOGIN -->
+
+    <string name="usernameP">Utilizador</string>
+    <string name="passwordP">Password</string>
+
+    <string name="remember_meP">Manter Login</string>
+    <string name="forgot_passwordP">Esqueci a Password!</string>
+    <string name="no_accountP">Ainda não tenho conta!</string>
+
+    <string name="loginP">LOGIN</string>
+
+    <!-- EG -->
+    <!-- LOGIN -->
+
+    <string name="usernameE">Username</string>
+    <string name="passwordE">Password</string>
+
+    <string name="remember_meE">Remember Me</string>
+    <string name="forgot_passwordE">Forgot Password!</string>
+    <string name="no_accountE">I don’t have an account!</string>
+
+    <string name="loginE">LOGIN</string>
 </resources>
