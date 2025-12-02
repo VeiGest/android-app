@@ -1,9 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Veigest" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <style name="Base.Theme.Veigest" parent="Theme.Material3.Light.NoActionBar">
+
+        <item name="android:colorBackground">@color/BackgroundLight</item>
+        <item name="android:statusBarColor">@color/BackgroundLight</item>
+        <item name="android:navigationBarColor">@color/BackgroundLight</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Compatibilidade sistema + nossos nomes diretos -->
+        <item name="android:colorBackground">@color/BackgroundLight</item>
+        <item name="colorOnBackground">@color/TextPrimaryLight</item>
+
+        <item name="Background">@color/BackgroundLight</item> <!-- nosso nome direto -->
+        <item name="colorOnBackground">@color/TextPrimaryLight</item>
+
+        <!-- Surface / TextBox -->
+        <item name="colorSurface">@color/SurfaceLight</item>
+        <item name="colorOnSurface">@color/TextPrimaryLight</item>
+
+        <item name="TextBox">@color/SurfaceLight</item>         <!-- fundo de inputs / caixas -->
+        <item name="TextBoxText">@color/TextPrimaryLight</item> <!-- texto dentro das caixas -->
+        <item name="TextHint">@color/TextHintLight</item>
+
+        <!-- Botões -->
+        <item name="ButtonBackground">@color/ButtonBackgroundLight</item>
+        <item name="ButtonText">@color/ButtonTextLight</item>
+
+        <!-- Checkbox -->
+        <item name="CheckboxTint">@color/CheckboxTintLight</item>
+        <item name="CheckboxText">@color/CheckboxTextLight</item>
+
+        <!-- Links / highlights -->
+        <item name="LinkText">@color/BrandPrimary</item>
+
+        <!-- Texto "Remember me" (podes apontar para LinkText ou CheckboxText) -->
+        <item name="RememberMeText">@color/CheckboxTextLight</item>
+
+        <!-- Estilos (compatibilidade com widgets) -->
+        <item name="buttonStyle">@style/ButtonStyle</item>
+        <item name="checkboxStyle">@style/CheckboxStyle</item>
+        <item name="cardViewStyle">@style/CardStyle</item>
     </style>
 
     <style name="Theme.Veigest" parent="Base.Theme.Veigest" />
+
+    <!-- Estilos de componente que usam os atributos definidos acima -->
+    <style name="ButtonStyle" parent="Widget.Material3.Button">
+        <item name="backgroundTint">?attr/ButtonBackground</item>
+        <item name="android:textColor">?attr/ButtonText</item>
+    </style>
+
+    <style name="CardStyle" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">?attr/TextBox</item>
+    </style>
+
+    <style name="CheckboxStyle" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="buttonTint">?attr/CheckboxTint</item>
+        <item name="android:textColor">?attr/CheckboxText</item>
+    </style>
+
 </resources>

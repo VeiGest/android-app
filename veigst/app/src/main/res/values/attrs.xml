@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Atributos de cor personalizados -->
+    <attr name="Background" format="color" />
+    <attr name="TextBox" format="color" />
+    <attr name="TextBoxText" format="color" />
+    <attr name="TextHint" format="color" />
+    <attr name="ButtonBackground" format="color" />
+    <attr name="ButtonText" format="color" />
+    <attr name="CheckboxTint" format="color" />
+    <attr name="CheckboxText" format="color" />
+    <attr name="LinkText" format="color" />
+    <attr name="RememberMeText" format="color" />
+
+    <!-- Estilos para widgets (opcionais mas úteis) -->
+    <attr name="buttonStyle" format="reference" />
+    <attr name="checkboxStyle" format="reference" />
+    <attr name="cardViewStyle" format="reference" />
+
+</resources>

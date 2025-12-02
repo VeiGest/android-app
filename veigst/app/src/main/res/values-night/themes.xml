@@ -1,7 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Veigest" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+    <style name="Base.Theme.Veigest" parent="Theme.Material3.Dark.NoActionBar">
+
+        <item name="android:colorBackground">@color/BackgroundDark</item>
+        <item name="android:statusBarColor">@color/BackgroundDark</item>
+        <item name="android:navigationBarColor">@color/BackgroundDark</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Compatibilidade sistema + nossos nomes diretos -->
+        <item name="android:colorBackground">@color/BackgroundDark</item>
+        <item name="colorOnBackground">@color/TextPrimaryDark</item>
+
+        <item name="Background">@color/BackgroundDark</item>
+        <item name="colorOnBackground">@color/TextPrimaryDark</item>
+
+        <!-- Surface / TextBox -->
+        <item name="colorSurface">@color/SurfaceDark</item>
+        <item name="colorOnSurface">@color/TextPrimaryDark</item>
+
+        <item name="TextBox">@color/SurfaceDark</item>
+        <item name="TextBoxText">@color/TextPrimaryDark</item>
+        <item name="TextHint">@color/TextHintDark</item>
+
+        <!-- Botões -->
+        <item name="ButtonBackground">@color/ButtonBackgroundDark</item>
+        <item name="ButtonText">@color/ButtonTextDark</item>
+
+        <!-- Checkbox -->
+        <item name="CheckboxTint">@color/CheckboxTintDark</item>
+        <item name="CheckboxText">@color/CheckboxTextDark</item>
+
+        <!-- Links / highlights (mantém brand igual) -->
+        <item name="LinkText">@color/BrandPrimary</item>
+
+        <!-- Texto Remember -->
+        <item name="RememberMeText">@color/CheckboxTextDark</item>
+
+        <!-- Estilos -->
+        <item name="buttonStyle">@style/ButtonStyle</item>
+        <item name="checkboxStyle">@style/CheckboxStyle</item>
+        <item name="cardViewStyle">@style/CardStyle</item>
     </style>
+
+    <style name="Theme.Veigest" parent="Base.Theme.Veigest" />
+
+    <!-- Reaproveita os mesmos estilos de componentes (eles usam ?attr/...) -->
+    <style name="ButtonStyle" parent="Widget.Material3.Button">
+        <item name="backgroundTint">?attr/ButtonBackground</item>
+        <item name="android:textColor">?attr/ButtonText</item>
+    </style>
+
+    <style name="CardStyle" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">?attr/TextBox</item>
+    </style>
+
+    <style name="CheckboxStyle" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="buttonTint">?attr/CheckboxTint</item>
+        <item name="android:textColor">?attr/CheckboxText</item>
+    </style>
+
 </resources>
