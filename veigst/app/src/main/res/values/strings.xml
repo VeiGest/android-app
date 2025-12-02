@@ -16,6 +16,43 @@
 
     <string name="loginP">LOGIN</string>
 
+    <!-- DASHBOARD PT -->
+    <string name="welcome_driver">Bem-vindo</string>
+    <string name="logout">Terminar Sessão</string>
+    
+    <!-- Active Routes -->
+    <string name="active_routes">Rotas Ativas</string>
+    <string name="origin_label">Origem</string>
+    <string name="destination_label">Destino</string>
+    <string name="distance_label">Distância</string>
+    <string name="eta_label">Tempo Estimado</string>
+    <string name="view_route_details">Ver Detalhes da Rota</string>
+    
+    <!-- Current Vehicle -->
+    <string name="current_vehicle">Veículo Atual</string>
+    <string name="plate_label">Matrícula</string>
+    <string name="model_label">Modelo</string>
+    <string name="km_label">Quilometragem</string>
+    <string name="fuel_label">Combustível</string>
+    <string name="view_vehicle_details">Ver Detalhes do Veículo</string>
+    
+    <!-- Documentation -->
+    <string name="documentation">Documentação</string>
+    <string name="driver_license_label">Carta de Condução</string>
+    <string name="vehicle_insurance_label">Seguro do Veículo</string>
+    <string name="vehicle_inspection_label">Inspeção do Veículo</string>
+    <string name="expires_label">Expira: 15/08/2026</string>
+    <string name="valid_label">Válido</string>
+    <string name="expired_label">Expirado</string>
+    <string name="view_all_documents">Ver Todos os Documentos</string>
+    
+    <!-- Quick Actions -->
+    <string name="quick_actions">Ações Rápidas</string>
+    <string name="report_issue">Reportar Problema</string>
+    <string name="my_routes">Minhas Rotas</string>
+    <string name="history">Histórico</string>
+    <string name="settings">Definições</string>
+
     <!-- EG -->
     <!-- LOGIN -->
 
