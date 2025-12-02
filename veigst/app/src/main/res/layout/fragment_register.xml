@@ -1,14 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegisterFragment">
+    android:background="?attr/Background"
+    android:fillViewport="true">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:padding="32dp">
 
-</FrameLayout>
+        <!-- LOGO -->
+        <ImageView
+            android:id="@+id/logoRegister"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="40dp"
+            android:src="@drawable/ic_veigest" />
+
+        <!-- USERNAME -->
+        <EditText
+            android:id="@+id/etRegisterUsername"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:hint="@string/register_usernameP"
+            android:background="?attr/TextBox"
+            android:textColor="?attr/TextBoxText"
+            android:textColorHint="?attr/TextHint"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- PASSWORD -->
+        <EditText
+            android:id="@+id/etRegisterPassword"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:hint="@string/register_passwordP"
+            android:inputType="textPassword"
+            android:background="?attr/TextBox"
+            android:textColor="?attr/TextBoxText"
+            android:textColorHint="?attr/TextHint"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- CONFIRM PASSWORD -->
+        <EditText
+            android:id="@+id/etRegisterPasswordConfirm"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:hint="@string/register_confirm_passwordP"
+            android:inputType="textPassword"
+            android:background="?attr/TextBox"
+            android:textColor="?attr/TextBoxText"
+            android:textColorHint="?attr/TextHint"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- CHECKBOX -->
+        <CheckBox
+            android:id="@+id/cbRememberRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/register_remember_meP"
+            android:textColor="?attr/CheckboxText"
+            style="?attr/checkboxStyle"
+            android:layout_marginBottom="22dp" />
+
+        <!-- REGISTER BUTTON -->
+        <Button
+            android:id="@+id/btnCreateAccount"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="@string/register_buttonP"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="?attr/ButtonBackground"
+            android:textColor="?attr/ButtonText"
+            style="?attr/buttonStyle"
+            android:layout_marginBottom="25dp" />
+
+        <!-- LINK: USAR EMAIL -->
+        <TextView
+            android:id="@+id/tvUseEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/register_use_emailP"
+            android:textColor="?attr/LinkText"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <!-- LINK: JÁ TENHO CONTA -->
+        <TextView
+            android:id="@+id/tvBackToLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/register_back_to_loginP"
+            android:textColor="?attr/LinkText"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</ScrollView>
