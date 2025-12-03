@@ -23,6 +23,7 @@ public class DashboardFragment extends Fragment {
     // Header
     private TextView tvWelcome;
     private TextView tvDriverName;
+    private ImageView btnMenu;
     private ImageView btnLogout;
 
     // Active Route Card
@@ -93,6 +94,7 @@ public class DashboardFragment extends Fragment {
         // Header
         tvWelcome = view.findViewById(R.id.tv_welcome);
         tvDriverName = view.findViewById(R.id.tv_driver_name);
+        btnMenu = view.findViewById(R.id.btn_menu);
         btnLogout = view.findViewById(R.id.btn_logout);
 
         // Active Route Card
@@ -129,6 +131,14 @@ public class DashboardFragment extends Fragment {
     }
 
     private void setupListeners() {
+        // Menu button - opens navigation drawer
+        btnMenu.setOnClickListener(v -> {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            if (mainActivity != null) {
+                mainActivity.openDrawer();
+            }
+        });
+
         // Logout button
         btnLogout.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Logout - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();

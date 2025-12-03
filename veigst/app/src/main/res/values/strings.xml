@@ -53,6 +53,69 @@
     <string name="history">Histórico</string>
     <string name="settings">Definições</string>
 
+    <!-- Navigation Menu -->
+    <string name="menu_dashboard">Dashboard</string>
+    <string name="menu_routes">Rotas</string>
+    <string name="menu_vehicles">Veículos</string>
+    <string name="menu_documents">Documentação</string>
+    <string name="menu_profile">Perfil</string>
+    <string name="menu_settings">Configurações</string>
+    <string name="menu_logout">Sair</string>
+    <string name="navigation_drawer_open">Abrir menu de navegação</string>
+    <string name="navigation_drawer_close">Fechar menu de navegação</string>
+
+    <!-- Routes -->
+    <string name="routes_title">Minhas Rotas</string>
+    <string name="routes_no_data">Nenhuma rota disponível</string>
+    <string name="route_status_active">Ativa</string>
+    <string name="route_status_completed">Concluída</string>
+    <string name="route_status_pending">Pendente</string>
+
+    <!-- Vehicles -->
+    <string name="vehicles_title">Meus Veículos</string>
+    <string name="vehicles_no_data">Nenhum veículo atribuído</string>
+    <string name="vehicle_fuel">Combustível</string>
+    <string name="vehicle_mileage">Quilometragem</string>
+
+    <!-- Documents -->
+    <string name="documents_title">Documentação</string>
+    <string name="documents_no_data">Nenhum documento disponível</string>
+    <string name="document_type_license">Carta de Condução</string>
+    <string name="document_type_certificate">Certificado de Motorista</string>
+    <string name="document_type_insurance">Seguro do Veículo</string>
+    <string name="document_expires">Expira em</string>
+
+    <!-- Profile -->
+    <string name="profile_title">Meu Perfil</string>
+    <string name="profile_name">Nome</string>
+    <string name="profile_email">Email</string>
+    <string name="profile_phone">Telefone</string>
+    <string name="profile_license">Carta de Condução</string>
+    <string name="profile_company">Empresa</string>
+    <string name="profile_edit">Editar Perfil</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Configurações</string>
+    <string name="settings_api">Configurações da API</string>
+    <string name="settings_api_url">Endereço da API</string>
+    <string name="settings_api_url_hint">https://api.veigest.com/v1</string>
+    <string name="settings_api_company">Empresa da API</string>
+    <string name="settings_api_company_hint">ID da empresa</string>
+    <string name="settings_appearance">Aparência</string>
+    <string name="settings_theme">Tema Padrão</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Escuro</string>
+    <string name="settings_theme_system">Sistema</string>
+    <string name="settings_notifications">Notificações</string>
+    <string name="settings_notifications_enabled">Notificações Ativadas</string>
+    <string name="settings_notifications_sound">Som de Notificação</string>
+    <string name="settings_sync">Sincronização</string>
+    <string name="settings_sync_auto">Sincronização Automática</string>
+    <string name="settings_sync_interval">Intervalo de Sincronização</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_version">Versão</string>
+    <string name="settings_save">Guardar Alterações</string>
+
     <!-- EG -->
     <!-- LOGIN -->
 
