@@ -130,7 +130,7 @@
     <string name="passwordE">Password</string>
     <string name="remember_meE">Remember Me</string>
     <string name="forgot_passwordE">Forgot Password!</string>
-    <string name="no_accountE">I don’t have an account!</string>
+    <string name="no_accountE">I don\'t have an account!</string>
     <string name="loginE">LOGIN</string>
 
 
@@ -144,7 +144,7 @@
     <string name="register_remember_meP">Manter Login</string>
     <string name="register_buttonP">REGISTER</string>
     <string name="register_use_emailP">Usar email!</string>
-    <string name="register_back_to_loginP">Já tenho conta!</string>
+    <string name="register_back_to_loginP">J\u00e1 tenho conta!</string>
 
 
     <!-- ===================== -->
@@ -158,5 +158,8 @@
     <string name="register_buttonE">REGISTER</string>
     <string name="register_use_emailE">Use email!</string>
     <string name="register_back_to_loginE">I already have an account!</string>
+
+    <!-- Password toggle -->
+    <string name="password_toggle">Ver/ocultar password</string>
 
 </resources>

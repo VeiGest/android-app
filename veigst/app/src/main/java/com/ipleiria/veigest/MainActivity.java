@@ -37,10 +37,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Só adiciona o fragment se for a primeira criação
         if (savedInstanceState == null) {
-            // Inicia com o LoginFragment
-            // TODO: Verificar se o utilizador já tem sessão ativa
-            // Se sim, carregar DashboardFragment diretamente
-            loadFragment(new LoginFragment());
+            // Verificar se o utilizador já tem sessão ativa
+            AuthManager authManager = AuthManager.getInstance(this);
+            if (authManager.isLoggedIn()) {
+                // Utilizador já está logado, carregar dashboard diretamente
+                loadDashboard();
+            } else {
+                // Carregar tela de login
+                loadFragment(new LoginFragment());
+            }
         }
     }
 
@@ -97,6 +102,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Realiza o logout do utilizador
      */
     private void performLogout() {
+        // Fazer logout através do AuthManager
+        AuthManager authManager = AuthManager.getInstance(this);
+        authManager.logout();
+        
         isLoggedIn = false;
         // Desabilitar o drawer após logout
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);

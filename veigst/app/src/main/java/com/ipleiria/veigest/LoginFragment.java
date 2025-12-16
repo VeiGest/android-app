@@ -5,11 +5,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.TextView;
 
@@ -22,6 +25,9 @@ public class LoginFragment extends Fragment {
     private EditText etUsername;
     private EditText etPassword;
     private Button btnLogin;
+    private ImageView ivPasswordToggle;
+    private CheckBox cbRemember;
+    private boolean isPasswordVisible = false;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -46,6 +52,13 @@ public class LoginFragment extends Fragment {
         etUsername = view.findViewById(R.id.et_username);
         etPassword = view.findViewById(R.id.et_password);
         btnLogin = view.findViewById(R.id.btn_login);
+        ivPasswordToggle = view.findViewById(R.id.iv_password_toggle);
+        cbRemember = view.findViewById(R.id.cbRemember);
+
+        // Setup password toggle
+        if (ivPasswordToggle != null) {
+            ivPasswordToggle.setOnClickListener(v -> togglePasswordVisibility());
+        }
 
         // Setup login button
         btnLogin.setOnClickListener(v -> {
@@ -64,27 +77,50 @@ public class LoginFragment extends Fragment {
         });
 
         return view;
-        return inflater.inflate(R.layout.fragment_login, container, false);
+    }
+
+    private void togglePasswordVisibility() {
+        if (etPassword == null || ivPasswordToggle == null) return;
+
+        if (isPasswordVisible) {
+            etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            ivPasswordToggle.setImageResource(R.drawable.eye_closed);
+            isPasswordVisible = false;
+        } else {
+            etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            ivPasswordToggle.setImageResource(R.drawable.eye_open);
+            isPasswordVisible = true;
+        }
+        etPassword.setSelection(etPassword.getText().length());
     }
 
     /**
-     * Executa o login (mockado)
-     * TODO: Substituir por chamada real à API POST /auth/login
+     * Executa o login com autenticação local
      */
     private void performLogin(String username, String password) {
-        // Simular login bem-sucedido
-        Toast.makeText(getContext(), "Login bem-sucedido!", Toast.LENGTH_SHORT).show();
-
-        // Navegar para o Dashboard
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).loadDashboard();
+        AuthManager authManager = AuthManager.getInstance(requireContext());
+        
+        // Verificar se "Manter Login" está marcado
+        boolean rememberMe = cbRemember != null && cbRemember.isChecked();
+        
+        // Tentar fazer login
+        boolean success = authManager.login(username, password, rememberMe);
+        
+        if (success) {
+            Toast.makeText(getContext(), "Login bem-sucedido!", Toast.LENGTH_SHORT).show();
+            
+            // Navegar para o Dashboard
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadDashboard();
+            }
+        } else {
+            // Verificar se o utilizador existe
+            if (!authManager.userExists(username)) {
+                Toast.makeText(getContext(), "Utilizador não existe. Por favor registe-se.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(), "Password incorreta. Tente novamente.", Toast.LENGTH_SHORT).show();
+            }
         }
-
-        // TODO: Implementar autenticação real:
-        // 1. Chamar POST /auth/login com username e password
-        // 2. Guardar token de autenticação
-        // 3. Guardar dados do utilizador (SharedPreferences)
-        // 4. Navegar para Dashboard apenas se login for bem-sucedido
     }
 
     @Override
