@@ -14,6 +14,11 @@ public class AuthManager {
     private static final String KEY_REMEMBER_LOGIN = "remember_login";
     private static final String KEY_USER_PREFIX = "user_";
     private static final String KEY_PASS_SUFFIX = "_password_hash";
+    private static final String KEY_EMAIL_SUFFIX = "_email";
+    private static final String KEY_RECOVERY_CODE = "recovery_code_";
+    private static final String KEY_RECOVERY_EXPIRY = "recovery_expiry_";
+    private static final int RECOVERY_CODE_LENGTH = 6;
+    private static final long RECOVERY_CODE_VALIDITY_MS = 3 * 60 * 1000; // 3 minutos
     
     private static AuthManager instance;
     private SecureStorage secureStorage;
@@ -149,5 +154,130 @@ public class AuthManager {
      */
     public void clearAllData() {
         secureStorage.clear();
+    }
+    
+    /**
+     * Gera e guarda um código de recuperação para o utilizador
+     * @param username Username do utilizador
+     * @return O código gerado (6 dígitos)
+     */
+    public String generateRecoveryCode(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return null;
+        }
+        
+        String normalizedUsername = username.trim().toLowerCase();
+        
+        // Verificar se o utilizador existe
+        if (!userExists(normalizedUsername)) {
+            return null;
+        }
+        
+        // Gerar código de 6 dígitos
+        int code = (int) (Math.random() * 900000) + 100000;
+        String recoveryCode = String.valueOf(code);
+        
+        // Guardar código e data de expiração
+        String codeKey = KEY_RECOVERY_CODE + normalizedUsername;
+        String expiryKey = KEY_RECOVERY_EXPIRY + normalizedUsername;
+        
+        secureStorage.saveString(codeKey, recoveryCode);
+        secureStorage.saveString(expiryKey, String.valueOf(System.currentTimeMillis() + RECOVERY_CODE_VALIDITY_MS));
+        
+        return recoveryCode;
+    }
+    
+    /**
+     * Verifica se um código de recuperação é válido
+     * @param username Username do utilizador
+     * @param code Código a verificar
+     * @return true se o código é válido e não expirou
+     */
+    public boolean verifyRecoveryCode(String username, String code) {
+        if (username == null || username.trim().isEmpty() || code == null || code.trim().isEmpty()) {
+            return false;
+        }
+        
+        String normalizedUsername = username.trim().toLowerCase();
+        String codeKey = KEY_RECOVERY_CODE + normalizedUsername;
+        String expiryKey = KEY_RECOVERY_EXPIRY + normalizedUsername;
+        
+        // Obter código guardado
+        String storedCode = secureStorage.getString(codeKey, null);
+        String expiryStr = secureStorage.getString(expiryKey, null);
+        
+        if (storedCode == null || expiryStr == null) {
+            return false;
+        }
+        
+        // Verificar se o código corresponde
+        if (!storedCode.equals(code.trim())) {
+            return false;
+        }
+        
+        // Verificar se não expirou
+        long expiry = Long.parseLong(expiryStr);
+        if (System.currentTimeMillis() > expiry) {
+            // Código expirado, limpar
+            secureStorage.remove(codeKey);
+            secureStorage.remove(expiryKey);
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Redefine a password do utilizador após validação do código
+     * @param username Username do utilizador
+     * @param code Código de recuperação
+     * @param newPassword Nova password
+     * @return true se a password foi redefinida com sucesso
+     */
+    public boolean resetPassword(String username, String code, String newPassword) {
+        if (!verifyRecoveryCode(username, code)) {
+            return false;
+        }
+        
+        String normalizedUsername = username.trim().toLowerCase();
+        
+        // Hash da nova password
+        String passwordHash = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+        
+        // Atualizar password
+        String userKey = KEY_USER_PREFIX + normalizedUsername + KEY_PASS_SUFFIX;
+        secureStorage.saveString(userKey, passwordHash);
+        
+        // Limpar código de recuperação
+        String codeKey = KEY_RECOVERY_CODE + normalizedUsername;
+        String expiryKey = KEY_RECOVERY_EXPIRY + normalizedUsername;
+        secureStorage.remove(codeKey);
+        secureStorage.remove(expiryKey);
+        
+        return true;
+    }
+    
+    /**
+     * Guarda o email associado ao utilizador
+     */
+    public void saveEmail(String username, String email) {
+        if (username == null || email == null) {
+            return;
+        }
+        String normalizedUsername = username.trim().toLowerCase();
+        String emailKey = KEY_USER_PREFIX + normalizedUsername + KEY_EMAIL_SUFFIX;
+        secureStorage.saveString(emailKey, email);
+    }
+    
+    /**
+     * Obtém o email associado ao utilizador
+     */
+    public String getEmail(String username) {
+        if (username == null) {
+            return null;
+        }
+        String normalizedUsername = username.trim().toLowerCase();
+        String emailKey = KEY_USER_PREFIX + normalizedUsername + KEY_EMAIL_SUFFIX;
+        return secureStorage.getString(emailKey, null);
     }
 }

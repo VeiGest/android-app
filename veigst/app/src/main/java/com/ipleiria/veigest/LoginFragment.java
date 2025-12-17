@@ -138,5 +138,17 @@ public class LoginFragment extends Fragment {
                     .addToBackStack(null)
                     .commit();
         });
+        
+        // BOTÃO DE ESQUECI A PASSWORD
+        TextView tvForgotPassword = view.findViewById(R.id.tvForgotPassword);
+        
+        tvForgotPassword.setOnClickListener(v -> {
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new ForgotPasswordFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
     }
 }

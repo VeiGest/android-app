@@ -19,6 +19,12 @@
     <string name="no_accountP">Ainda não tenho conta!</string>
     <string name="loginP">LOGIN</string>
 
+    <!-- Recovery Methods -->
+    <string-array name="recovery_methods">
+        <item>Notificação da App</item>
+        <item>Email</item>
+    </string-array>
+
     <!-- DASHBOARD PT -->
     <string name="welcome_driver">Bem-vindo</string>
     <string name="logout">Terminar Sessão</string>
