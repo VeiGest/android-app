@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 public class RegisterFragment extends Fragment {
 
-    EditText etUser, etPass, etConfirm;
+    EditText etUser, etEmail, etPass, etConfirm;
     Button btnCreate;
     TextView tvBack;
     ImageView ivRegisterPasswordToggle;
@@ -37,6 +37,7 @@ public class RegisterFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         etUser = view.findViewById(R.id.etRegisterUsername);
+        etEmail = view.findViewById(R.id.etRegisterEmail);
         etPass = view.findViewById(R.id.etRegisterPassword);
         etConfirm = view.findViewById(R.id.etRegisterPasswordConfirm);
         btnCreate = view.findViewById(R.id.btnCreateAccount);
@@ -71,11 +72,34 @@ public class RegisterFragment extends Fragment {
     private void registerUser() {
 
         String user = etUser.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
         String pass = etPass.getText().toString().trim();
         String confirm = etConfirm.getText().toString().trim();
 
-        if (user.isEmpty() || pass.isEmpty() || confirm.isEmpty()) {
-            Toast.makeText(getContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+        // Validar campos obrigatórios
+        if (user.isEmpty()) {
+            Toast.makeText(getContext(), "Nome de utilizador é obrigatório", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (email.isEmpty()) {
+            Toast.makeText(getContext(), "Email é obrigatório", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (pass.isEmpty()) {
+            Toast.makeText(getContext(), "Password é obrigatória", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (confirm.isEmpty()) {
+            Toast.makeText(getContext(), "Confirme a password", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validar formato do email
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(getContext(), "Email inválido", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -92,14 +116,14 @@ public class RegisterFragment extends Fragment {
         
         // Tentar registar o utilizador
         AuthManager authManager = AuthManager.getInstance(requireContext());
-        boolean success = authManager.registerUser(user, pass);
+        boolean success = authManager.registerUser(email, user, pass);
         
         if (success) {
             // Verificar se "Manter Login" está marcado
             boolean rememberMe = cbRememberRegister != null && cbRememberRegister.isChecked();
             
             // Fazer login automático após registo
-            boolean loginSuccess = authManager.login(user, pass, rememberMe);
+            boolean loginSuccess = authManager.login(email, pass, rememberMe);
             
             if (loginSuccess) {
                 Toast.makeText(getContext(), "Conta criada com sucesso!", Toast.LENGTH_SHORT).show();
@@ -114,7 +138,7 @@ public class RegisterFragment extends Fragment {
                 returnToLogin();
             }
         } else {
-            Toast.makeText(getContext(), "Este utilizador já existe. Escolha outro nome.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Este email já está registado. Use outro email.", Toast.LENGTH_LONG).show();
         }
     }
 

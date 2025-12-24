@@ -115,6 +115,9 @@
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Escuro</string>
     <string name="settings_theme_system">Sistema</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_english">Inglês</string>
     <string name="settings_notifications">Notificações</string>
     <string name="settings_notifications_enabled">Notificações Ativadas</string>
     <string name="settings_notifications_sound">Som de Notificação</string>

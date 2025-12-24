@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/Background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_back_arrow"
+                android:contentDescription="Voltar"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginEnd="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_edit_profile_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/profile_edit"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/Black"/>
+        </LinearLayout>
+
+        <!-- Profile Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="?attr/TextBox">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp">
+
+                <!-- Photo Section with Change Button -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginBottom="24dp">
+
+                    <RelativeLayout
+                        android:layout_width="120dp"
+                        android:layout_height="120dp">
+
+                        <ImageView
+                            android:id="@+id/iv_profile_photo"
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:src="@drawable/ic_menu_profile"
+                            android:background="#2211C7A5"
+                            android:padding="24dp"/>
+
+                        <ImageView
+                            android:id="@+id/btn_change_photo"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/BrandPrimary"
+                            android:src="@drawable/ic_menu_profile"
+                            android:padding="8dp"
+                            android:contentDescription="Alterar foto"
+                            android:elevation="4dp"/>
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Alterar Foto"
+                        android:textSize="12sp"
+                        android:textColor="@color/BrandPrimary"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/TextHintLight"
+                    android:alpha="0.2"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Name Field -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_name"
+                    android:textSize="12sp"
+                    android:textColor="@color/TextHintLight"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/et_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="?attr/TextBox"
+                    android:textColor="?attr/TextBoxText"
+                    android:textColorHint="?attr/TextHint"
+                    android:hint="Nome completo"/>
+
+                <!-- Email Field (Read-only) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_email"
+                    android:textSize="12sp"
+                    android:textColor="@color/TextHintLight"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/tv_email_readonly"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="?attr/TextBox"
+                    android:textColor="?attr/TextBoxText"
+                    android:gravity="center_vertical"
+                    android:alpha="0.6"/>
+
+                <!-- Phone Field -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_phone"
+                    android:textSize="12sp"
+                    android:textColor="@color/TextHintLight"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/et_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:inputType="phone"
+                    android:background="?attr/TextBox"
+                    android:textColor="?attr/TextBoxText"
+                    android:textColorHint="?attr/TextHint"
+                    android:hint="+351 912 345 678"/>
+
+                <!-- License Field -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_license"
+                    android:textSize="12sp"
+                    android:textColor="@color/TextHintLight"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/et_license"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:inputType="textCapCharacters"
+                    android:background="?attr/TextBox"
+                    android:textColor="?attr/TextBoxText"
+                    android:textColorHint="?attr/TextHint"
+                    android:hint="PT123456789"/>
+
+                <!-- Company Field -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_company"
+                    android:textSize="12sp"
+                    android:textColor="@color/TextHintLight"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/et_company"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:padding="12dp"
+                    android:layout_marginBottom="24dp"
+                    android:background="?attr/TextBox"
+                    android:textColor="?attr/TextBoxText"
+                    android:textColorHint="?attr/TextHint"
+                    android:hint="Nome da empresa"/>
+
+                <!-- Save Button -->
+                <Button
+                    android:id="@+id/btn_save_profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Guardar Alterações"
+                    android:textColor="?attr/ButtonText"
+                    android:backgroundTint="?attr/ButtonBackground"
+                    android:paddingVertical="12dp"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</ScrollView>

@@ -14,15 +14,32 @@
         android:padding="16dp">
 
         <!-- Header -->
-        <TextView
-            android:id="@+id/tv_profile_title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/profile_title"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/Black"
-            android:layout_marginBottom="16dp"/>
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_back_arrow"
+                android:contentDescription="Voltar"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginEnd="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_profile_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/profile_title"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/Black"/>
+        </LinearLayout>
 
         <!-- Profile Card -->
         <com.google.android.material.card.MaterialCardView
@@ -56,6 +73,7 @@
                         android:padding="20dp"/>
 
                     <TextView
+                        android:id="@+id/tv_profile_user_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="João Silva"
@@ -65,6 +83,7 @@
                         android:layout_marginTop="12dp"/>
 
                     <TextView
+                        android:id="@+id/tv_profile_subtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Condutor Profissional"
@@ -95,12 +114,43 @@
                         android:textColor="@color/TextHintLight"/>
 
                     <TextView
+                        android:id="@+id/tv_email"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="joao.silva@veigest.com"
                         android:textSize="14sp"
                         android:textColor="@color/Black"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Password"
+                        android:textSize="14sp"
+                        android:textColor="@color/TextHintLight"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="••••••••"
+                        android:textSize="14sp"
+                        android:textColor="@color/Black"/>
+
+                    <ImageView
+                        android:id="@+id/btn_view_password"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/eye_closed"
+                        android:contentDescription="Ver password"
+                        android:background="?attr/selectableItemBackgroundBorderless"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -117,10 +167,10 @@
                         android:textColor="@color/TextHintLight"/>
 
                     <TextView
+                        android:id="@+id/tv_phone"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="+351 912 345 678"
                         android:textSize="14sp"
                         android:textColor="@color/Black"/>
                 </LinearLayout>
@@ -139,10 +189,10 @@
                         android:textColor="@color/TextHintLight"/>
 
                     <TextView
+                        android:id="@+id/tv_license"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="PT123456789"
                         android:textSize="14sp"
                         android:textColor="@color/Black"/>
                 </LinearLayout>
@@ -161,10 +211,10 @@
                         android:textColor="@color/TextHintLight"/>
 
                     <TextView
+                        android:id="@+id/tv_company"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="VeiGest Demo"
                         android:textSize="14sp"
                         android:textColor="@color/Black"/>
                 </LinearLayout>

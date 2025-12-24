@@ -180,8 +180,10 @@ public class DashboardFragment extends Fragment {
         });
 
         cardSettings.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Definições - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
-            // TODO: Navegar para SettingsFragment
+            MainActivity mainActivity = (MainActivity) getActivity();
+            if (mainActivity != null) {
+                mainActivity.loadFragmentWithMenu(new SettingsFragment(), R.id.nav_settings);
+            }
         });
     }
 

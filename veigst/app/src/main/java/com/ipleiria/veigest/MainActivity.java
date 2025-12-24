@@ -24,6 +24,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Aplicar idioma e tema antes de setContentView
+        LanguageManager languageManager = LanguageManager.getInstance(this);
+        languageManager.applyLanguageToActivity(this, languageManager.getCurrentLanguage());
+        
+        ThemeManager themeManager = ThemeManager.getInstance(this);
+        themeManager.applyTheme();
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -32,13 +39,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Desabilitar o drawer inicialmente (até fazer login)
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        // Verificar se o utilizador está logado
+        AuthManager authManager = AuthManager.getInstance(this);
+        if (authManager.isLoggedIn()) {
+            isLoggedIn = true;
+            // Habilitar o drawer se estiver logado
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        } else {
+            // Desabilitar o drawer inicialmente (até fazer login)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
 
         // Só adiciona o fragment se for a primeira criação
         if (savedInstanceState == null) {
-            // Verificar se o utilizador já tem sessão ativa
-            AuthManager authManager = AuthManager.getInstance(this);
             if (authManager.isLoggedIn()) {
                 // Utilizador já está logado, carregar dashboard diretamente
                 loadDashboard();
@@ -58,6 +71,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
+    }
+    
+    /**
+     * Carrega um fragment e atualiza a seleção no menu de navegação
+     * @param fragment Fragment a ser carregado
+     * @param menuItemId ID do item de menu correspondente
+     */
+    public void loadFragmentWithMenu(Fragment fragment, int menuItemId) {
+        loadFragment(fragment);
+        navigationView.setCheckedItem(menuItemId);
     }
 
     /**
@@ -79,16 +102,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (itemId == R.id.nav_dashboard) {
             loadFragment(new DashboardFragment());
+            navigationView.setCheckedItem(R.id.nav_dashboard);
         } else if (itemId == R.id.nav_routes) {
             loadFragment(new RoutesFragment());
+            navigationView.setCheckedItem(R.id.nav_routes);
         } else if (itemId == R.id.nav_vehicles) {
             loadFragment(new VehiclesFragment());
+            navigationView.setCheckedItem(R.id.nav_vehicles);
         } else if (itemId == R.id.nav_documents) {
             loadFragment(new DocumentsFragment());
-        } else if (itemId == R.id.nav_profile) {
-            loadFragment(new ProfileFragment());
+            navigationView.setCheckedItem(R.id.nav_documents);
         } else if (itemId == R.id.nav_settings) {
             loadFragment(new SettingsFragment());
+            navigationView.setCheckedItem(R.id.nav_settings);
         } else if (itemId == R.id.nav_logout) {
             performLogout();
         }

@@ -14,21 +14,100 @@
         android:padding="16dp">
 
         <!-- Header -->
-        <TextView
-            android:id="@+id/tv_settings_title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_title"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/Black"
-            android:layout_marginBottom="16dp"/>
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
 
-        <!-- API Settings Card -->
+            <ImageView
+                android:id="@+id/btn_menu"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_menu_hamburger"
+                android:contentDescription="Menu"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginEnd="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_settings_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/settings_title"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/Black"/>
+        </LinearLayout>
+
+        <!-- Profile Card -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_profile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="?attr/TextBox">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/iv_profile_picture"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/ic_menu_profile"
+                    android:background="@color/BrandPrimary"
+                    android:padding="16dp"
+                    android:contentDescription="Foto de perfil"/>
+
+                <LinearLayout
+                    android:id="@+id/profile_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_profile_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="João Silva"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/Black"/>
+
+                    <TextView
+                        android:id="@+id/tv_profile_email"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="joao.silva@example.com"
+                        android:textSize="14sp"
+                        android:textColor="@color/TextHintLight"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- API Settings Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_api"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="?attr/TextBox">
@@ -57,39 +136,15 @@
                     android:textColor="@color/TextHintLight"
                     android:layout_marginBottom="4dp"/>
 
-                <EditText
-                    android:id="@+id/et_api_url"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/settings_api_url_hint"
-                    android:textSize="14sp"
-                    android:textColor="?attr/TextBoxText"
-                    android:textColorHint="?attr/TextHint"
-                    android:background="?attr/Background"
-                    android:padding="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:inputType="textUri"/>
-
-                <!-- API Company -->
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_api_company"
-                    android:textSize="12sp"
-                    android:textColor="@color/TextHintLight"
-                    android:layout_marginBottom="4dp"/>
-
-                <EditText
-                    android:id="@+id/et_api_company"
+                    android:id="@+id/tv_api_url"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/settings_api_company_hint"
+                    android:text="https://api.veigest.com/v1"
                     android:textSize="14sp"
                     android:textColor="?attr/TextBoxText"
-                    android:textColorHint="?attr/TextHint"
                     android:background="?attr/Background"
-                    android:padding="12dp"
-                    android:inputType="number"/>
+                    android:padding="12dp"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -126,38 +181,86 @@
                     android:textColor="@color/TextHintLight"
                     android:layout_marginBottom="8dp"/>
 
-                <RadioGroup
-                    android:id="@+id/rg_theme"
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/theme_toggle_group"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
 
-                    <RadioButton
-                        android:id="@+id/rb_theme_light"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_theme_light"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
                         android:text="@string/settings_theme_light"
-                        android:textColor="@color/Black"
-                        android:textSize="14sp"
-                        android:buttonTint="?attr/CheckboxTint"/>
+                        android:textSize="12sp"
+                        app:strokeColor="#11C7A5"
+                        app:strokeWidth="1dp"/>
 
-                    <RadioButton
-                        android:id="@+id/rb_theme_dark"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_theme_dark"
-                        android:textColor="@color/Black"
-                        android:textSize="14sp"
-                        android:buttonTint="?attr/CheckboxTint"/>
-
-                    <RadioButton
-                        android:id="@+id/rb_theme_system"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_theme_system"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
                         android:text="@string/settings_theme_system"
-                        android:textColor="@color/Black"
-                        android:textSize="14sp"
-                        android:buttonTint="?attr/CheckboxTint"/>
-                </RadioGroup>
+                        android:textSize="12sp"
+                        app:strokeColor="#11C7A5"
+                        app:strokeWidth="1dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_theme_dark"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_theme_dark"
+                        android:textSize="12sp"
+                        app:strokeColor="#11C7A5"
+                        app:strokeWidth="1dp"/>
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                <!-- Language Selection -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_language"
+                    android:textSize="12sp"
+                    android:textColor="@color/TextHintLight"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/language_toggle_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_language_pt"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_language_portuguese"
+                        android:textSize="12sp"
+                        app:strokeColor="#11C7A5"
+                        app:strokeWidth="1dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_language_en"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_language_english"
+                        android:textSize="12sp"
+                        app:strokeColor="#11C7A5"
+                        app:strokeWidth="1dp"/>
+                </com.google.android.material.button.MaterialButtonToggleGroup>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -329,18 +432,6 @@
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
-        <!-- Save Button -->
-        <Button
-            android:id="@+id/btn_save_settings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_save"
-            android:textColor="?attr/ButtonText"
-            android:backgroundTint="?attr/ButtonBackground"
-            android:paddingVertical="14dp"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
 
     </LinearLayout>
 </ScrollView>
