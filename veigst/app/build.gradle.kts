@@ -33,6 +33,8 @@ android {
 
 dependencies {
 
+    implementation(project(":veigest-sdk"))
+    
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

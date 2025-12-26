@@ -21,4 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "veigest"
 include(":app")
+include(":veigest-sdk")
+project(":veigest-sdk").projectDir = file("../veigest-sdk")
  
