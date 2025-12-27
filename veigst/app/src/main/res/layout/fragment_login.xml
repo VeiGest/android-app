@@ -56,6 +56,14 @@
             style="?attr/checkboxStyle"
             android:textColor="?attr/RememberMeText" />
 
+        <!-- PROGRESS BAR -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
+
         <!-- LOGIN BUTTON -->
         <Button
             android:id="@+id/btn_login"

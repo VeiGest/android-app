@@ -2,23 +2,37 @@ package com.ipleiria.veigest;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.card.MaterialCardView;
+import com.veigest.sdk.VeiGestCallback;
+import com.veigest.sdk.VeiGestException;
+import com.veigest.sdk.VeiGestSDK;
+import com.veigest.sdk.models.Route;
+import com.veigest.sdk.models.User;
+import com.veigest.sdk.models.Vehicle;
+
+import java.util.List;
 
 /**
  * Dashboard Fragment - Painel principal do condutor
  * Exibe informações sobre rotas ativas, veículo atual, documentação e ações rápidas
+ * Utiliza o VeiGest SDK para carregar dados da API
  */
 public class DashboardFragment extends Fragment {
+
+    private static final String TAG = "DashboardFragment";
 
     // Header
     private TextView tvWelcome;
@@ -57,6 +71,9 @@ public class DashboardFragment extends Fragment {
     private MaterialCardView cardMyRoutes;
     private MaterialCardView cardHistory;
     private MaterialCardView cardSettings;
+    
+    // SDK
+    private VeiGestSDK sdk;
 
     public DashboardFragment() {
         // Required empty public constructor
@@ -70,6 +87,9 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Obter instância do SDK
+        sdk = VeiGestApplication.getSDK();
     }
 
     @Override
@@ -84,8 +104,8 @@ public class DashboardFragment extends Fragment {
         // Setup listeners
         setupListeners();
 
-        // Load mock data
-        loadMockData();
+        // Carregar dados do utilizador atual
+        loadUserData();
 
         return view;
     }
@@ -141,8 +161,7 @@ public class DashboardFragment extends Fragment {
 
         // Logout button
         btnLogout.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Logout - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
-            // TODO: Implementar logout e voltar para LoginFragment
+            performLogout();
         });
 
         // Route details button
@@ -210,12 +229,139 @@ public class DashboardFragment extends Fragment {
         
         tvInspectionExpiry.setText("Expira: 22/03/2025");
         tvInspectionStatus.setText("Válida");
+    }
+    
+    /**
+     * Carrega os dados do utilizador atual usando o SDK
+     */
+    private void loadUserData() {
+        Log.d(TAG, "Carregando dados do utilizador...");
+        
+        // Carregar dados do utilizador atual
+        sdk.users().getCurrentUser(new VeiGestCallback<User>() {
+            @Override
+            public void onSuccess(@NonNull User user) {
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
+                    Log.d(TAG, "Utilizador carregado: " + user.getNome());
+                    tvDriverName.setText(user.getNome());
+                    
+                    // Carregar rotas e veículos do utilizador
+                    loadUserRoutes(user.getId());
+                    loadUserVehicles(user.getId());
+                });
+            }
 
-        // TODO: Substituir dados mockados por dados reais da API
-        // Chamadas de API para:
-        // - GET /drivers/{id} - Informações do condutor
-        // - GET /routes?status=active&driver_id={id} - Rotas ativas
-        // - GET /vehicles/{id} - Informações do veículo atual
-        // - GET /documents?driver_id={id} - Documentação do condutor e veículo
+            @Override
+            public void onError(@NonNull VeiGestException error) {
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
+                    Log.e(TAG, "Erro ao carregar utilizador: " + error.getMessage());
+                    // Carregar dados mock em caso de erro
+                    loadMockData();
+                });
+            }
+        });
+    }
+    
+    /**
+     * Carrega as rotas do utilizador
+     */
+    private void loadUserRoutes(int userId) {
+        sdk.routes().getActive(new VeiGestCallback<List<Route>>() {
+            @Override
+            public void onSuccess(@NonNull List<Route> routes) {
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
+                    if (!routes.isEmpty()) {
+                        Route activeRoute = routes.get(0);
+                        tvRouteOriginValue.setText(activeRoute.getOrigem());
+                        tvRouteDestinationValue.setText(activeRoute.getDestino());
+                        
+                        // Calcular distância se disponível
+                        int kmInicial = activeRoute.getKmInicial();
+                        int kmFinal = activeRoute.getKmFinal();
+                        if (kmFinal > 0) {
+                            tvRouteDistance.setText((kmFinal - kmInicial) + " km");
+                        }
+                    } else {
+                        tvRouteOriginValue.setText("Sem rota ativa");
+                        tvRouteDestinationValue.setText("-");
+                        tvRouteDistance.setText("-");
+                        tvRouteEta.setText("-");
+                    }
+                });
+            }
+
+            @Override
+            public void onError(@NonNull VeiGestException error) {
+                Log.e(TAG, "Erro ao carregar rotas: " + error.getMessage());
+            }
+        });
+    }
+    
+    /**
+     * Carrega os veículos do utilizador
+     */
+    private void loadUserVehicles(int userId) {
+        sdk.users().getVehicles(userId, new VeiGestCallback<List<Vehicle>>() {
+            @Override
+            public void onSuccess(@NonNull List<Vehicle> vehicles) {
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
+                    if (!vehicles.isEmpty()) {
+                        Vehicle vehicle = vehicles.get(0);
+                        tvVehiclePlate.setText(vehicle.getMatricula());
+                        tvVehicleModel.setText(vehicle.getMarca() + " " + vehicle.getModelo());
+                        
+                        int km = vehicle.getQuilometragem();
+                        tvVehicleKm.setText(String.format("%,d km", km).replace(",", "."));
+                    }
+                });
+            }
+
+            @Override
+            public void onError(@NonNull VeiGestException error) {
+                Log.e(TAG, "Erro ao carregar veículos: " + error.getMessage());
+            }
+        });
+    }
+    
+    /**
+     * Executa o logout usando o SDK
+     */
+    private void performLogout() {
+        sdk.auth().logout(new VeiGestCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Sessão terminada", Toast.LENGTH_SHORT).show();
+                    
+                    // Navegar para login
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).navigateToLogin();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(@NonNull VeiGestException error) {
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
+                    Log.e(TAG, "Erro no logout: " + error.getMessage());
+                    // Mesmo com erro, fazer logout local
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).navigateToLogin();
+                    }
+                });
+            }
+        });
     }
 }

@@ -5,9 +5,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -15,6 +13,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
+import com.veigest.sdk.VeiGestSDK;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -37,10 +36,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Só adiciona o fragment se for a primeira criação
         if (savedInstanceState == null) {
-            // Inicia com o LoginFragment
-            // TODO: Verificar se o utilizador já tem sessão ativa
-            // Se sim, carregar DashboardFragment diretamente
-            loadFragment(new LoginFragment());
+            // Verificar se o utilizador já tem sessão ativa
+            VeiGestSDK sdk = VeiGestApplication.getSDK();
+            if (sdk.auth().isAuthenticated()) {
+                // Sessão ativa - ir direto para o Dashboard
+                loadDashboard();
+            } else {
+                // Sem sessão - mostrar login
+                loadFragment(new LoginFragment());
+            }
         }
     }
 
@@ -97,12 +101,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Realiza o logout do utilizador
      */
     private void performLogout() {
+        navigateToLogin();
+    }
+    
+    /**
+     * Navega para o ecrã de login (usado após logout)
+     */
+    public void navigateToLogin() {
         isLoggedIn = false;
         // Desabilitar o drawer após logout
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         // Voltar para a tela de login
         loadFragment(new LoginFragment());
-        Toast.makeText(this, "Sessão terminada", Toast.LENGTH_SHORT).show();
     }
 
     /**

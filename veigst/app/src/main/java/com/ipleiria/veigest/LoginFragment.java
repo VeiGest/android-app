@@ -2,24 +2,37 @@ package com.ipleiria.veigest;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.veigest.sdk.VeiGestCallback;
+import com.veigest.sdk.VeiGestException;
+import com.veigest.sdk.VeiGestSDK;
+import com.veigest.sdk.models.User;
 
 /**
  * Fragment de Login
- * Permite ao utilizador autenticar-se na aplicação
+ * Permite ao utilizador autenticar-se na aplicação usando o VeiGest SDK
  */
 public class LoginFragment extends Fragment {
+
+    private static final String TAG = "LoginFragment";
 
     private EditText etUsername;
     private EditText etPassword;
     private Button btnLogin;
+    private ProgressBar progressBar;
+    
+    private VeiGestSDK sdk;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -32,6 +45,9 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Obter instância do SDK
+        sdk = VeiGestApplication.getSDK();
     }
 
     @Override
@@ -44,6 +60,7 @@ public class LoginFragment extends Fragment {
         etUsername = view.findViewById(R.id.et_username);
         etPassword = view.findViewById(R.id.et_password);
         btnLogin = view.findViewById(R.id.btn_login);
+        progressBar = view.findViewById(R.id.progress_bar);
 
         // Setup login button
         btnLogin.setOnClickListener(v -> {
@@ -56,8 +73,7 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-            // TODO: Implementar autenticação real com API
-            // Por agora, simular login bem-sucedido
+            // Executar login com SDK
             performLogin(username, password);
         });
 
@@ -65,22 +81,78 @@ public class LoginFragment extends Fragment {
     }
 
     /**
-     * Executa o login (mockado)
-     * TODO: Substituir por chamada real à API POST /auth/login
+     * Executa o login usando o VeiGest SDK
      */
-    private void performLogin(String username, String password) {
-        // Simular login bem-sucedido
-        Toast.makeText(getContext(), "Login bem-sucedido!", Toast.LENGTH_SHORT).show();
+    private void performLogin(String email, String password) {
+        // Mostrar loading
+        setLoading(true);
+        
+        Log.d(TAG, "Tentando login para: " + email);
+        
+        // Usar o SDK para fazer login
+        sdk.auth().login(email, password, new VeiGestCallback<User>() {
+            @Override
+            public void onSuccess(@NonNull User user) {
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
+                    setLoading(false);
+                    
+                    Log.d(TAG, "Login bem-sucedido! Utilizador: " + user.getNome());
+                    Toast.makeText(getContext(), 
+                        "Bem-vindo, " + user.getNome() + "!", 
+                        Toast.LENGTH_SHORT).show();
 
-        // Navegar para o Dashboard
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).loadDashboard();
+                    // Navegar para o Dashboard
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).loadDashboard();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(@NonNull VeiGestException error) {
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
+                    setLoading(false);
+                    
+                    Log.e(TAG, "Erro no login: " + error.getMessage());
+                    
+                    // Tratar diferentes tipos de erro
+                    String errorMessage;
+                    switch (error.getErrorType()) {
+                        case UNAUTHORIZED:
+                            errorMessage = "Email ou password incorretos";
+                            break;
+                        case NETWORK_ERROR:
+                            errorMessage = "Erro de conexão. Verifique a sua internet.";
+                            break;
+                        case VALIDATION_ERROR:
+                            errorMessage = "Dados inválidos: " + error.getMessage();
+                            break;
+                        case SERVER_ERROR:
+                            errorMessage = "Erro no servidor. Tente novamente mais tarde.";
+                            break;
+                        default:
+                            errorMessage = "Erro: " + error.getMessage();
+                    }
+                    
+                    Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+    
+    /**
+     * Ativa/desativa o estado de loading
+     */
+    private void setLoading(boolean loading) {
+        if (progressBar != null) {
+            progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
         }
-
-        // TODO: Implementar autenticação real:
-        // 1. Chamar POST /auth/login com username e password
-        // 2. Guardar token de autenticação
-        // 3. Guardar dados do utilizador (SharedPreferences)
-        // 4. Navegar para Dashboard apenas se login for bem-sucedido
+        btnLogin.setEnabled(!loading);
+        etUsername.setEnabled(!loading);
+        etPassword.setEnabled(!loading);
     }
 }
