@@ -3,26 +3,24 @@ package com.ipleiria.veigest;
 import android.app.Application;
 import android.util.Log;
 
-import com.veigest.sdk.VeiGestConfig;
-import com.veigest.sdk.VeiGestSDK;
+import com.veigest.sdk.SingletonVeiGest;
 
 /**
  * Classe Application para inicialização do VeiGest SDK.
  * 
  * Esta classe é responsável por:
- * - Inicializar o SDK na criação da aplicação
- * - Configurar parâmetros de conexão com a API
- * - Disponibilizar acesso global ao SDK
+ * - Inicializar o SDK Singleton na criação da aplicação
+ * - Configurar a URL base da API
+ * - Disponibilizar acesso global ao Singleton
+ * 
+ * Utiliza o padrão Singleton com Volley (baseconteudo).
  */
 public class VeiGestApplication extends Application {
     
     private static final String TAG = "VeiGestApp";
     
     // URL base da API VeiGest
-    private static final String API_BASE_URL = "https://veigestback.dryadlang.org/";
-    
-    // Instância do SDK (acessível globalmente)
-    private static VeiGestSDK sdk;
+    private static final String API_BASE_URL = "https://veigestback.dryadlang.org/api/v1";
     
     @Override
     public void onCreate() {
@@ -30,7 +28,7 @@ public class VeiGestApplication extends Application {
         
         Log.d(TAG, "Inicializando VeiGest Application...");
         
-        // Inicializar o SDK
+        // Inicializar o SDK Singleton
         initializeSDK();
         
         Log.d(TAG, "VeiGest Application inicializada com sucesso!");
@@ -38,56 +36,33 @@ public class VeiGestApplication extends Application {
     
     /**
      * Inicializa o VeiGest SDK com as configurações adequadas.
+     * Utiliza o padrão Singleton com Volley.
      */
     private void initializeSDK() {
-        // Configurar o SDK
-        VeiGestConfig config = new VeiGestConfig.Builder()
-                .baseUrl(API_BASE_URL)
-                .connectTimeout(30)     // Timeout de conexão: 30 segundos
-                .readTimeout(30)        // Timeout de leitura: 30 segundos
-                .writeTimeout(30)       // Timeout de escrita: 30 segundos
-                .debug(BuildConfig.DEBUG) // Ativar logs apenas em debug
-                .build();
+        // Obter instância do Singleton e configurar URL base
+        SingletonVeiGest singleton = SingletonVeiGest.getInstance(this);
+        singleton.setBaseUrl(API_BASE_URL);
         
-        // Inicializar o SDK
-        sdk = VeiGestSDK.initialize(this, config);
-        
-        Log.d(TAG, "VeiGest SDK inicializado");
+        Log.d(TAG, "VeiGest SDK (Singleton) inicializado");
         Log.d(TAG, "API URL: " + API_BASE_URL);
         Log.d(TAG, "Debug mode: " + BuildConfig.DEBUG);
     }
     
     /**
-     * Obtém a instância do SDK.
+     * Obtém a instância do SingletonVeiGest.
      * 
-     * @return Instância do VeiGestSDK
-     * @throws IllegalStateException se o SDK não foi inicializado
+     * @return Instância do SingletonVeiGest
      */
-    public static VeiGestSDK getSDK() {
-        if (sdk == null) {
-            throw new IllegalStateException(
-                "VeiGest SDK não inicializado. " +
-                "Certifique-se que VeiGestApplication está configurado no AndroidManifest.xml"
-            );
-        }
-        return sdk;
-    }
-    
-    /**
-     * Verifica se o SDK está inicializado.
-     * 
-     * @return true se o SDK está pronto para uso
-     */
-    public static boolean isSDKInitialized() {
-        return sdk != null;
+    public SingletonVeiGest getVeiGestSingleton() {
+        return SingletonVeiGest.getInstance(this);
     }
     
     /**
      * Verifica se o utilizador está autenticado.
      * 
-     * @return true se existe uma sessão ativa
+     * @return true se há token de autenticação válido
      */
-    public static boolean isAuthenticated() {
-        return sdk != null && sdk.auth().isAuthenticated();
+    public boolean isAuthenticated() {
+        return SingletonVeiGest.getInstance(this).isAuthenticated();
     }
 }

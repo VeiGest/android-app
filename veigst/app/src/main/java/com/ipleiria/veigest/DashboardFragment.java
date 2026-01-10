@@ -2,7 +2,6 @@ package com.ipleiria.veigest;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -12,25 +11,24 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.card.MaterialCardView;
-import com.veigest.sdk.VeiGestCallback;
-import com.veigest.sdk.VeiGestException;
-import com.veigest.sdk.VeiGestSDK;
+import com.veigest.sdk.SingletonVeiGest;
+import com.veigest.sdk.listeners.RotasListener;
+import com.veigest.sdk.listeners.VeiculosListener;
 import com.veigest.sdk.models.Route;
 import com.veigest.sdk.models.User;
 import com.veigest.sdk.models.Vehicle;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Dashboard Fragment - Painel principal do condutor
  * Exibe informações sobre rotas ativas, veículo atual, documentação e ações rápidas
- * Utiliza o VeiGest SDK para carregar dados da API
+ * Utiliza o VeiGest SDK (Singleton com Volley)
  */
-public class DashboardFragment extends Fragment {
+public class DashboardFragment extends Fragment implements VeiculosListener, RotasListener {
 
     private static final String TAG = "DashboardFragment";
 
@@ -72,8 +70,8 @@ public class DashboardFragment extends Fragment {
     private MaterialCardView cardHistory;
     private MaterialCardView cardSettings;
     
-    // SDK
-    private VeiGestSDK sdk;
+    // Singleton
+    private SingletonVeiGest singleton;
 
     public DashboardFragment() {
         // Required empty public constructor
@@ -88,8 +86,12 @@ public class DashboardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Obter instância do SDK
-        sdk = VeiGestApplication.getSDK();
+        // Obter instância do Singleton
+        singleton = SingletonVeiGest.getInstance(requireContext());
+        
+        // Registar listeners
+        singleton.setVeiculosListener(this);
+        singleton.setRotasListener(this);
     }
 
     @Override
@@ -108,6 +110,14 @@ public class DashboardFragment extends Fragment {
         loadUserData();
 
         return view;
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Remover listeners ao destruir a view
+        singleton.setVeiculosListener(null);
+        singleton.setRotasListener(null);
     }
 
     private void initializeViews(View view) {
@@ -167,40 +177,33 @@ public class DashboardFragment extends Fragment {
         // Route details button
         btnViewRouteDetails.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Detalhes da Rota - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
-            // TODO: Navegar para RouteDetailsFragment
         });
 
         // Vehicle details button
         btnVehicleDetails.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Detalhes do Veículo - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
-            // TODO: Navegar para VehicleDetailsFragment
         });
 
         // View all documents button
         btnViewAllDocs.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Documentação - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
-            // TODO: Navegar para DocumentationFragment
         });
 
         // Quick Actions
         cardReportIssue.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Reportar Problema - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
-            // TODO: Navegar para ReportIssueFragment
         });
 
         cardMyRoutes.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Minhas Rotas - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
-            // TODO: Navegar para MyRoutesFragment
         });
 
         cardHistory.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Histórico - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
-            // TODO: Navegar para HistoryFragment
         });
 
         cardSettings.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Definições - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
-            // TODO: Navegar para SettingsFragment
         });
     }
 
@@ -232,136 +235,139 @@ public class DashboardFragment extends Fragment {
     }
     
     /**
-     * Carrega os dados do utilizador atual usando o SDK
+     * Carrega os dados do utilizador atual usando o Singleton
      */
     private void loadUserData() {
         Log.d(TAG, "Carregando dados do utilizador...");
         
-        // Carregar dados do utilizador atual
-        sdk.users().getCurrentUser(new VeiGestCallback<User>() {
-            @Override
-            public void onSuccess(@NonNull User user) {
-                if (getActivity() == null) return;
+        // Obter utilizador atual do Singleton (armazenado após login)
+        User user = singleton.getUtilizadorAtual();
+        
+        if (user != null) {
+            tvDriverName.setText(user.getUsername());
+            Log.d(TAG, "Utilizador: " + user.getUsername());
+        } else {
+            // Usar dados mock se não houver utilizador
+            tvDriverName.setText("Condutor");
+        }
+        
+        // Carregar veículos e rotas da API
+        singleton.getAllVeiculosAPI();
+        singleton.getAllRotasAPI();
+        
+        // Carregar dados mock para documentação (até implementar endpoint)
+        loadMockDocumentationData();
+    }
+    
+    /**
+     * Carrega dados mock de documentação
+     */
+    private void loadMockDocumentationData() {
+        tvLicenseExpiry.setText("Expira: 15/08/2026");
+        tvLicenseStatus.setText("Válida");
+        
+        tvInsuranceExpiry.setText("Expira: 30/06/2025");
+        tvInsuranceStatus.setText("Válido");
+        
+        tvInspectionExpiry.setText("Expira: 22/03/2025");
+        tvInspectionStatus.setText("Válida");
+    }
+    
+    // ========== Implementação do VeiculosListener ==========
+    
+    @Override
+    public void onRefreshListaVeiculos(ArrayList<Vehicle> listaVeiculos) {
+        if (getActivity() == null) return;
+        
+        getActivity().runOnUiThread(() -> {
+            Log.d(TAG, "Veículos recebidos: " + listaVeiculos.size());
+            
+            if (!listaVeiculos.isEmpty()) {
+                Vehicle vehicle = listaVeiculos.get(0);
+                tvVehiclePlate.setText(vehicle.getLicensePlate());
+                tvVehicleModel.setText(vehicle.getBrand() + " " + vehicle.getModel());
                 
-                getActivity().runOnUiThread(() -> {
-                    Log.d(TAG, "Utilizador carregado: " + user.getNome());
-                    tvDriverName.setText(user.getNome());
-                    
-                    // Carregar rotas e veículos do utilizador
-                    loadUserRoutes(user.getId());
-                    loadUserVehicles(user.getId());
-                });
-            }
-
-            @Override
-            public void onError(@NonNull VeiGestException error) {
-                if (getActivity() == null) return;
+                int km = vehicle.getMileage();
+                tvVehicleKm.setText(String.format("%,d km", km).replace(",", "."));
                 
-                getActivity().runOnUiThread(() -> {
-                    Log.e(TAG, "Erro ao carregar utilizador: " + error.getMessage());
-                    // Carregar dados mock em caso de erro
-                    loadMockData();
-                });
+                // Combustível - usar valor mock pois não vem da API
+                tvVehicleFuel.setText("--");
             }
         });
     }
     
-    /**
-     * Carrega as rotas do utilizador
-     */
-    private void loadUserRoutes(int userId) {
-        sdk.routes().getActive(new VeiGestCallback<List<Route>>() {
-            @Override
-            public void onSuccess(@NonNull List<Route> routes) {
-                if (getActivity() == null) return;
+    // ========== Implementação do RotasListener ==========
+    
+    @Override
+    public void onRefreshListaRotas(ArrayList<Route> listaRotas) {
+        if (getActivity() == null) return;
+        
+        getActivity().runOnUiThread(() -> {
+            Log.d(TAG, "Rotas recebidas: " + listaRotas.size());
+            
+            if (!listaRotas.isEmpty()) {
+                // Procurar rota ativa (in_progress)
+                Route activeRoute = null;
+                for (Route route : listaRotas) {
+                    if (route.isInProgress()) {
+                        activeRoute = route;
+                        break;
+                    }
+                }
                 
-                getActivity().runOnUiThread(() -> {
-                    if (!routes.isEmpty()) {
-                        Route activeRoute = routes.get(0);
-                        tvRouteOriginValue.setText(activeRoute.getOrigem());
-                        tvRouteDestinationValue.setText(activeRoute.getDestino());
-                        
-                        // Calcular distância se disponível
-                        int kmInicial = activeRoute.getKmInicial();
-                        int kmFinal = activeRoute.getKmFinal();
-                        if (kmFinal > 0) {
-                            tvRouteDistance.setText((kmFinal - kmInicial) + " km");
+                if (activeRoute == null && !listaRotas.isEmpty()) {
+                    // Usar primeira rota agendada se não houver ativa
+                    for (Route route : listaRotas) {
+                        if (route.isScheduled()) {
+                            activeRoute = route;
+                            break;
                         }
-                    } else {
-                        tvRouteOriginValue.setText("Sem rota ativa");
-                        tvRouteDestinationValue.setText("-");
-                        tvRouteDistance.setText("-");
-                        tvRouteEta.setText("-");
                     }
-                });
-            }
-
-            @Override
-            public void onError(@NonNull VeiGestException error) {
-                Log.e(TAG, "Erro ao carregar rotas: " + error.getMessage());
-            }
-        });
-    }
-    
-    /**
-     * Carrega os veículos do utilizador
-     */
-    private void loadUserVehicles(int userId) {
-        sdk.users().getVehicles(userId, new VeiGestCallback<List<Vehicle>>() {
-            @Override
-            public void onSuccess(@NonNull List<Vehicle> vehicles) {
-                if (getActivity() == null) return;
+                }
                 
-                getActivity().runOnUiThread(() -> {
-                    if (!vehicles.isEmpty()) {
-                        Vehicle vehicle = vehicles.get(0);
-                        tvVehiclePlate.setText(vehicle.getMatricula());
-                        tvVehicleModel.setText(vehicle.getMarca() + " " + vehicle.getModelo());
-                        
-                        int km = vehicle.getQuilometragem();
-                        tvVehicleKm.setText(String.format("%,d km", km).replace(",", "."));
+                if (activeRoute != null) {
+                    tvRouteOriginValue.setText(activeRoute.getStartLocation());
+                    tvRouteDestinationValue.setText(activeRoute.getEndLocation());
+                    
+                    // Duração
+                    if (activeRoute.getDurationFormatted() != null) {
+                        tvRouteEta.setText(activeRoute.getDurationFormatted());
+                    } else {
+                        tvRouteEta.setText("--");
                     }
-                });
-            }
-
-            @Override
-            public void onError(@NonNull VeiGestException error) {
-                Log.e(TAG, "Erro ao carregar veículos: " + error.getMessage());
+                    
+                    tvRouteDistance.setText("--"); // Distância não disponível na API atual
+                } else {
+                    setNoActiveRoute();
+                }
+            } else {
+                setNoActiveRoute();
             }
         });
     }
     
     /**
-     * Executa o logout usando o SDK
+     * Define estado de "sem rota ativa"
+     */
+    private void setNoActiveRoute() {
+        tvRouteOriginValue.setText("Sem rota ativa");
+        tvRouteDestinationValue.setText("-");
+        tvRouteDistance.setText("-");
+        tvRouteEta.setText("-");
+    }
+    
+    /**
+     * Executa o logout
      */
     private void performLogout() {
-        sdk.auth().logout(new VeiGestCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                if (getActivity() == null) return;
-                
-                getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Sessão terminada", Toast.LENGTH_SHORT).show();
-                    
-                    // Navegar para login
-                    if (getActivity() instanceof MainActivity) {
-                        ((MainActivity) getActivity()).navigateToLogin();
-                    }
-                });
-            }
-
-            @Override
-            public void onError(@NonNull VeiGestException error) {
-                if (getActivity() == null) return;
-                
-                getActivity().runOnUiThread(() -> {
-                    Log.e(TAG, "Erro no logout: " + error.getMessage());
-                    // Mesmo com erro, fazer logout local
-                    if (getActivity() instanceof MainActivity) {
-                        ((MainActivity) getActivity()).navigateToLogin();
-                    }
-                });
-            }
-        });
+        // Limpar token e dados locais
+        singleton.clearAuth();
+        
+        Toast.makeText(getContext(), "Sessão terminada", Toast.LENGTH_SHORT).show();
+        
+        // Navegar para login
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).navigateToLogin();
+        }
     }
 }

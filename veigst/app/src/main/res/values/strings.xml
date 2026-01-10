@@ -115,7 +115,16 @@
     <string name="settings_about">Sobre</string>
     <string name="settings_version">Versão</string>
     <string name="settings_save">Guardar Alterações</string>
-
+    <!-- Register -->
+    <string name="register_title">Criar Conta</string>
+    <string name="register_name">Nome Completo</string>
+    <string name="register_email">Email</string>
+    <string name="register_username">Nome de Utilizador</string>
+    <string name="register_phone">Telefone (opcional)</string>
+    <string name="register_password">Password</string>
+    <string name="register_password_confirm">Confirmar Password</string>
+    <string name="register_button">REGISTAR</string>
+    <string name="back_to_login">Já tenho conta! Voltar ao Login</string>
     <!-- EG -->
     <!-- LOGIN -->
 

@@ -1,179 +1,91 @@
 package com.veigest.sdk.models;
 
-import androidx.annotation.Nullable;
-
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
 /**
  * Modelo de veículo do sistema VeiGest.
+ * Simplificado para corresponder à API atualizada.
  */
-public class Vehicle {
+public class Vehicle implements Serializable {
     
-    @SerializedName("id")
     private int id;
-    
-    @SerializedName("company_id")
     private int companyId;
-    
-    @SerializedName("matricula")
-    private String matricula;
-    
-    @SerializedName("license_plate")
     private String licensePlate;
-    
-    @SerializedName("marca")
-    private String marca;
-    
-    @SerializedName("brand")
     private String brand;
-    
-    @SerializedName("modelo")
-    private String modelo;
-    
-    @SerializedName("model")
     private String model;
-    
-    @SerializedName("ano")
-    private int ano;
-    
-    @SerializedName("year")
     private int year;
-    
-    @SerializedName("tipo_combustivel")
-    private String tipoCombustivel;
-    
-    @SerializedName("fuel_type")
     private String fuelType;
-    
-    @SerializedName("quilometragem")
-    private int quilometragem;
-    
-    @SerializedName("mileage")
+    private String fuelTypeLabel;
     private int mileage;
-    
-    @SerializedName("estado")
-    private String estado;
-    
-    @SerializedName("status")
     private String status;
-    
-    @SerializedName("condutor_id")
-    private Integer condutorId;
-    
-    @SerializedName("driver_id")
-    private Integer driverId;
-    
-    @SerializedName("created_at")
+    private String statusLabel;
+    private int driverId;
+    private String driverName;
+    private String photo;
     private String createdAt;
-    
-    @SerializedName("updated_at")
     private String updatedAt;
     
-    // Getters com fallback para campos alternativos
-    public int getId() {
-        return id;
+    // Construtor vazio
+    public Vehicle() {}
+    
+    // Construtor completo
+    public Vehicle(int id, String licensePlate, String brand, String model, int year, 
+                   String fuelType, int mileage, String status) {
+        this.id = id;
+        this.licensePlate = licensePlate;
+        this.brand = brand;
+        this.model = model;
+        this.year = year;
+        this.fuelType = fuelType;
+        this.mileage = mileage;
+        this.status = status;
     }
     
-    public int getCompanyId() {
-        return companyId;
-    }
+    // Getters
+    public int getId() { return id; }
+    public int getCompanyId() { return companyId; }
+    public String getLicensePlate() { return licensePlate; }
+    public String getBrand() { return brand; }
+    public String getModel() { return model; }
+    public int getYear() { return year; }
+    public String getFuelType() { return fuelType; }
+    public String getFuelTypeLabel() { return fuelTypeLabel; }
+    public int getMileage() { return mileage; }
+    public String getStatus() { return status; }
+    public String getStatusLabel() { return statusLabel; }
+    public int getDriverId() { return driverId; }
+    public String getDriverName() { return driverName; }
+    public String getPhoto() { return photo; }
+    public String getCreatedAt() { return createdAt; }
+    public String getUpdatedAt() { return updatedAt; }
     
-    @Nullable
-    public String getMatricula() {
-        return matricula != null ? matricula : licensePlate;
-    }
+    // Setters
+    public void setId(int id) { this.id = id; }
+    public void setCompanyId(int companyId) { this.companyId = companyId; }
+    public void setLicensePlate(String licensePlate) { this.licensePlate = licensePlate; }
+    public void setBrand(String brand) { this.brand = brand; }
+    public void setModel(String model) { this.model = model; }
+    public void setYear(int year) { this.year = year; }
+    public void setFuelType(String fuelType) { this.fuelType = fuelType; }
+    public void setFuelTypeLabel(String fuelTypeLabel) { this.fuelTypeLabel = fuelTypeLabel; }
+    public void setMileage(int mileage) { this.mileage = mileage; }
+    public void setStatus(String status) { this.status = status; }
+    public void setStatusLabel(String statusLabel) { this.statusLabel = statusLabel; }
+    public void setDriverId(int driverId) { this.driverId = driverId; }
+    public void setDriverName(String driverName) { this.driverName = driverName; }
+    public void setPhoto(String photo) { this.photo = photo; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
     
-    @Nullable
-    public String getMarca() {
-        return marca != null ? marca : brand;
-    }
-    
-    @Nullable
-    public String getModelo() {
-        return modelo != null ? modelo : model;
-    }
-    
-    public int getAno() {
-        return ano > 0 ? ano : year;
-    }
-    
-    @Nullable
-    public String getTipoCombustivel() {
-        return tipoCombustivel != null ? tipoCombustivel : fuelType;
-    }
-    
-    public int getQuilometragem() {
-        return quilometragem > 0 ? quilometragem : mileage;
-    }
-    
-    @Nullable
-    public String getEstado() {
-        return estado != null ? estado : status;
-    }
-    
-    @Nullable
-    public Integer getCondutorId() {
-        return condutorId != null ? condutorId : driverId;
-    }
-    
-    @Nullable
-    public String getCreatedAt() {
-        return createdAt;
-    }
-    
-    @Nullable
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    /**
-     * Verifica se o veículo está ativo.
-     */
-    public boolean isActive() {
-        String currentStatus = getEstado();
-        return "ativo".equalsIgnoreCase(currentStatus) || "active".equalsIgnoreCase(currentStatus);
-    }
-    
-    /**
-     * Verifica se o veículo está em manutenção.
-     */
-    public boolean isInMaintenance() {
-        String currentStatus = getEstado();
-        return "manutencao".equalsIgnoreCase(currentStatus) || "maintenance".equalsIgnoreCase(currentStatus);
-    }
-    
-    /**
-     * Verifica se o veículo tem condutor atribuído.
-     */
-    public boolean hasDriver() {
-        Integer driver = getCondutorId();
-        return driver != null && driver > 0;
-    }
-    
-    /**
-     * Retorna nome completo do veículo (Marca Modelo).
-     */
-    public String getFullName() {
-        String m = getMarca();
-        String mod = getModelo();
-        if (m != null && mod != null) {
-            return m + " " + mod;
-        } else if (m != null) {
-            return m;
-        } else if (mod != null) {
-            return mod;
-        }
-        return "";
-    }
+    // Métodos auxiliares para compatibilidade (PT)
+    public String getMatricula() { return licensePlate; }
+    public String getMarca() { return brand; }
+    public String getModelo() { return model; }
+    public int getAno() { return year; }
+    public int getQuilometragem() { return mileage; }
     
     @Override
     public String toString() {
-        return "Vehicle{" +
-                "id=" + id +
-                ", matricula='" + getMatricula() + '\'' +
-                ", marca='" + getMarca() + '\'' +
-                ", modelo='" + getModelo() + '\'' +
-                ", estado='" + getEstado() + '\'' +
-                '}';
+        return brand + " " + model + " - " + licensePlate;
     }
 }

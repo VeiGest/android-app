@@ -1,135 +1,71 @@
 package com.veigest.sdk.models;
 
-import androidx.annotation.Nullable;
-
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
 /**
  * Modelo de registo de abastecimento do sistema VeiGest.
+ * Simplificado para corresponder à API atualizada.
  */
-public class FuelLog {
+public class FuelLog implements Serializable {
     
-    @SerializedName("id")
     private int id;
-    
-    @SerializedName("company_id")
-    private int companyId;
-    
-    @SerializedName("vehicle_id")
     private int vehicleId;
-    
-    @SerializedName("driver_id")
-    private Integer driverId;
-    
-    @SerializedName("data")
-    private String data;
-    
-    @SerializedName("date")
-    private String date;
-    
-    @SerializedName("litros")
-    private double litros;
-    
-    @SerializedName("liters")
     private double liters;
-    
-    @SerializedName("valor")
-    private double valor;
-    
-    @SerializedName("value")
     private double value;
-    
-    @SerializedName("preco_litro")
-    private double precoLitro;
-    
-    @SerializedName("price_per_liter")
+    private int currentMileage;
+    private String date;
     private double pricePerLiter;
-    
-    @SerializedName("km_atual")
-    private int kmAtual;
-    
-    @SerializedName("current_km")
-    private int currentKm;
-    
-    @SerializedName("notas")
-    private String notas;
-    
-    @SerializedName("notes")
     private String notes;
-    
-    @SerializedName("created_at")
     private String createdAt;
-    
-    @SerializedName("updated_at")
     private String updatedAt;
     
+    // Construtor vazio
+    public FuelLog() {}
+    
+    // Construtor básico
+    public FuelLog(int vehicleId, double liters, double value, int currentMileage, String date) {
+        this.vehicleId = vehicleId;
+        this.liters = liters;
+        this.value = value;
+        this.currentMileage = currentMileage;
+        this.date = date;
+    }
+    
     // Getters
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public int getVehicleId() { return vehicleId; }
+    public double getLiters() { return liters; }
+    public double getValue() { return value; }
+    public int getCurrentMileage() { return currentMileage; }
+    public String getDate() { return date; }
+    public double getPricePerLiter() { return pricePerLiter; }
+    public String getNotes() { return notes; }
+    public String getCreatedAt() { return createdAt; }
+    public String getUpdatedAt() { return updatedAt; }
     
-    public int getCompanyId() {
-        return companyId;
-    }
+    // Setters
+    public void setId(int id) { this.id = id; }
+    public void setVehicleId(int vehicleId) { this.vehicleId = vehicleId; }
+    public void setLiters(double liters) { this.liters = liters; }
+    public void setValue(double value) { this.value = value; }
+    public void setCurrentMileage(int currentMileage) { this.currentMileage = currentMileage; }
+    public void setDate(String date) { this.date = date; }
+    public void setPricePerLiter(double pricePerLiter) { this.pricePerLiter = pricePerLiter; }
+    public void setNotes(String notes) { this.notes = notes; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
     
-    public int getVehicleId() {
-        return vehicleId;
-    }
-    
-    @Nullable
-    public Integer getDriverId() {
-        return driverId;
-    }
-    
-    @Nullable
-    public String getData() {
-        return data != null ? data : date;
-    }
-    
-    public double getLitros() {
-        return litros > 0 ? litros : liters;
-    }
-    
-    public double getValor() {
-        return valor > 0 ? valor : value;
-    }
-    
-    public double getPrecoLitro() {
-        if (precoLitro > 0) return precoLitro;
+    /**
+     * Calcula o preço por litro se não estiver definido.
+     */
+    public double calcularPrecoLitro() {
         if (pricePerLiter > 0) return pricePerLiter;
-        // Calcular se não vier da API
-        double l = getLitros();
-        double v = getValor();
-        return l > 0 ? v / l : 0;
-    }
-    
-    public int getKmAtual() {
-        return kmAtual > 0 ? kmAtual : currentKm;
-    }
-    
-    @Nullable
-    public String getNotas() {
-        return notas != null ? notas : notes;
-    }
-    
-    @Nullable
-    public String getCreatedAt() {
-        return createdAt;
-    }
-    
-    @Nullable
-    public String getUpdatedAt() {
-        return updatedAt;
+        if (liters > 0) return value / liters;
+        return 0;
     }
     
     @Override
     public String toString() {
-        return "FuelLog{" +
-                "id=" + id +
-                ", vehicleId=" + vehicleId +
-                ", data='" + getData() + '\'' +
-                ", litros=" + getLitros() +
-                ", valor=" + getValor() +
-                '}';
+        return liters + "L - €" + value + " (" + date + ")";
     }
 }

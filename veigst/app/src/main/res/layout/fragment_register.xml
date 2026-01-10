@@ -1,14 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegisterFragment">
+    android:background="?attr/Background"
+    android:fillViewport="true">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:padding="32dp">
 
-</FrameLayout>
+        <!-- LOGO -->
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="32dp"
+            android:src="@drawable/ic_veigest" />
+
+        <!-- TÍTULO -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/register_title"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="?attr/TextBoxText"
+            android:layout_marginBottom="24dp" />
+
+        <!-- NOME COMPLETO -->
+        <EditText
+            android:id="@+id/et_name"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/TextBox"
+            android:textColor="?attr/TextBoxText"
+            android:textColorHint="?attr/TextHint"
+            android:hint="@string/register_name"
+            android:inputType="textPersonName" />
+
+        <!-- EMAIL -->
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/TextBox"
+            android:textColor="?attr/TextBoxText"
+            android:textColorHint="?attr/TextHint"
+            android:hint="@string/register_email"
+            android:inputType="textEmailAddress" />
+
+        <!-- USERNAME -->
+        <EditText
+            android:id="@+id/et_username"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/TextBox"
+            android:textColor="?attr/TextBoxText"
+            android:textColorHint="?attr/TextHint"
+            android:hint="@string/register_username" />
+
+        <!-- TELEFONE -->
+        <EditText
+            android:id="@+id/et_phone"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/TextBox"
+            android:textColor="?attr/TextBoxText"
+            android:textColorHint="?attr/TextHint"
+            android:hint="@string/register_phone"
+            android:inputType="phone" />
+
+        <!-- PASSWORD -->
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/TextBox"
+            android:inputType="textPassword"
+            android:textColor="?attr/TextBoxText"
+            android:textColorHint="?attr/TextHint"
+            android:hint="@string/register_password" />
+
+        <!-- CONFIRMAR PASSWORD -->
+        <EditText
+            android:id="@+id/et_password_confirm"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:background="?attr/TextBox"
+            android:inputType="textPassword"
+            android:textColor="?attr/TextBoxText"
+            android:textColorHint="?attr/TextHint"
+            android:hint="@string/register_password_confirm" />
+
+        <!-- PROGRESS BAR -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
+
+        <!-- REGISTER BUTTON -->
+        <Button
+            android:id="@+id/btn_register"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="@string/register_button"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            style="?attr/buttonStyle"
+            android:backgroundTint="?attr/ButtonBackground"
+            android:textColor="?attr/ButtonText"
+            android:layout_marginBottom="20dp" />
+
+        <!-- LINK VOLTAR AO LOGIN -->
+        <TextView
+            android:id="@+id/tv_back_to_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/back_to_login"
+            android:textColor="?attr/LinkText"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</ScrollView>

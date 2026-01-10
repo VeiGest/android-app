@@ -1,150 +1,63 @@
 package com.veigest.sdk.models;
 
-import androidx.annotation.Nullable;
-
-import com.google.gson.annotations.SerializedName;
-
-import java.util.List;
+import java.io.Serializable;
 
 /**
  * Modelo de utilizador do sistema VeiGest.
+ * Simplificado para corresponder à API atualizada.
  */
-public class User {
+public class User implements Serializable {
     
-    @SerializedName("id")
     private int id;
-    
-    @SerializedName("company_id")
-    private int companyId;
-    
-    @SerializedName("nome")
-    private String nome;
-    
-    @SerializedName("name")
-    private String name;
-    
-    @SerializedName("email")
+    private String username;
     private String email;
-    
-    @SerializedName("telefone")
-    private String telefone;
-    
-    @SerializedName("estado")
-    private String estado;
-    
-    @SerializedName("numero_carta")
-    private String numeroCarta;
-    
-    @SerializedName("validade_carta")
-    private String validadeCarta;
-    
-    @SerializedName("roles")
-    private List<String> roles;
-    
-    @SerializedName("permissions")
-    private List<String> permissions;
-    
-    @SerializedName("tipo")
-    private String tipo;
-    
-    @SerializedName("created_at")
+    private String role;
+    private String status;
+    private int companyId;
+    private String companyName;
     private String createdAt;
-    
-    @SerializedName("updated_at")
     private String updatedAt;
     
+    // Construtor vazio
+    public User() {}
+    
+    // Construtor básico
+    public User(int id, String username, String email, String role) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.role = role;
+    }
+    
     // Getters
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public String getUsername() { return username; }
+    public String getEmail() { return email; }
+    public String getRole() { return role; }
+    public String getStatus() { return status; }
+    public int getCompanyId() { return companyId; }
+    public String getCompanyName() { return companyName; }
+    public String getCreatedAt() { return createdAt; }
+    public String getUpdatedAt() { return updatedAt; }
     
-    public int getCompanyId() {
-        return companyId;
-    }
+    // Setters
+    public void setId(int id) { this.id = id; }
+    public void setUsername(String username) { this.username = username; }
+    public void setEmail(String email) { this.email = email; }
+    public void setRole(String role) { this.role = role; }
+    public void setStatus(String status) { this.status = status; }
+    public void setCompanyId(int companyId) { this.companyId = companyId; }
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
     
-    @Nullable
-    public String getNome() {
-        return nome != null ? nome : name;
-    }
-    
-    @Nullable
-    public String getEmail() {
-        return email;
-    }
-    
-    @Nullable
-    public String getTelefone() {
-        return telefone;
-    }
-    
-    @Nullable
-    public String getEstado() {
-        return estado;
-    }
-    
-    @Nullable
-    public String getNumeroCarta() {
-        return numeroCarta;
-    }
-    
-    @Nullable
-    public String getValidadeCarta() {
-        return validadeCarta;
-    }
-    
-    @Nullable
-    public List<String> getRoles() {
-        return roles;
-    }
-    
-    @Nullable
-    public List<String> getPermissions() {
-        return permissions;
-    }
-    
-    @Nullable
-    public String getTipo() {
-        return tipo;
-    }
-    
-    @Nullable
-    public String getCreatedAt() {
-        return createdAt;
-    }
-    
-    @Nullable
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    /**
-     * Verifica se o utilizador está ativo.
-     */
-    public boolean isActive() {
-        return "ativo".equalsIgnoreCase(estado) || "active".equalsIgnoreCase(estado);
-    }
-    
-    /**
-     * Verifica se o utilizador tem uma determinada role.
-     */
-    public boolean hasRole(String role) {
-        return roles != null && roles.contains(role);
-    }
-    
-    /**
-     * Verifica se o utilizador tem uma determinada permissão.
-     */
-    public boolean hasPermission(String permission) {
-        return permissions != null && permissions.contains(permission);
+    // Método auxiliar para nome de exibição
+    public String getDisplayName() {
+        return username != null ? username : email;
     }
     
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", nome='" + getNome() + '\'' +
-                ", email='" + email + '\'' +
-                ", estado='" + estado + '\'' +
-                '}';
+        return username + " (" + email + ")";
     }
 }

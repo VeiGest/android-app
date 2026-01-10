@@ -1,168 +1,79 @@
 package com.veigest.sdk.models;
 
-import androidx.annotation.Nullable;
-
-import com.google.gson.annotations.SerializedName;
-
-import java.util.Map;
+import java.io.Serializable;
 
 /**
  * Modelo de documento do sistema VeiGest.
+ * Simplificado para corresponder à API atualizada.
  */
-public class Document {
+public class Document implements Serializable {
     
-    @SerializedName("id")
     private int id;
-    
-    @SerializedName("company_id")
     private int companyId;
-    
-    @SerializedName("file_id")
-    private Integer fileId;
-    
-    @SerializedName("vehicle_id")
-    private Integer vehicleId;
-    
-    @SerializedName("driver_id")
-    private Integer driverId;
-    
-    @SerializedName("tipo")
-    private String tipo;
-    
-    @SerializedName("type")
+    private int fileId;
+    private int vehicleId;
+    private int driverId;
     private String type;
-    
-    @SerializedName("data_validade")
-    private String dataValidade;
-    
-    @SerializedName("expiry_date")
+    private String typeLabel;
     private String expiryDate;
-    
-    @SerializedName("status")
+    private int daysToExpiry;
     private String status;
-    
-    @SerializedName("notas")
-    private String notas;
-    
-    @SerializedName("notes")
     private String notes;
-    
-    @SerializedName("dias_para_vencimento")
-    private Integer diasParaVencimento;
-    
-    @SerializedName("days_to_expiry")
-    private Integer daysToExpiry;
-    
-    @SerializedName("entidade")
-    private String entidade;
-    
-    @SerializedName("vehicle")
-    private Map<String, Object> vehicle;
-    
-    @SerializedName("created_at")
     private String createdAt;
-    
-    @SerializedName("updated_at")
     private String updatedAt;
     
+    // Construtor vazio
+    public Document() {}
+    
+    // Construtor básico
+    public Document(int fileId, int vehicleId, String type, String expiryDate) {
+        this.fileId = fileId;
+        this.vehicleId = vehicleId;
+        this.type = type;
+        this.expiryDate = expiryDate;
+    }
+    
     // Getters
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public int getCompanyId() { return companyId; }
+    public int getFileId() { return fileId; }
+    public int getVehicleId() { return vehicleId; }
+    public int getDriverId() { return driverId; }
+    public String getType() { return type; }
+    public String getTypeLabel() { return typeLabel; }
+    public String getExpiryDate() { return expiryDate; }
+    public int getDaysToExpiry() { return daysToExpiry; }
+    public String getStatus() { return status; }
+    public String getNotes() { return notes; }
+    public String getCreatedAt() { return createdAt; }
+    public String getUpdatedAt() { return updatedAt; }
     
-    public int getCompanyId() {
-        return companyId;
-    }
+    // Setters
+    public void setId(int id) { this.id = id; }
+    public void setCompanyId(int companyId) { this.companyId = companyId; }
+    public void setFileId(int fileId) { this.fileId = fileId; }
+    public void setVehicleId(int vehicleId) { this.vehicleId = vehicleId; }
+    public void setDriverId(int driverId) { this.driverId = driverId; }
+    public void setType(String type) { this.type = type; }
+    public void setTypeLabel(String typeLabel) { this.typeLabel = typeLabel; }
+    public void setExpiryDate(String expiryDate) { this.expiryDate = expiryDate; }
+    public void setDaysToExpiry(int daysToExpiry) { this.daysToExpiry = daysToExpiry; }
+    public void setStatus(String status) { this.status = status; }
+    public void setNotes(String notes) { this.notes = notes; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
     
-    @Nullable
-    public Integer getFileId() {
-        return fileId;
-    }
-    
-    @Nullable
-    public Integer getVehicleId() {
-        return vehicleId;
-    }
-    
-    @Nullable
-    public Integer getDriverId() {
-        return driverId;
-    }
-    
-    @Nullable
-    public String getTipo() {
-        return tipo != null ? tipo : type;
-    }
-    
-    @Nullable
-    public String getDataValidade() {
-        return dataValidade != null ? dataValidade : expiryDate;
-    }
-    
-    @Nullable
-    public String getStatus() {
-        return status;
-    }
-    
-    @Nullable
-    public String getNotas() {
-        return notas != null ? notas : notes;
-    }
-    
-    @Nullable
-    public Integer getDiasParaVencimento() {
-        return diasParaVencimento != null ? diasParaVencimento : daysToExpiry;
-    }
-    
-    @Nullable
-    public String getEntidade() {
-        return entidade;
-    }
-    
-    @Nullable
-    public Map<String, Object> getVehicle() {
-        return vehicle;
-    }
-    
-    @Nullable
-    public String getCreatedAt() {
-        return createdAt;
-    }
-    
-    @Nullable
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    /**
-     * Verifica se o documento está válido.
-     */
-    public boolean isValid() {
-        return "valido".equalsIgnoreCase(status) || "valid".equalsIgnoreCase(status);
-    }
-    
-    /**
-     * Verifica se o documento está expirado.
-     */
+    // Métodos auxiliares
     public boolean isExpired() {
-        return "expirado".equalsIgnoreCase(status) || "expired".equalsIgnoreCase(status);
+        return "expired".equals(status) || daysToExpiry < 0;
     }
     
-    /**
-     * Verifica se o documento está próximo do vencimento.
-     */
-    public boolean isNearExpiry() {
-        Integer days = getDiasParaVencimento();
-        return days != null && days <= 30 && days > 0;
+    public boolean isExpiringSoon() {
+        return daysToExpiry >= 0 && daysToExpiry <= 30;
     }
     
     @Override
     public String toString() {
-        return "Document{" +
-                "id=" + id +
-                ", tipo='" + getTipo() + '\'' +
-                ", dataValidade='" + getDataValidade() + '\'' +
-                ", status='" + status + '\'' +
-                '}';
+        return typeLabel != null ? typeLabel : type;
     }
 }

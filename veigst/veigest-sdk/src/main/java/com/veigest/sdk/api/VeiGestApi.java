@@ -10,12 +10,11 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.*;
 
-/**
- * Interface Retrofit com todos os endpoints da API VeiGest.
- */
+
+// Interface para definir os endpoints da API VeiGest
+// De forma a facilitar a implementação com 
+
 public interface VeiGestApi {
-    
-    // ==================== AUTENTICAÇÃO ====================
     
     @POST("auth/login")
     Call<ApiResponse<LoginResponse>> login(@Body LoginRequest request);

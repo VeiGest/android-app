@@ -13,18 +13,22 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
-import com.veigest.sdk.VeiGestSDK;
+import com.veigest.sdk.SingletonVeiGest;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private boolean isLoggedIn = false;
+    private SingletonVeiGest singleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Obter instância do Singleton
+        singleton = SingletonVeiGest.getInstance(getApplicationContext());
 
         // Inicializar DrawerLayout e NavigationView
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -37,8 +41,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Só adiciona o fragment se for a primeira criação
         if (savedInstanceState == null) {
             // Verificar se o utilizador já tem sessão ativa
-            VeiGestSDK sdk = VeiGestApplication.getSDK();
-            if (sdk.auth().isAuthenticated()) {
+            if (singleton.isAuthenticated()) {
                 // Sessão ativa - ir direto para o Dashboard
                 loadDashboard();
             } else {
@@ -72,6 +75,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setCheckedItem(R.id.nav_dashboard);
     }
 
+    /**
+     * Carrega o fragment de registro
+     * Chamado pelo LoginFragment quando o utilizador clica em "Criar Conta"
+     */
+    public void loadRegisterFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, new RegisterFragment());
+        fragmentTransaction.addToBackStack(null); // Permite voltar ao login com back button
+        fragmentTransaction.commit();
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
@@ -101,6 +116,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Realiza o logout do utilizador
      */
     private void performLogout() {
+        // Limpar token local e voltar ao login
+        singleton.clearAuth();
+        Toast.makeText(MainActivity.this, "Sessão terminada com sucesso", Toast.LENGTH_SHORT).show();
         navigateToLogin();
     }
     

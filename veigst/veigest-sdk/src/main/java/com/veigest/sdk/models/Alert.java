@@ -1,157 +1,89 @@
 package com.veigest.sdk.models;
 
-import androidx.annotation.Nullable;
-
-import com.google.gson.annotations.SerializedName;
-
-import java.util.Map;
+import java.io.Serializable;
 
 /**
  * Modelo de alerta do sistema VeiGest.
+ * Simplificado para corresponder à API atualizada.
  */
-public class Alert {
+public class Alert implements Serializable {
     
-    @SerializedName("id")
     private int id;
-    
-    @SerializedName("company_id")
     private int companyId;
-    
-    @SerializedName("tipo")
-    private String tipo;
-    
-    @SerializedName("type")
     private String type;
-    
-    @SerializedName("titulo")
-    private String titulo;
-    
-    @SerializedName("title")
+    private String typeLabel;
     private String title;
-    
-    @SerializedName("descricao")
-    private String descricao;
-    
-    @SerializedName("description")
     private String description;
-    
-    @SerializedName("prioridade")
-    private String prioridade;
-    
-    @SerializedName("priority")
     private String priority;
-    
-    @SerializedName("status")
+    private String priorityLabel;
+    private int priorityLevel;
     private String status;
-    
-    @SerializedName("detalhes")
-    private Map<String, Object> detalhes;
-    
-    @SerializedName("details")
-    private Map<String, Object> details;
-    
-    @SerializedName("resolvido_em")
-    private String resolvidoEm;
-    
-    @SerializedName("resolved_at")
+    private String statusLabel;
+    private String details;
+    private String age;
+    private String createdAt;
     private String resolvedAt;
     
-    @SerializedName("created_at")
-    private String createdAt;
+    // Construtor vazio
+    public Alert() {}
     
-    @SerializedName("updated_at")
-    private String updatedAt;
+    // Construtor básico
+    public Alert(String type, String title, String description, String priority) {
+        this.type = type;
+        this.title = title;
+        this.description = description;
+        this.priority = priority;
+    }
     
     // Getters
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public int getCompanyId() { return companyId; }
+    public String getType() { return type; }
+    public String getTypeLabel() { return typeLabel; }
+    public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public String getPriority() { return priority; }
+    public String getPriorityLabel() { return priorityLabel; }
+    public int getPriorityLevel() { return priorityLevel; }
+    public String getStatus() { return status; }
+    public String getStatusLabel() { return statusLabel; }
+    public String getDetails() { return details; }
+    public String getAge() { return age; }
+    public String getCreatedAt() { return createdAt; }
+    public String getResolvedAt() { return resolvedAt; }
     
-    public int getCompanyId() {
-        return companyId;
-    }
+    // Setters
+    public void setId(int id) { this.id = id; }
+    public void setCompanyId(int companyId) { this.companyId = companyId; }
+    public void setType(String type) { this.type = type; }
+    public void setTypeLabel(String typeLabel) { this.typeLabel = typeLabel; }
+    public void setTitle(String title) { this.title = title; }
+    public void setDescription(String description) { this.description = description; }
+    public void setPriority(String priority) { this.priority = priority; }
+    public void setPriorityLabel(String priorityLabel) { this.priorityLabel = priorityLabel; }
+    public void setPriorityLevel(int priorityLevel) { this.priorityLevel = priorityLevel; }
+    public void setStatus(String status) { this.status = status; }
+    public void setStatusLabel(String statusLabel) { this.statusLabel = statusLabel; }
+    public void setDetails(String details) { this.details = details; }
+    public void setAge(String age) { this.age = age; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public void setResolvedAt(String resolvedAt) { this.resolvedAt = resolvedAt; }
     
-    @Nullable
-    public String getTipo() {
-        return tipo != null ? tipo : type;
-    }
-    
-    @Nullable
-    public String getTitulo() {
-        return titulo != null ? titulo : title;
-    }
-    
-    @Nullable
-    public String getDescricao() {
-        return descricao != null ? descricao : description;
-    }
-    
-    @Nullable
-    public String getPrioridade() {
-        return prioridade != null ? prioridade : priority;
-    }
-    
-    @Nullable
-    public String getStatus() {
-        return status;
-    }
-    
-    @Nullable
-    public Map<String, Object> getDetalhes() {
-        return detalhes != null ? detalhes : details;
-    }
-    
-    @Nullable
-    public String getResolvidoEm() {
-        return resolvidoEm != null ? resolvidoEm : resolvedAt;
-    }
-    
-    @Nullable
-    public String getCreatedAt() {
-        return createdAt;
-    }
-    
-    @Nullable
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    /**
-     * Verifica se o alerta está ativo.
-     */
+    // Métodos auxiliares
     public boolean isActive() {
-        return "ativo".equalsIgnoreCase(status) || "active".equalsIgnoreCase(status);
+        return "active".equals(status);
     }
     
-    /**
-     * Verifica se o alerta foi resolvido.
-     */
     public boolean isResolved() {
-        return "resolvido".equalsIgnoreCase(status) || "resolved".equalsIgnoreCase(status);
+        return "resolved".equals(status);
     }
     
-    /**
-     * Verifica se o alerta foi ignorado.
-     */
-    public boolean isIgnored() {
-        return "ignorado".equalsIgnoreCase(status) || "ignored".equalsIgnoreCase(status);
-    }
-    
-    /**
-     * Verifica se é um alerta de alta prioridade.
-     */
-    public boolean isHighPriority() {
-        String p = getPrioridade();
-        return "alta".equalsIgnoreCase(p) || "high".equalsIgnoreCase(p);
+    public boolean isCritical() {
+        return "critical".equals(priority);
     }
     
     @Override
     public String toString() {
-        return "Alert{" +
-                "id=" + id +
-                ", titulo='" + getTitulo() + '\'' +
-                ", prioridade='" + getPrioridade() + '\'' +
-                ", status='" + status + '\'' +
-                '}';
+        return title + " [" + priorityLabel + "]";
     }
 }
