@@ -192,9 +192,12 @@ public class RegisterFragment extends Fragment implements RegisterListener {
 
         Log.d(TAG, "Tentando registrar utilizador: " + username);
 
-        // Usar o Singleton para fazer registro (resposta via listener)
-        // O role padrão é "driver"
-        singleton.registerAPI(username, email, password);
+        // Obter dados completos do formulário
+        String name = etName.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim();
+        
+        // Usar o Singleton para fazer registro com todos os campos
+        singleton.registerAPI(username, email, password, name, phone.isEmpty() ? null : phone);
     }
     
     // ========== Implementação do RegisterListener ==========

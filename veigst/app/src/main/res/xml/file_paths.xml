@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Diretório de imagens privadas da app -->
+    <files-path
+        name="photos"
+        path="images/" />
+
+    <!-- Diretório de cache para fotos temporárias -->
+    <cache-path
+        name="cache_photos"
+        path="images/" />
+
+    <!-- Diretório externo para fotos públicas -->
+    <external-files-path
+        name="external_photos"
+        path="Pictures/" />
+
+    <!-- Diretório de arquivos gerados (PDFs, etc.) -->
+    <files-path
+        name="documents"
+        path="documents/" />
+
+    <!-- Cache de downloads -->
+    <cache-path
+        name="downloads"
+        path="downloads/" />
+</paths>

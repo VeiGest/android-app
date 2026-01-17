@@ -30,7 +30,7 @@ public interface VeiGestApi {
     
     // ==================== EMPRESAS ====================
     
-    @GET("companies")
+    @GET("company")
     Call<ApiResponse<List<Company>>> getCompanies(
             @Query("page") Integer page,
             @Query("limit") Integer limit,
@@ -38,34 +38,34 @@ public interface VeiGestApi {
             @Query("filter") String filter
     );
     
-    @GET("companies/{id}")
+    @GET("company/{id}")
     Call<ApiResponse<Company>> getCompany(@Path("id") int id);
     
-    @POST("companies")
+    @POST("company")
     Call<ApiResponse<Company>> createCompany(@Body Map<String, Object> body);
     
-    @PUT("companies/{id}")
+    @PUT("company/{id}")
     Call<ApiResponse<Company>> updateCompany(@Path("id") int id, @Body Map<String, Object> body);
     
-    @PATCH("companies/{id}")
+    @PATCH("company/{id}")
     Call<ApiResponse<Company>> patchCompany(@Path("id") int id, @Body Map<String, Object> body);
     
-    @DELETE("companies/{id}")
+    @DELETE("company/{id}")
     Call<ApiResponse<Void>> deleteCompany(@Path("id") int id);
     
     // Endpoints personalizados de empresas
-    @GET("companies/{id}/vehicles")
+    @GET("company/{id}/vehicles")
     Call<ApiResponse<List<Vehicle>>> getCompanyVehicles(@Path("id") int companyId);
     
-    @GET("companies/{id}/users")
+    @GET("company/{id}/users")
     Call<ApiResponse<List<User>>> getCompanyUsers(@Path("id") int companyId);
     
-    @GET("companies/{id}/stats")
+    @GET("company/{id}/stats")
     Call<ApiResponse<CompanyStats>> getCompanyStats(@Path("id") int companyId);
     
     // ==================== UTILIZADORES ====================
     
-    @GET("users")
+    @GET("user")
     Call<ApiResponse<List<User>>> getUsers(
             @Query("company_id") Integer companyId,
             @Query("page") Integer page,
@@ -74,36 +74,36 @@ public interface VeiGestApi {
             @Query("filter") String filter
     );
     
-    @GET("users/{id}")
+    @GET("user/{id}")
     Call<ApiResponse<User>> getUser(@Path("id") int id);
     
-    @POST("users")
+    @POST("user")
     Call<ApiResponse<User>> createUser(@Body Map<String, Object> body);
     
-    @PUT("users/{id}")
+    @PUT("user/{id}")
     Call<ApiResponse<User>> updateUser(@Path("id") int id, @Body Map<String, Object> body);
     
-    @PATCH("users/{id}")
+    @PATCH("user/{id}")
     Call<ApiResponse<User>> patchUser(@Path("id") int id, @Body Map<String, Object> body);
     
-    @DELETE("users/{id}")
+    @DELETE("user/{id}")
     Call<ApiResponse<Void>> deleteUser(@Path("id") int id);
     
-    @POST("users/{id}/reset-password")
+    @POST("user/{id}/reset-password")
     Call<ApiResponse<Void>> resetPassword(@Path("id") int id, @Body Map<String, String> body);
     
     // Endpoints personalizados de utilizadores
-    @GET("users/drivers")
+    @GET("user/drivers")
     Call<ApiResponse<List<User>>> getDrivers();
     
-    @GET("users/profile")
+    @GET("user/profile")
     Call<ApiResponse<User>> getProfile();
     
-    @GET("users/by-company/{company_id}")
+    @GET("user/by-company/{company_id}")
     Call<ApiResponse<List<User>>> getUsersByCompany(@Path("company_id") int companyId);
     
     @Multipart
-    @POST("users/{id}/update-photo")
+    @POST("user/{id}/update-photo")
     Call<ApiResponse<User>> updateUserPhoto(
             @Path("id") int id, 
             @Part MultipartBody.Part photo
@@ -111,7 +111,7 @@ public interface VeiGestApi {
     
     // ==================== VEÍCULOS ====================
     
-    @GET("vehicles")
+    @GET("vehicle")
     Call<ApiResponse<List<Vehicle>>> getVehicles(
             @Query("company_id") Integer companyId,
             @Query("estado") String estado,
@@ -120,43 +120,43 @@ public interface VeiGestApi {
             @Query("sort") String sort
     );
     
-    @GET("vehicles/{id}")
+    @GET("vehicle/{id}")
     Call<ApiResponse<Vehicle>> getVehicle(@Path("id") int id);
     
-    @POST("vehicles")
+    @POST("vehicle")
     Call<ApiResponse<Vehicle>> createVehicle(@Body Map<String, Object> body);
     
-    @PUT("vehicles/{id}")
+    @PUT("vehicle/{id}")
     Call<ApiResponse<Vehicle>> updateVehicle(@Path("id") int id, @Body Map<String, Object> body);
     
-    @PATCH("vehicles/{id}")
+    @PATCH("vehicle/{id}")
     Call<ApiResponse<Vehicle>> patchVehicle(@Path("id") int id, @Body Map<String, Object> body);
     
-    @DELETE("vehicles/{id}")
+    @DELETE("vehicle/{id}")
     Call<ApiResponse<Void>> deleteVehicle(@Path("id") int id);
     
-    @POST("vehicles/{id}/assign-driver")
+    @POST("vehicle/{id}/assign-driver")
     Call<ApiResponse<Void>> assignDriver(@Path("id") int vehicleId, @Body Map<String, Integer> body);
     
-    @POST("vehicles/{id}/unassign-driver")
+    @POST("vehicle/{id}/unassign-driver")
     Call<ApiResponse<Void>> unassignDriver(@Path("id") int vehicleId);
     
     // Endpoints personalizados de veículos
-    @GET("vehicles/{id}/maintenances")
+    @GET("vehicle/{id}/maintenances")
     Call<ApiResponse<List<Maintenance>>> getVehicleMaintenances(@Path("id") int vehicleId);
     
-    @GET("vehicles/{id}/fuel-logs")
+    @GET("vehicle/{id}/fuel-logs")
     Call<ApiResponse<List<FuelLog>>> getVehicleFuelLogs(@Path("id") int vehicleId);
     
-    @GET("vehicles/{id}/stats")
+    @GET("vehicle/{id}/stats")
     Call<ApiResponse<VehicleStats>> getVehicleStats(@Path("id") int vehicleId);
     
-    @GET("vehicles/by-status/{status}")
+    @GET("vehicle/by-status/{status}")
     Call<ApiResponse<List<Vehicle>>> getVehiclesByStatus(@Path("status") String status);
     
     // ==================== MANUTENÇÕES ====================
     
-    @GET("maintenances")
+    @GET("maintenance")
     Call<ApiResponse<List<Maintenance>>> getMaintenances(
             @Query("vehicle_id") Integer vehicleId,
             @Query("data_inicio") String dataInicio,
@@ -165,19 +165,19 @@ public interface VeiGestApi {
             @Query("limit") Integer limit
     );
     
-    @GET("maintenances/{id}")
+    @GET("maintenance/{id}")
     Call<ApiResponse<Maintenance>> getMaintenance(@Path("id") int id);
     
-    @POST("maintenances")
+    @POST("maintenance")
     Call<ApiResponse<Maintenance>> createMaintenance(@Body Map<String, Object> body);
     
-    @PUT("maintenances/{id}")
+    @PUT("maintenance/{id}")
     Call<ApiResponse<Maintenance>> updateMaintenance(@Path("id") int id, @Body Map<String, Object> body);
     
-    @PATCH("maintenances/{id}")
+    @PATCH("maintenance/{id}")
     Call<ApiResponse<Maintenance>> patchMaintenance(@Path("id") int id, @Body Map<String, Object> body);
     
-    @DELETE("maintenances/{id}")
+    @DELETE("maintenance/{id}")
     Call<ApiResponse<Void>> deleteMaintenance(@Path("id") int id);
     
     // Endpoints personalizados de manutenções
@@ -211,7 +211,7 @@ public interface VeiGestApi {
     
     // ==================== COMBUSTÍVEL ====================
     
-    @GET("fuel-logs")
+    @GET("fuel-log")
     Call<ApiResponse<List<FuelLog>>> getFuelLogs(
             @Query("vehicle_id") Integer vehicleId,
             @Query("driver_id") Integer driverId,
@@ -221,36 +221,36 @@ public interface VeiGestApi {
             @Query("limit") Integer limit
     );
     
-    @GET("fuel-logs/{id}")
+    @GET("fuel-log/{id}")
     Call<ApiResponse<FuelLog>> getFuelLog(@Path("id") int id);
     
-    @POST("fuel-logs")
+    @POST("fuel-log")
     Call<ApiResponse<FuelLog>> createFuelLog(@Body Map<String, Object> body);
     
-    @PUT("fuel-logs/{id}")
+    @PUT("fuel-log/{id}")
     Call<ApiResponse<FuelLog>> updateFuelLog(@Path("id") int id, @Body Map<String, Object> body);
     
-    @PATCH("fuel-logs/{id}")
+    @PATCH("fuel-log/{id}")
     Call<ApiResponse<FuelLog>> patchFuelLog(@Path("id") int id, @Body Map<String, Object> body);
     
-    @DELETE("fuel-logs/{id}")
+    @DELETE("fuel-log/{id}")
     Call<ApiResponse<Void>> deleteFuelLog(@Path("id") int id);
     
     // Endpoints personalizados de combustível
-    @GET("fuel-logs/by-vehicle/{vehicle_id}")
+    @GET("fuel-log/by-vehicle/{vehicle_id}")
     Call<ApiResponse<List<FuelLog>>> getFuelLogsByVehicle(@Path("vehicle_id") int vehicleId);
     
-    @GET("fuel-logs/stats")
+    @GET("fuel-log/stats")
     Call<ApiResponse<ReportStats>> getFuelLogStats(
             @Query("vehicle_id") Integer vehicleId,
             @Query("start_date") String startDate,
             @Query("end_date") String endDate
     );
     
-    @GET("fuel-logs/alerts")
+    @GET("fuel-log/alerts")
     Call<ApiResponse<List<FuelAlert>>> getFuelAlerts();
     
-    @GET("fuel-logs/efficiency-report")
+    @GET("fuel-log/efficiency-report")
     Call<ApiResponse<FuelEfficiencyReport>> getFuelEfficiencyReport(
             @Query("start_date") String startDate,
             @Query("end_date") String endDate
@@ -258,7 +258,7 @@ public interface VeiGestApi {
     
     // ==================== ROTAS ====================
     
-    @GET("routes")
+    @GET("route")
     Call<ApiResponse<List<Route>>> getRoutes(
             @Query("vehicle_id") Integer vehicleId,
             @Query("driver_id") Integer driverId,
@@ -269,27 +269,27 @@ public interface VeiGestApi {
             @Query("limit") Integer limit
     );
     
-    @GET("routes/{id}")
+    @GET("route/{id}")
     Call<ApiResponse<Route>> getRoute(@Path("id") int id);
     
-    @POST("routes")
+    @POST("route")
     Call<ApiResponse<Route>> createRoute(@Body Map<String, Object> body);
     
-    @PUT("routes/{id}")
+    @PUT("route/{id}")
     Call<ApiResponse<Route>> updateRoute(@Path("id") int id, @Body Map<String, Object> body);
     
-    @PATCH("routes/{id}/finish")
+    @PATCH("route/{id}/finish")
     Call<ApiResponse<Route>> finishRoute(@Path("id") int id, @Body Map<String, Object> body);
     
-    @PATCH("routes/{id}/cancel")
+    @PATCH("route/{id}/cancel")
     Call<ApiResponse<Route>> cancelRoute(@Path("id") int id, @Body Map<String, Object> body);
     
-    @DELETE("routes/{id}")
+    @DELETE("route/{id}")
     Call<ApiResponse<Void>> deleteRoute(@Path("id") int id);
     
     // ==================== TICKETS ====================
     
-    @GET("tickets")
+    @GET("ticket")
     Call<ApiResponse<List<Ticket>>> getTickets(
             @Query("status") String status,
             @Query("tipo") String tipo,
@@ -299,27 +299,27 @@ public interface VeiGestApi {
             @Query("limit") Integer limit
     );
     
-    @GET("tickets/{id}")
+    @GET("ticket/{id}")
     Call<ApiResponse<Ticket>> getTicket(@Path("id") int id);
     
-    @POST("tickets")
+    @POST("ticket")
     Call<ApiResponse<Ticket>> createTicket(@Body Map<String, Object> body);
     
-    @PUT("tickets/{id}")
+    @PUT("ticket/{id}")
     Call<ApiResponse<Ticket>> updateTicket(@Path("id") int id, @Body Map<String, Object> body);
     
-    @POST("tickets/{id}/cancel")
+    @POST("ticket/{id}/cancel")
     Call<ApiResponse<Ticket>> cancelTicket(@Path("id") int id, @Body Map<String, String> body);
     
-    @POST("tickets/{id}/complete")
+    @POST("ticket/{id}/complete")
     Call<ApiResponse<Ticket>> completeTicket(@Path("id") int id, @Body Map<String, String> body);
     
-    @DELETE("tickets/{id}")
+    @DELETE("ticket/{id}")
     Call<ApiResponse<Void>> deleteTicket(@Path("id") int id);
     
     // ==================== GPS ====================
     
-    @GET("gps-entries")
+    @GET("gps-entry")
     Call<ApiResponse<List<GpsEntry>>> getGpsEntries(
             @Query("route_id") Integer routeId,
             @Query("timestamp_inicio") String timestampInicio,
@@ -328,25 +328,25 @@ public interface VeiGestApi {
             @Query("limit") Integer limit
     );
     
-    @GET("routes/{routeId}/gps-entries")
+    @GET("route/{routeId}/gps-entries")
     Call<ApiResponse<List<GpsEntry>>> getRouteGpsEntries(
             @Path("routeId") int routeId,
             @Query("page") Integer page,
             @Query("limit") Integer limit
     );
     
-    @POST("gps-entries")
+    @POST("gps-entry")
     Call<ApiResponse<GpsEntry>> createGpsEntry(@Body Map<String, Object> body);
     
-    @POST("gps-entries/batch")
+    @POST("gps-entry/batch")
     Call<ApiResponse<Void>> createGpsEntriesBatch(@Body Map<String, Object> body);
     
-    @DELETE("gps-entries/{id}")
+    @DELETE("gps-entry/{id}")
     Call<ApiResponse<Void>> deleteGpsEntry(@Path("id") int id);
     
     // ==================== DOCUMENTOS ====================
     
-    @GET("documents")
+    @GET("document")
     Call<ApiResponse<List<Document>>> getDocuments(
             @Query("vehicle_id") Integer vehicleId,
             @Query("driver_id") Integer driverId,
@@ -356,27 +356,27 @@ public interface VeiGestApi {
             @Query("limit") Integer limit
     );
     
-    @GET("documents/{id}")
+    @GET("document/{id}")
     Call<ApiResponse<Document>> getDocument(@Path("id") int id);
     
-    @POST("documents")
+    @POST("document")
     Call<ApiResponse<Document>> createDocument(@Body Map<String, Object> body);
     
-    @PUT("documents/{id}")
+    @PUT("document/{id}")
     Call<ApiResponse<Document>> updateDocument(@Path("id") int id, @Body Map<String, Object> body);
     
-    @PATCH("documents/{id}")
+    @PATCH("document/{id}")
     Call<ApiResponse<Document>> patchDocument(@Path("id") int id, @Body Map<String, Object> body);
     
-    @DELETE("documents/{id}")
+    @DELETE("document/{id}")
     Call<ApiResponse<Void>> deleteDocument(@Path("id") int id);
     
-    @GET("documents/expiring")
+    @GET("document/expiring")
     Call<ApiResponse<List<Document>>> getExpiringDocuments(@Query("dias") Integer dias);
     
     // ==================== ALERTAS ====================
     
-    @GET("alerts")
+    @GET("alert")
     Call<ApiResponse<List<Alert>>> getAlerts(
             @Query("tipo") String tipo,
             @Query("status") String status,
@@ -385,19 +385,19 @@ public interface VeiGestApi {
             @Query("limit") Integer limit
     );
     
-    @GET("alerts/{id}")
+    @GET("alert/{id}")
     Call<ApiResponse<Alert>> getAlert(@Path("id") int id);
     
-    @POST("alerts")
+    @POST("alert")
     Call<ApiResponse<Alert>> createAlert(@Body Map<String, Object> body);
     
-    @PATCH("alerts/{id}/resolve")
+    @PATCH("alert/{id}/resolve")
     Call<ApiResponse<Alert>> resolveAlert(@Path("id") int id, @Body Map<String, String> body);
     
-    @PATCH("alerts/{id}/ignore")
+    @PATCH("alert/{id}/ignore")
     Call<ApiResponse<Alert>> ignoreAlert(@Path("id") int id, @Body Map<String, String> body);
     
-    @DELETE("alerts/{id}")
+    @DELETE("alert/{id}")
     Call<ApiResponse<Void>> deleteAlert(@Path("id") int id);
     
     // ==================== RELATÓRIOS ====================
@@ -432,7 +432,7 @@ public interface VeiGestApi {
     
     // ==================== FICHEIROS ====================
     
-    @GET("files")
+    @GET("file")
     Call<ApiResponse<List<FileInfo>>> getFiles(
             @Query("tipo") String tipo,
             @Query("page") Integer page,
@@ -440,19 +440,19 @@ public interface VeiGestApi {
     );
     
     @Multipart
-    @POST("files")
+    @POST("file")
     Call<ApiResponse<FileInfo>> uploadFile(
             @Part MultipartBody.Part file,
             @Part("nome") RequestBody nome,
             @Part("tipo") RequestBody tipo
     );
     
-    @GET("files/{id}")
+    @GET("file/{id}")
     Call<ApiResponse<FileInfo>> getFile(@Path("id") int id);
     
-    @GET("files/{id}/download")
+    @GET("file/{id}/download")
     Call<okhttp3.ResponseBody> downloadFile(@Path("id") int id);
     
-    @DELETE("files/{id}")
+    @DELETE("file/{id}")
     Call<ApiResponse<Void>> deleteFile(@Path("id") int id);
 }

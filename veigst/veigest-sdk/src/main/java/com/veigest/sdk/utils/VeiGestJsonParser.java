@@ -22,12 +22,53 @@ public class VeiGestJsonParser {
     
     /**
      * Parse da resposta de login.
+     * Formato da nova API:
+     * {
+     *   "success": true,
+     *   "data": {
+     *     "access_token": "...",
+     *     "user": {...},
+     *     "company": {...},
+     *     "roles": [...],
+     *     "permissions": [...]
+     *   }
+     * }
      * @param response JSON da resposta
      * @return Array com [token, User] ou null em caso de erro
      */
     public static Object[] parserJsonLogin(JSONObject response) {
         try {
-            String token = response.optString("token", null);
+            // Verifica se há um objeto "data" (novo formato)
+            JSONObject data = response.optJSONObject("data");
+            if (data != null) {
+                // Novo formato da API com "data" wrapper
+                String token = data.optString("access_token", null);
+                if (token == null || token.isEmpty()) {
+                    token = data.optString("token", null);
+                }
+                
+                JSONObject userJson = data.optJSONObject("user");
+                User user = null;
+                if (userJson != null) {
+                    user = parserJsonUser(userJson);
+                    
+                    // Tenta obter company_id do objeto company se não estiver no user
+                    if (user.getCompanyId() == 0) {
+                        JSONObject companyJson = data.optJSONObject("company");
+                        if (companyJson != null) {
+                            user.setCompanyId(companyJson.optInt("id", 0));
+                        }
+                    }
+                }
+                
+                return new Object[]{token, user};
+            }
+            
+            // Formato antigo sem wrapper "data"
+            String token = response.optString("access_token", null);
+            if (token == null || token.isEmpty()) {
+                token = response.optString("token", null);
+            }
             
             JSONObject userJson = response.optJSONObject("user");
             User user = null;
@@ -359,18 +400,24 @@ public class VeiGestJsonParser {
     
     /**
      * Extrai array de items da resposta paginada.
+     * Suporta múltiplos formatos:
+     * - { "items": [...] }
+     * - { "data": [...] }
+     * - { "success": true, "data": [...], "_meta": {...} }
      */
     public static JSONArray getItemsFromResponse(JSONObject response) {
         try {
-            if (response.has("items")) {
-                return response.getJSONArray("items");
-            }
-            // Se não tiver "items", pode ser um array direto
+            // Novo formato da API: { "success": true, "data": [...], "_meta": {...} }
             if (response.has("data")) {
                 Object data = response.get("data");
                 if (data instanceof JSONArray) {
                     return (JSONArray) data;
                 }
+            }
+            
+            // Formato alternativo com "items"
+            if (response.has("items")) {
+                return response.getJSONArray("items");
             }
         } catch (JSONException e) {
             e.printStackTrace();

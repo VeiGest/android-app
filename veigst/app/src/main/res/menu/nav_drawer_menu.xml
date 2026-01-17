@@ -17,6 +17,10 @@
             android:id="@+id/nav_documents"
             android:icon="@drawable/ic_dashboard_document"
             android:title="@string/menu_documents" />
+        <item
+            android:id="@+id/nav_reports"
+            android:icon="@drawable/ic_reports"
+            android:title="@string/menu_reports" />
     </group>
     <item android:title="">
         <menu>

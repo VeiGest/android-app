@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             loadFragment(new VehiclesFragment());
         } else if (itemId == R.id.nav_documents) {
             loadFragment(new DocumentsFragment());
+        } else if (itemId == R.id.nav_reports) {
+            loadFragment(new ReportsFragment());
         } else if (itemId == R.id.nav_profile) {
             loadFragment(new ProfileFragment());
         } else if (itemId == R.id.nav_settings) {

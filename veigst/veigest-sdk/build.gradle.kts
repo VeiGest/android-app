@@ -13,7 +13,7 @@ android {
         consumerProguardFiles("consumer-rules.pro")
 
         // URL base da API - pode ser sobrescrita em runtime
-        buildConfigField("String", "API_BASE_URL", "\"http://localhost:8080/api/v1\"")
+        buildConfigField("String", "API_BASE_URL", "\"http://veigestback.dryadlang.org/api/\"")
     }
 
     buildTypes {
@@ -39,6 +39,12 @@ android {
 dependencies {
     // Volley para acesso à API REST (conforme baseconteudo)
     implementation("com.android.volley:volley:1.2.1")
+    
+    // Retrofit e OkHttp para API interface
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     
     // Glide para carregar imagens via URL (conforme baseconteudo)
     implementation("com.github.bumptech.glide:glide:4.16.0")

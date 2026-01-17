@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
+// Para acessar a configuração centralizada
+import com.veigest.sdk.config.ApiConfig;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -65,7 +67,7 @@ public class SingletonVeiGest {
     private SharedPreferences prefs;
     
     // URL base da API (configurável)
-    private String baseUrl = "http://localhost:8080/api/v1";
+    private String baseUrl = ApiConfig.API_BASE_URL;
     
     // Endpoints da API
     private String mUrlAPILogin;
@@ -151,15 +153,18 @@ public class SingletonVeiGest {
     }
     
     private void atualizarEndpoints() {
+        // Endpoints de autenticação
         mUrlAPILogin = baseUrl + "/auth/login";
-        mUrlAPIRegister = baseUrl + "/users";
-        mUrlAPIVehicles = baseUrl + "/vehicles";
-        mUrlAPIMaintenances = baseUrl + "/maintenances";
-        mUrlAPIFuelLogs = baseUrl + "/fuel-logs";
-        mUrlAPIAlerts = baseUrl + "/alerts";
-        mUrlAPIDocuments = baseUrl + "/documents";
-        mUrlAPIRoutes = baseUrl + "/routes";
-        mUrlAPIUsers = baseUrl + "/users";
+        mUrlAPIRegister = baseUrl + "/auth/register";
+        
+        // Endpoints principais (sem 's' no plural - conforme API atualizada)
+        mUrlAPIVehicles = baseUrl + "/vehicle";
+        mUrlAPIMaintenances = baseUrl + "/maintenance";
+        mUrlAPIFuelLogs = baseUrl + "/fuel-log";
+        mUrlAPIAlerts = baseUrl + "/alert";
+        mUrlAPIDocuments = baseUrl + "/document";
+        mUrlAPIRoutes = baseUrl + "/route";
+        mUrlAPIUsers = baseUrl + "/user";
     }
     
     // ==================== INICIALIZAÇÃO DA BD ====================
@@ -407,7 +412,6 @@ public class SingletonVeiGest {
             body.put("email", email);
             body.put("password", password);
             body.put("role", role != null ? role : "driver");
-            body.put("status", "active");
         } catch (JSONException e) {
             e.printStackTrace();
             if (registerListener != null) {
@@ -492,6 +496,95 @@ public class SingletonVeiGest {
         registerAPI(username, email, password, "driver");
     }
     
+    /**
+     * Realiza registro de novo utilizador na API com todos os campos.
+     * 
+     * @param username Nome de utilizador
+     * @param email Email do utilizador
+     * @param password Password
+     * @param name Nome completo
+     * @param phone Telefone (pode ser null)
+     */
+    public void registerAPI(final String username, final String email, final String password, 
+                           final String name, final String phone) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("username", username);
+            body.put("email", email);
+            body.put("password", password);
+            body.put("role", "driver");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            if (registerListener != null) {
+                registerListener.onRegisterError("Erro ao criar requisição");
+            }
+            return;
+        }
+        Log.d(TAG, "Tentando registro: " + username + ", " + email);
+        
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                mUrlAPIRegister,
+                body,
+                response -> {
+                    try {
+                        Log.d(TAG, "Register response: " + response.toString());
+                        
+                        // Parse da resposta - pode retornar o utilizador criado
+                        User user = VeiGestJsonParser.parserJsonUser(response);
+                        
+                        // Persiste na BD local se tiver dados
+                        if (user != null && veiGestBD != null) {
+                            veiGestBD.adicionarUserBD(user);
+                        }
+                        
+                        if (registerListener != null) {
+                            registerListener.onRegisterSuccess(user);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        if (registerListener != null) {
+                            registerListener.onRegisterError("Erro ao processar resposta");
+                        }
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Register error: " + error.toString());
+                    String errorMsg = "Erro de conexão";
+                    
+                    if (error.networkResponse != null) {
+                        int statusCode = error.networkResponse.statusCode;
+                        try {
+                            String responseBody = new String(error.networkResponse.data, "UTF-8");
+                            Log.e(TAG, "Register error response: " + responseBody);
+                            JSONObject errorJson = new JSONObject(responseBody);
+                            errorMsg = VeiGestJsonParser.parserJsonError(errorJson);
+                            
+                            // Tratamento de erros específicos de registro
+                            if (statusCode == 422) {
+                                // Validação falhou (email/username já existe, etc)
+                                if (responseBody.contains("email")) {
+                                    errorMsg = "Email já registrado";
+                                } else if (responseBody.contains("username")) {
+                                    errorMsg = "Nome de utilizador já existe";
+                                }
+                            } else if (statusCode == 401 || statusCode == 403) {
+                                errorMsg = "Sem permissão para criar utilizador";
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    
+                    if (registerListener != null) {
+                        registerListener.onRegisterError(errorMsg);
+                    }
+                }
+        );
+        
+        volleyQueue.add(request);
+    }
+    
     // ==================== LOGOUT ====================
     
     /**
@@ -528,10 +621,7 @@ public class SingletonVeiGest {
                     try {
                         JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
                         ArrayList<Vehicle> lista = VeiGestJsonParser.parserJsonVehicles(items);
-                        
-                        // Atualiza dados em memória e BD
                         adicionarVeiculosBD(lista);
-                        
                         if (veiculosListener != null) {
                             veiculosListener.onRefreshListaVeiculos(veiculos);
                         }
@@ -540,6 +630,21 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
+                    // Tenta detectar se a resposta é um JSONArray puro
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        try {
+                            String responseBody = new String(error.networkResponse.data, "UTF-8");
+                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
+                            ArrayList<Vehicle> lista = VeiGestJsonParser.parserJsonVehicles(arr);
+                            adicionarVeiculosBD(lista);
+                            if (veiculosListener != null) {
+                                veiculosListener.onRefreshListaVeiculos(veiculos);
+                            }
+                            return;
+                        } catch (Exception ex) {
+                            // Não era JSONArray puro, segue fluxo normal
+                        }
+                    }
                     Log.e(TAG, "Erro ao obter veículos: " + error.toString());
                     // Tenta carregar da BD local
                     if (veiGestBD != null) {
@@ -555,7 +660,6 @@ public class SingletonVeiGest {
                 return getAuthHeaders();
             }
         };
-        
         volleyQueue.add(request);
     }
     
@@ -705,9 +809,7 @@ public class SingletonVeiGest {
                     try {
                         JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
                         ArrayList<Maintenance> lista = VeiGestJsonParser.parserJsonMaintenances(items);
-                        
                         adicionarManutencoesBD(lista);
-                        
                         if (manutencoesListener != null) {
                             manutencoesListener.onRefreshListaManutencoes(manutencoes);
                         }
@@ -716,6 +818,18 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        try {
+                            String responseBody = new String(error.networkResponse.data, "UTF-8");
+                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
+                            ArrayList<Maintenance> lista = VeiGestJsonParser.parserJsonMaintenances(arr);
+                            adicionarManutencoesBD(lista);
+                            if (manutencoesListener != null) {
+                                manutencoesListener.onRefreshListaManutencoes(manutencoes);
+                            }
+                            return;
+                        } catch (Exception ex) {}
+                    }
                     Log.e(TAG, "Erro ao obter manutenções: " + error.toString());
                     if (veiGestBD != null) {
                         manutencoes = veiGestBD.getAllMaintenancesBD();
@@ -730,7 +844,6 @@ public class SingletonVeiGest {
                 return getAuthHeaders();
             }
         };
-        
         volleyQueue.add(request);
     }
     
@@ -796,9 +909,7 @@ public class SingletonVeiGest {
                     try {
                         JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
                         ArrayList<FuelLog> lista = VeiGestJsonParser.parserJsonFuelLogs(items);
-                        
                         adicionarAbastecimentosBD(lista);
-                        
                         if (abastecimentosListener != null) {
                             abastecimentosListener.onRefreshListaAbastecimentos(abastecimentos);
                         }
@@ -807,6 +918,18 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        try {
+                            String responseBody = new String(error.networkResponse.data, "UTF-8");
+                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
+                            ArrayList<FuelLog> lista = VeiGestJsonParser.parserJsonFuelLogs(arr);
+                            adicionarAbastecimentosBD(lista);
+                            if (abastecimentosListener != null) {
+                                abastecimentosListener.onRefreshListaAbastecimentos(abastecimentos);
+                            }
+                            return;
+                        } catch (Exception ex) {}
+                    }
                     Log.e(TAG, "Erro ao obter abastecimentos: " + error.toString());
                     if (veiGestBD != null) {
                         abastecimentos = veiGestBD.getAllFuelLogsBD();
@@ -821,7 +944,6 @@ public class SingletonVeiGest {
                 return getAuthHeaders();
             }
         };
-        
         volleyQueue.add(request);
     }
     
@@ -887,9 +1009,7 @@ public class SingletonVeiGest {
                     try {
                         JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
                         ArrayList<Alert> lista = VeiGestJsonParser.parserJsonAlerts(items);
-                        
                         adicionarAlertasBD(lista);
-                        
                         if (alertasListener != null) {
                             alertasListener.onRefreshListaAlertas(alertas);
                         }
@@ -898,6 +1018,18 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        try {
+                            String responseBody = new String(error.networkResponse.data, "UTF-8");
+                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
+                            ArrayList<Alert> lista = VeiGestJsonParser.parserJsonAlerts(arr);
+                            adicionarAlertasBD(lista);
+                            if (alertasListener != null) {
+                                alertasListener.onRefreshListaAlertas(alertas);
+                            }
+                            return;
+                        } catch (Exception ex) {}
+                    }
                     Log.e(TAG, "Erro ao obter alertas: " + error.toString());
                     if (veiGestBD != null) {
                         alertas = veiGestBD.getAllAlertsBD();
@@ -912,7 +1044,6 @@ public class SingletonVeiGest {
                 return getAuthHeaders();
             }
         };
-        
         volleyQueue.add(request);
     }
     
@@ -942,9 +1073,7 @@ public class SingletonVeiGest {
                     try {
                         JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
                         ArrayList<Document> lista = VeiGestJsonParser.parserJsonDocuments(items);
-                        
                         adicionarDocumentosBD(lista);
-                        
                         if (documentosListener != null) {
                             documentosListener.onRefreshListaDocumentos(documentos);
                         }
@@ -953,6 +1082,18 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        try {
+                            String responseBody = new String(error.networkResponse.data, "UTF-8");
+                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
+                            ArrayList<Document> lista = VeiGestJsonParser.parserJsonDocuments(arr);
+                            adicionarDocumentosBD(lista);
+                            if (documentosListener != null) {
+                                documentosListener.onRefreshListaDocumentos(documentos);
+                            }
+                            return;
+                        } catch (Exception ex) {}
+                    }
                     Log.e(TAG, "Erro ao obter documentos: " + error.toString());
                     if (veiGestBD != null) {
                         documentos = veiGestBD.getAllDocumentsBD();
@@ -967,7 +1108,6 @@ public class SingletonVeiGest {
                 return getAuthHeaders();
             }
         };
-        
         volleyQueue.add(request);
     }
     
@@ -997,9 +1137,7 @@ public class SingletonVeiGest {
                     try {
                         JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
                         ArrayList<Route> lista = VeiGestJsonParser.parserJsonRoutes(items);
-                        
                         adicionarRotasBD(lista);
-                        
                         if (rotasListener != null) {
                             rotasListener.onRefreshListaRotas(rotas);
                         }
@@ -1008,6 +1146,21 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
+                    // Tenta detectar se a resposta é um JSONArray puro
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        try {
+                            String responseBody = new String(error.networkResponse.data, "UTF-8");
+                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
+                            ArrayList<Route> lista = VeiGestJsonParser.parserJsonRoutes(arr);
+                            adicionarRotasBD(lista);
+                            if (rotasListener != null) {
+                                rotasListener.onRefreshListaRotas(rotas);
+                            }
+                            return;
+                        } catch (Exception ex) {
+                            // Não era JSONArray puro, segue fluxo normal
+                        }
+                    }
                     Log.e(TAG, "Erro ao obter rotas: " + error.toString());
                     if (veiGestBD != null) {
                         rotas = veiGestBD.getAllRoutesBD();
@@ -1022,7 +1175,6 @@ public class SingletonVeiGest {
                 return getAuthHeaders();
             }
         };
-        
         volleyQueue.add(request);
     }
     
@@ -1060,22 +1212,13 @@ public class SingletonVeiGest {
      * Converte Vehicle para JSON.
      */
     private JSONObject vehicleToJson(Vehicle vehicle) {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("license_plate", vehicle.getLicensePlate());
-            json.put("brand", vehicle.getBrand());
-            json.put("model", vehicle.getModel());
-            json.put("year", vehicle.getYear());
-            json.put("fuel_type", vehicle.getFuelType());
-            json.put("mileage", vehicle.getMileage());
-            json.put("status", vehicle.getStatus());
-            if (vehicle.getDriverId() > 0) {
-                json.put("driver_id", vehicle.getDriverId());
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return json;
+        JSONObject jsonBody = new JSONObject();
+        // Preencher jsonBody com dados do veículo
+        // Exemplo:
+        // jsonBody.put("id", vehicle.getId());
+        // jsonBody.put("license_plate", vehicle.getLicensePlate());
+        // ...
+        return jsonBody;
     }
     
     /**

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.veigest.sdk.SingletonVeiGest;
+import com.veigest.sdk.config.ApiConfig;
 
 /**
  * Classe Application para inicialização do VeiGest SDK.
@@ -19,8 +20,7 @@ public class VeiGestApplication extends Application {
     
     private static final String TAG = "VeiGestApp";
     
-    // URL base da API VeiGest
-    private static final String API_BASE_URL = "https://veigestback.dryadlang.org/api/v1";
+    // URL base da API VeiGest agora centralizada em ApiConfig
     
     @Override
     public void onCreate() {
@@ -41,10 +41,10 @@ public class VeiGestApplication extends Application {
     private void initializeSDK() {
         // Obter instância do Singleton e configurar URL base
         SingletonVeiGest singleton = SingletonVeiGest.getInstance(this);
-        singleton.setBaseUrl(API_BASE_URL);
+        singleton.setBaseUrl(ApiConfig.API_BASE_URL);
         
         Log.d(TAG, "VeiGest SDK (Singleton) inicializado");
-        Log.d(TAG, "API URL: " + API_BASE_URL);
+        Log.d(TAG, "API URL: " + ApiConfig.API_BASE_URL);
         Log.d(TAG, "Debug mode: " + BuildConfig.DEBUG);
     }
     
