@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="16dp"
+    android:background="#F5F5F5">
+
+    <ImageView
+        android:id="@+id/btn_menu_global"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_menu_hamburger"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="Abrir Menu"/>
+
+    <TextView
+        android:id="@+id/tv_header_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="VeiGest"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/Black"/>
+
+</LinearLayout>

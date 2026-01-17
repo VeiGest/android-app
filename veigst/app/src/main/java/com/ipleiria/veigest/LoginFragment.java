@@ -104,11 +104,14 @@ public class LoginFragment extends Fragment implements LoginListener {
      * Executa o login usando o VeiGest Singleton
      */
     private void performLogin(String email, String password) {
+        // Evita múltiplos cliques rápidos
+        if (progressBar.getVisibility() == View.VISIBLE) {
+            Log.d(TAG, "Login já em andamento, ignorando novo clique.");
+            return;
+        }
         // Mostrar loading
         setLoading(true);
-        
         Log.d(TAG, "Tentando login para: " + email);
-        
         // Usar o Singleton para fazer login (resposta via listener)
         singleton.loginAPI(email, password);
     }
@@ -118,18 +121,17 @@ public class LoginFragment extends Fragment implements LoginListener {
     @Override
     public void onValidateLogin(String token, User user) {
         if (getActivity() == null) return;
-
         getActivity().runOnUiThread(() -> {
             setLoading(false);
-
             String name = user != null ? user.getUsername() : "";
-
             Log.d(TAG, "Login bem-sucedido! Utilizador: " + name);
             Toast.makeText(getContext(), "Bem-vindo, " + name + "!", Toast.LENGTH_SHORT).show();
-
-            // Navegar para o Dashboard
+            // Navegar para o Dashboard e remover LoginFragment da pilha
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).loadDashboard();
+                MainActivity main = (MainActivity) getActivity();
+                main.loadDashboard();
+                // Remover LoginFragment da pilha para evitar loop
+                getParentFragmentManager().popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         });
     }

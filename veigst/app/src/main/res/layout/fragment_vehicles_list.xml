@@ -12,29 +12,10 @@
         android:layout_height="match_parent">
 
         <!-- Header -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/vehicles_title"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/Black"/>
-
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:visibility="gone"/>
-        </LinearLayout>
+        <!-- Header -->
+        <include
+            android:id="@+id/header"
+            layout="@layout/layout_fragment_header"/>
 
         <!-- SwipeRefresh com RecyclerView -->
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

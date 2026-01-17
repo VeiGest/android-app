@@ -10,6 +10,7 @@ import com.android.volley.Request;
 import com.veigest.sdk.config.ApiConfig;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.veigest.sdk.database.VeiGestBDHelper;
 import com.veigest.sdk.listeners.*;
@@ -35,6 +36,7 @@ import java.util.Map;
  * - Listeners para notificação de atualizações
  * 
  * Exemplo de uso:
+ * 
  * <pre>
  * // Inicializar (uma vez, no Application)
  * SingletonVeiGest.getInstance(context).setBaseUrl("http://api.exemplo.com/api/v1");
@@ -47,28 +49,28 @@ import java.util.Map;
  * </pre>
  */
 public class SingletonVeiGest {
-    
+
     private static final String TAG = "SingletonVeiGest";
-    
+
     // Instância única
     private static SingletonVeiGest INSTANCE = null;
-    
+
     // Volley RequestQueue
     private static RequestQueue volleyQueue = null;
-    
+
     // Base de dados
     private VeiGestBDHelper veiGestBD = null;
-    
+
     // SharedPreferences para token e configurações
     private static final String PREFS_NAME = "veigest_prefs";
     private static final String PREF_TOKEN = "auth_token";
     private static final String PREF_USER_ID = "user_id";
     private static final String PREF_COMPANY_ID = "company_id";
     private SharedPreferences prefs;
-    
+
     // URL base da API (configurável)
     private String baseUrl = ApiConfig.API_BASE_URL;
-    
+
     // Endpoints da API
     private String mUrlAPILogin;
     private String mUrlAPIRegister;
@@ -79,7 +81,7 @@ public class SingletonVeiGest {
     private String mUrlAPIDocuments;
     private String mUrlAPIRoutes;
     private String mUrlAPIUsers;
-    
+
     // Dados em memória
     private ArrayList<Vehicle> veiculos;
     private ArrayList<Maintenance> manutencoes;
@@ -88,7 +90,7 @@ public class SingletonVeiGest {
     private ArrayList<Document> documentos;
     private ArrayList<Route> rotas;
     private User utilizadorAtual;
-    
+
     // Listeners
     private LoginListener loginListener;
     private RegisterListener registerListener;
@@ -99,7 +101,7 @@ public class SingletonVeiGest {
     private AlertasListener alertasListener;
     private DocumentosListener documentosListener;
     private RotasListener rotasListener;
-    
+
     /**
      * Construtor privado - usar getInstance()
      */
@@ -113,7 +115,7 @@ public class SingletonVeiGest {
         rotas = new ArrayList<>();
         atualizarEndpoints();
     }
-    
+
     /**
      * Obtém a instância única do Singleton.
      */
@@ -124,16 +126,16 @@ public class SingletonVeiGest {
         }
         return INSTANCE;
     }
-    
+
     /**
      * Verifica se o SDK foi inicializado.
      */
     public static boolean isInitialized() {
         return INSTANCE != null;
     }
-    
+
     // ==================== CONFIGURAÇÃO ====================
-    
+
     /**
      * Define a URL base da API.
      */
@@ -144,19 +146,19 @@ public class SingletonVeiGest {
             atualizarEndpoints();
         }
     }
-    
+
     /**
      * Obtém a URL base da API.
      */
     public String getBaseUrl() {
         return baseUrl;
     }
-    
+
     private void atualizarEndpoints() {
         // Endpoints de autenticação
         mUrlAPILogin = baseUrl + "/auth/login";
         mUrlAPIRegister = baseUrl + "/auth/register";
-        
+
         // Endpoints principais (sem 's' no plural - conforme API atualizada)
         mUrlAPIVehicles = baseUrl + "/vehicle";
         mUrlAPIMaintenances = baseUrl + "/maintenance";
@@ -166,9 +168,9 @@ public class SingletonVeiGest {
         mUrlAPIRoutes = baseUrl + "/route";
         mUrlAPIUsers = baseUrl + "/user";
     }
-    
+
     // ==================== INICIALIZAÇÃO DA BD ====================
-    
+
     /**
      * Inicializa a base de dados SQLite.
      * Deve ser chamado antes de usar funcionalidades de persistência local.
@@ -178,37 +180,37 @@ public class SingletonVeiGest {
             veiGestBD = new VeiGestBDHelper(context);
         }
     }
-    
+
     /**
      * Obtém o helper da base de dados.
      */
     public VeiGestBDHelper getBD() {
         return veiGestBD;
     }
-    
+
     // ==================== TOKEN E AUTENTICAÇÃO ====================
-    
+
     /**
      * Salva o token de autenticação.
      */
     public void saveToken(String token) {
         prefs.edit().putString(PREF_TOKEN, token).apply();
     }
-    
+
     /**
      * Obtém o token de autenticação.
      */
     public String getToken() {
         return prefs.getString(PREF_TOKEN, null);
     }
-    
+
     /**
      * Verifica se há um token válido.
      */
     public boolean isAuthenticated() {
         return getToken() != null && !getToken().isEmpty();
     }
-    
+
     /**
      * Limpa o token e dados do utilizador.
      */
@@ -220,7 +222,7 @@ public class SingletonVeiGest {
                 .apply();
         utilizadorAtual = null;
     }
-    
+
     /**
      * Salva informações do utilizador.
      */
@@ -230,92 +232,93 @@ public class SingletonVeiGest {
                 .putInt(PREF_COMPANY_ID, companyId)
                 .apply();
     }
-    
+
     public int getUserId() {
         return prefs.getInt(PREF_USER_ID, 0);
     }
-    
+
     public int getCompanyId() {
         return prefs.getInt(PREF_COMPANY_ID, 0);
     }
-    
+
     // ==================== SETTERS DE LISTENERS ====================
-    
+
     public void setLoginListener(LoginListener listener) {
         this.loginListener = listener;
     }
-    
+
     public void setRegisterListener(RegisterListener listener) {
         this.registerListener = listener;
     }
-    
+
     public void setVeiculosListener(VeiculosListener listener) {
         this.veiculosListener = listener;
     }
-    
+
     public void setVeiculoListener(VeiculoListener listener) {
         this.veiculoListener = listener;
     }
-    
+
     public void setManutencoesListener(ManutencoesListener listener) {
         this.manutencoesListener = listener;
     }
-    
+
     public void setAbastecimentosListener(AbastecimentosListener listener) {
         this.abastecimentosListener = listener;
     }
-    
+
     public void setAlertasListener(AlertasListener listener) {
         this.alertasListener = listener;
     }
-    
+
     public void setDocumentosListener(DocumentosListener listener) {
         this.documentosListener = listener;
     }
-    
+
     public void setRotasListener(RotasListener listener) {
         this.rotasListener = listener;
     }
-    
+
     // ==================== GETTERS DE DADOS ====================
-    
+
     public ArrayList<Vehicle> getVeiculos() {
         return new ArrayList<>(veiculos);
     }
-    
+
     public Vehicle getVeiculo(int id) {
         for (Vehicle v : veiculos) {
-            if (v.getId() == id) return v;
+            if (v.getId() == id)
+                return v;
         }
         return null;
     }
-    
+
     public ArrayList<Maintenance> getManutencoes() {
         return new ArrayList<>(manutencoes);
     }
-    
+
     public ArrayList<FuelLog> getAbastecimentos() {
         return new ArrayList<>(abastecimentos);
     }
-    
+
     public ArrayList<Alert> getAlertas() {
         return new ArrayList<>(alertas);
     }
-    
+
     public ArrayList<Document> getDocumentos() {
         return new ArrayList<>(documentos);
     }
-    
+
     public ArrayList<Route> getRotas() {
         return new ArrayList<>(rotas);
     }
-    
+
     public User getUtilizadorAtual() {
         return utilizadorAtual;
     }
-    
+
     // ==================== LOGIN API ====================
-    
+
     /**
      * Realiza login na API.
      * Notifica através do LoginListener.
@@ -332,7 +335,7 @@ public class SingletonVeiGest {
             }
             return;
         }
-        
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 mUrlAPILogin,
@@ -340,24 +343,24 @@ public class SingletonVeiGest {
                 response -> {
                     try {
                         Log.d(TAG, "Login response: " + response.toString());
-                        
+
                         Object[] result = VeiGestJsonParser.parserJsonLogin(response);
                         if (result != null && result[0] != null) {
                             String token = (String) result[0];
                             User user = (User) result[1];
-                            
+
                             // Salva token e info do utilizador
                             saveToken(token);
                             if (user != null) {
                                 utilizadorAtual = user;
                                 saveUserInfo(user.getId(), user.getCompanyId());
-                                
+
                                 // Persiste na BD local
                                 if (veiGestBD != null) {
                                     veiGestBD.adicionarUserBD(user);
                                 }
                             }
-                            
+
                             if (loginListener != null) {
                                 loginListener.onValidateLogin(token, user);
                             }
@@ -388,22 +391,22 @@ public class SingletonVeiGest {
                     if (loginListener != null) {
                         loginListener.onLoginError(errorMsg);
                     }
-                }
-        );
-        
+                });
+
         volleyQueue.add(request);
     }
-    
+
     // ==================== REGISTER API ====================
-    
+
     /**
      * Realiza registro de novo utilizador na API.
      * Notifica através do RegisterListener.
      * 
      * @param username Nome de utilizador (obrigatório)
-     * @param email Email do utilizador (obrigatório)
+     * @param email    Email do utilizador (obrigatório)
      * @param password Password (obrigatório, mínimo 6 caracteres)
-     * @param role Função do utilizador (ex: "driver", "manager"). Se null, será "driver"
+     * @param role     Função do utilizador (ex: "driver", "manager"). Se null, será
+     *                 "driver"
      */
     public void registerAPI(final String username, final String email, final String password, final String role) {
         JSONObject body = new JSONObject();
@@ -419,9 +422,9 @@ public class SingletonVeiGest {
             }
             return;
         }
-        
+
         Log.d(TAG, "Tentando registro: " + username + ", " + email);
-        
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 mUrlAPIRegister,
@@ -429,15 +432,15 @@ public class SingletonVeiGest {
                 response -> {
                     try {
                         Log.d(TAG, "Register response: " + response.toString());
-                        
+
                         // Parse da resposta - pode retornar o utilizador criado
                         User user = VeiGestJsonParser.parserJsonUser(response);
-                        
+
                         // Persiste na BD local se tiver dados
                         if (user != null && veiGestBD != null) {
                             veiGestBD.adicionarUserBD(user);
                         }
-                        
+
                         if (registerListener != null) {
                             registerListener.onRegisterSuccess(user);
                         }
@@ -451,7 +454,7 @@ public class SingletonVeiGest {
                 error -> {
                     Log.e(TAG, "Register error: " + error.toString());
                     String errorMsg = "Erro de conexão";
-                    
+
                     if (error.networkResponse != null) {
                         int statusCode = error.networkResponse.statusCode;
                         try {
@@ -459,7 +462,7 @@ public class SingletonVeiGest {
                             Log.e(TAG, "Register error response: " + responseBody);
                             JSONObject errorJson = new JSONObject(responseBody);
                             errorMsg = VeiGestJsonParser.parserJsonError(errorJson);
-                            
+
                             // Tratamento de erros específicos de registro
                             if (statusCode == 422) {
                                 // Validação falhou (email/username já existe, etc)
@@ -475,38 +478,37 @@ public class SingletonVeiGest {
                             e.printStackTrace();
                         }
                     }
-                    
+
                     if (registerListener != null) {
                         registerListener.onRegisterError(errorMsg);
                     }
-                }
-        );
-        
+                });
+
         volleyQueue.add(request);
     }
-    
+
     /**
      * Realiza registro de novo utilizador na API com role padrão "driver".
      * 
      * @param username Nome de utilizador
-     * @param email Email do utilizador  
+     * @param email    Email do utilizador
      * @param password Password
      */
     public void registerAPI(final String username, final String email, final String password) {
         registerAPI(username, email, password, "driver");
     }
-    
+
     /**
      * Realiza registro de novo utilizador na API com todos os campos.
      * 
      * @param username Nome de utilizador
-     * @param email Email do utilizador
+     * @param email    Email do utilizador
      * @param password Password
-     * @param name Nome completo
-     * @param phone Telefone (pode ser null)
+     * @param name     Nome completo
+     * @param phone    Telefone (pode ser null)
      */
-    public void registerAPI(final String username, final String email, final String password, 
-                           final String name, final String phone) {
+    public void registerAPI(final String username, final String email, final String password,
+            final String name, final String phone) {
         JSONObject body = new JSONObject();
         try {
             body.put("username", username);
@@ -521,7 +523,7 @@ public class SingletonVeiGest {
             return;
         }
         Log.d(TAG, "Tentando registro: " + username + ", " + email);
-        
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 mUrlAPIRegister,
@@ -529,15 +531,15 @@ public class SingletonVeiGest {
                 response -> {
                     try {
                         Log.d(TAG, "Register response: " + response.toString());
-                        
+
                         // Parse da resposta - pode retornar o utilizador criado
                         User user = VeiGestJsonParser.parserJsonUser(response);
-                        
+
                         // Persiste na BD local se tiver dados
                         if (user != null && veiGestBD != null) {
                             veiGestBD.adicionarUserBD(user);
                         }
-                        
+
                         if (registerListener != null) {
                             registerListener.onRegisterSuccess(user);
                         }
@@ -551,7 +553,7 @@ public class SingletonVeiGest {
                 error -> {
                     Log.e(TAG, "Register error: " + error.toString());
                     String errorMsg = "Erro de conexão";
-                    
+
                     if (error.networkResponse != null) {
                         int statusCode = error.networkResponse.statusCode;
                         try {
@@ -559,7 +561,7 @@ public class SingletonVeiGest {
                             Log.e(TAG, "Register error response: " + responseBody);
                             JSONObject errorJson = new JSONObject(responseBody);
                             errorMsg = VeiGestJsonParser.parserJsonError(errorJson);
-                            
+
                             // Tratamento de erros específicos de registro
                             if (statusCode == 422) {
                                 // Validação falhou (email/username já existe, etc)
@@ -575,24 +577,23 @@ public class SingletonVeiGest {
                             e.printStackTrace();
                         }
                     }
-                    
+
                     if (registerListener != null) {
                         registerListener.onRegisterError(errorMsg);
                     }
-                }
-        );
-        
+                });
+
         volleyQueue.add(request);
     }
-    
+
     // ==================== LOGOUT ====================
-    
+
     /**
      * Realiza logout.
      */
     public void logout() {
         clearAuth();
-        
+
         // Limpa dados em memória
         veiculos.clear();
         manutencoes.clear();
@@ -600,27 +601,26 @@ public class SingletonVeiGest {
         alertas.clear();
         documentos.clear();
         rotas.clear();
-        
+
         // Limpa BD local
         if (veiGestBD != null) {
             veiGestBD.limparTudo();
         }
     }
-    
+
     // ==================== VEÍCULOS API ====================
-    
+
     /**
      * Obtém todos os veículos da API.
      */
     public void getAllVeiculosAPI() {
-        JsonObjectRequest request = new JsonObjectRequest(
+        JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET,
                 mUrlAPIVehicles,
                 null,
                 response -> {
                     try {
-                        JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
-                        ArrayList<Vehicle> lista = VeiGestJsonParser.parserJsonVehicles(items);
+                        ArrayList<Vehicle> lista = VeiGestJsonParser.parserJsonVehicles(response);
                         adicionarVeiculosBD(lista);
                         if (veiculosListener != null) {
                             veiculosListener.onRefreshListaVeiculos(veiculos);
@@ -630,21 +630,6 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
-                    // Tenta detectar se a resposta é um JSONArray puro
-                    if (error.networkResponse != null && error.networkResponse.data != null) {
-                        try {
-                            String responseBody = new String(error.networkResponse.data, "UTF-8");
-                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
-                            ArrayList<Vehicle> lista = VeiGestJsonParser.parserJsonVehicles(arr);
-                            adicionarVeiculosBD(lista);
-                            if (veiculosListener != null) {
-                                veiculosListener.onRefreshListaVeiculos(veiculos);
-                            }
-                            return;
-                        } catch (Exception ex) {
-                            // Não era JSONArray puro, segue fluxo normal
-                        }
-                    }
                     Log.e(TAG, "Erro ao obter veículos: " + error.toString());
                     // Tenta carregar da BD local
                     if (veiGestBD != null) {
@@ -653,22 +638,23 @@ public class SingletonVeiGest {
                             veiculosListener.onRefreshListaVeiculos(veiculos);
                         }
                     }
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
         volleyQueue.add(request);
     }
-    
+
     /**
      * Adiciona um veículo via API.
      */
     public void adicionarVeiculoAPI(final Vehicle vehicle) {
         JSONObject body = vehicleToJson(vehicle);
-        
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 mUrlAPIVehicles,
@@ -691,23 +677,24 @@ public class SingletonVeiGest {
                 },
                 error -> {
                     Log.e(TAG, "Erro ao adicionar veículo: " + error.toString());
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
-        
+
         volleyQueue.add(request);
     }
-    
+
     /**
      * Edita um veículo via API.
      */
     public void editarVeiculoAPI(final Vehicle vehicle) {
         JSONObject body = vehicleToJson(vehicle);
-        
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.PUT,
                 mUrlAPIVehicles + "/" + vehicle.getId(),
@@ -736,17 +723,18 @@ public class SingletonVeiGest {
                 },
                 error -> {
                     Log.e(TAG, "Erro ao editar veículo: " + error.toString());
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
-        
+
         volleyQueue.add(request);
     }
-    
+
     /**
      * Remove um veículo via API.
      */
@@ -772,21 +760,22 @@ public class SingletonVeiGest {
                 },
                 error -> {
                     Log.e(TAG, "Erro ao remover veículo: " + error.toString());
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
-        
+
         volleyQueue.add(request);
     }
-    
+
     private void adicionarVeiculosBD(ArrayList<Vehicle> lista) {
         veiculos.clear();
         veiculos.addAll(lista);
-        
+
         if (veiGestBD != null) {
             veiGestBD.removerAllVehiclesBD();
             for (Vehicle v : lista) {
@@ -794,21 +783,20 @@ public class SingletonVeiGest {
             }
         }
     }
-    
+
     // ==================== MANUTENÇÕES API ====================
-    
+
     /**
      * Obtém todas as manutenções da API.
      */
     public void getAllManutencoesAPI() {
-        JsonObjectRequest request = new JsonObjectRequest(
+        JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET,
                 mUrlAPIMaintenances,
                 null,
                 response -> {
                     try {
-                        JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
-                        ArrayList<Maintenance> lista = VeiGestJsonParser.parserJsonMaintenances(items);
+                        ArrayList<Maintenance> lista = VeiGestJsonParser.parserJsonMaintenances(response);
                         adicionarManutencoesBD(lista);
                         if (manutencoesListener != null) {
                             manutencoesListener.onRefreshListaManutencoes(manutencoes);
@@ -818,18 +806,6 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
-                    if (error.networkResponse != null && error.networkResponse.data != null) {
-                        try {
-                            String responseBody = new String(error.networkResponse.data, "UTF-8");
-                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
-                            ArrayList<Maintenance> lista = VeiGestJsonParser.parserJsonMaintenances(arr);
-                            adicionarManutencoesBD(lista);
-                            if (manutencoesListener != null) {
-                                manutencoesListener.onRefreshListaManutencoes(manutencoes);
-                            }
-                            return;
-                        } catch (Exception ex) {}
-                    }
                     Log.e(TAG, "Erro ao obter manutenções: " + error.toString());
                     if (veiGestBD != null) {
                         manutencoes = veiGestBD.getAllMaintenancesBD();
@@ -837,22 +813,23 @@ public class SingletonVeiGest {
                             manutencoesListener.onRefreshListaManutencoes(manutencoes);
                         }
                     }
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
         volleyQueue.add(request);
     }
-    
+
     /**
      * Adiciona uma manutenção via API.
      */
     public void adicionarManutencaoAPI(final Maintenance maintenance) {
         JSONObject body = maintenanceToJson(maintenance);
-        
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 mUrlAPIMaintenances,
@@ -872,21 +849,22 @@ public class SingletonVeiGest {
                 },
                 error -> {
                     Log.e(TAG, "Erro ao adicionar manutenção: " + error.toString());
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
-        
+
         volleyQueue.add(request);
     }
-    
+
     private void adicionarManutencoesBD(ArrayList<Maintenance> lista) {
         manutencoes.clear();
         manutencoes.addAll(lista);
-        
+
         if (veiGestBD != null) {
             veiGestBD.removerAllMaintenancesBD();
             for (Maintenance m : lista) {
@@ -894,21 +872,20 @@ public class SingletonVeiGest {
             }
         }
     }
-    
+
     // ==================== ABASTECIMENTOS API ====================
-    
+
     /**
      * Obtém todos os abastecimentos da API.
      */
     public void getAllAbastecimentosAPI() {
-        JsonObjectRequest request = new JsonObjectRequest(
+        JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET,
                 mUrlAPIFuelLogs,
                 null,
                 response -> {
                     try {
-                        JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
-                        ArrayList<FuelLog> lista = VeiGestJsonParser.parserJsonFuelLogs(items);
+                        ArrayList<FuelLog> lista = VeiGestJsonParser.parserJsonFuelLogs(response);
                         adicionarAbastecimentosBD(lista);
                         if (abastecimentosListener != null) {
                             abastecimentosListener.onRefreshListaAbastecimentos(abastecimentos);
@@ -918,18 +895,6 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
-                    if (error.networkResponse != null && error.networkResponse.data != null) {
-                        try {
-                            String responseBody = new String(error.networkResponse.data, "UTF-8");
-                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
-                            ArrayList<FuelLog> lista = VeiGestJsonParser.parserJsonFuelLogs(arr);
-                            adicionarAbastecimentosBD(lista);
-                            if (abastecimentosListener != null) {
-                                abastecimentosListener.onRefreshListaAbastecimentos(abastecimentos);
-                            }
-                            return;
-                        } catch (Exception ex) {}
-                    }
                     Log.e(TAG, "Erro ao obter abastecimentos: " + error.toString());
                     if (veiGestBD != null) {
                         abastecimentos = veiGestBD.getAllFuelLogsBD();
@@ -937,22 +902,23 @@ public class SingletonVeiGest {
                             abastecimentosListener.onRefreshListaAbastecimentos(abastecimentos);
                         }
                     }
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
         volleyQueue.add(request);
     }
-    
+
     /**
      * Adiciona um abastecimento via API.
      */
     public void adicionarAbastecimentoAPI(final FuelLog fuelLog) {
         JSONObject body = fuelLogToJson(fuelLog);
-        
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 mUrlAPIFuelLogs,
@@ -972,21 +938,22 @@ public class SingletonVeiGest {
                 },
                 error -> {
                     Log.e(TAG, "Erro ao adicionar abastecimento: " + error.toString());
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
-        
+
         volleyQueue.add(request);
     }
-    
+
     private void adicionarAbastecimentosBD(ArrayList<FuelLog> lista) {
         abastecimentos.clear();
         abastecimentos.addAll(lista);
-        
+
         if (veiGestBD != null) {
             veiGestBD.removerAllFuelLogsBD();
             for (FuelLog f : lista) {
@@ -994,21 +961,20 @@ public class SingletonVeiGest {
             }
         }
     }
-    
+
     // ==================== ALERTAS API ====================
-    
+
     /**
      * Obtém todos os alertas da API.
      */
     public void getAllAlertasAPI() {
-        JsonObjectRequest request = new JsonObjectRequest(
+        JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET,
                 mUrlAPIAlerts,
                 null,
                 response -> {
                     try {
-                        JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
-                        ArrayList<Alert> lista = VeiGestJsonParser.parserJsonAlerts(items);
+                        ArrayList<Alert> lista = VeiGestJsonParser.parserJsonAlerts(response);
                         adicionarAlertasBD(lista);
                         if (alertasListener != null) {
                             alertasListener.onRefreshListaAlertas(alertas);
@@ -1018,18 +984,6 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
-                    if (error.networkResponse != null && error.networkResponse.data != null) {
-                        try {
-                            String responseBody = new String(error.networkResponse.data, "UTF-8");
-                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
-                            ArrayList<Alert> lista = VeiGestJsonParser.parserJsonAlerts(arr);
-                            adicionarAlertasBD(lista);
-                            if (alertasListener != null) {
-                                alertasListener.onRefreshListaAlertas(alertas);
-                            }
-                            return;
-                        } catch (Exception ex) {}
-                    }
                     Log.e(TAG, "Erro ao obter alertas: " + error.toString());
                     if (veiGestBD != null) {
                         alertas = veiGestBD.getAllAlertsBD();
@@ -1037,20 +991,21 @@ public class SingletonVeiGest {
                             alertasListener.onRefreshListaAlertas(alertas);
                         }
                     }
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
         volleyQueue.add(request);
     }
-    
+
     private void adicionarAlertasBD(ArrayList<Alert> lista) {
         alertas.clear();
         alertas.addAll(lista);
-        
+
         if (veiGestBD != null) {
             veiGestBD.removerAllAlertsBD();
             for (Alert a : lista) {
@@ -1058,21 +1013,20 @@ public class SingletonVeiGest {
             }
         }
     }
-    
+
     // ==================== DOCUMENTOS API ====================
-    
+
     /**
      * Obtém todos os documentos da API.
      */
     public void getAllDocumentosAPI() {
-        JsonObjectRequest request = new JsonObjectRequest(
+        JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET,
                 mUrlAPIDocuments,
                 null,
                 response -> {
                     try {
-                        JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
-                        ArrayList<Document> lista = VeiGestJsonParser.parserJsonDocuments(items);
+                        ArrayList<Document> lista = VeiGestJsonParser.parserJsonDocuments(response);
                         adicionarDocumentosBD(lista);
                         if (documentosListener != null) {
                             documentosListener.onRefreshListaDocumentos(documentos);
@@ -1082,18 +1036,6 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
-                    if (error.networkResponse != null && error.networkResponse.data != null) {
-                        try {
-                            String responseBody = new String(error.networkResponse.data, "UTF-8");
-                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
-                            ArrayList<Document> lista = VeiGestJsonParser.parserJsonDocuments(arr);
-                            adicionarDocumentosBD(lista);
-                            if (documentosListener != null) {
-                                documentosListener.onRefreshListaDocumentos(documentos);
-                            }
-                            return;
-                        } catch (Exception ex) {}
-                    }
                     Log.e(TAG, "Erro ao obter documentos: " + error.toString());
                     if (veiGestBD != null) {
                         documentos = veiGestBD.getAllDocumentsBD();
@@ -1101,20 +1043,21 @@ public class SingletonVeiGest {
                             documentosListener.onRefreshListaDocumentos(documentos);
                         }
                     }
-                }
-        ) {
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
         volleyQueue.add(request);
     }
-    
+
     private void adicionarDocumentosBD(ArrayList<Document> lista) {
         documentos.clear();
         documentos.addAll(lista);
-        
+
         if (veiGestBD != null) {
             veiGestBD.removerAllDocumentsBD();
             for (Document d : lista) {
@@ -1122,21 +1065,20 @@ public class SingletonVeiGest {
             }
         }
     }
-    
+
     // ==================== ROTAS API ====================
-    
+
     /**
      * Obtém todas as rotas da API.
      */
     public void getAllRotasAPI() {
-        JsonObjectRequest request = new JsonObjectRequest(
+        JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET,
                 mUrlAPIRoutes,
                 null,
                 response -> {
                     try {
-                        JSONArray items = VeiGestJsonParser.getItemsFromResponse(response);
-                        ArrayList<Route> lista = VeiGestJsonParser.parserJsonRoutes(items);
+                        ArrayList<Route> lista = VeiGestJsonParser.parserJsonRoutes(response);
                         adicionarRotasBD(lista);
                         if (rotasListener != null) {
                             rotasListener.onRefreshListaRotas(rotas);
@@ -1146,42 +1088,29 @@ public class SingletonVeiGest {
                     }
                 },
                 error -> {
-                    // Tenta detectar se a resposta é um JSONArray puro
-                    if (error.networkResponse != null && error.networkResponse.data != null) {
-                        try {
-                            String responseBody = new String(error.networkResponse.data, "UTF-8");
-                            org.json.JSONArray arr = new org.json.JSONArray(responseBody);
-                            ArrayList<Route> lista = VeiGestJsonParser.parserJsonRoutes(arr);
-                            adicionarRotasBD(lista);
-                            if (rotasListener != null) {
-                                rotasListener.onRefreshListaRotas(rotas);
-                            }
-                            return;
-                        } catch (Exception ex) {
-                            // Não era JSONArray puro, segue fluxo normal
-                        }
-                    }
                     Log.e(TAG, "Erro ao obter rotas: " + error.toString());
                     if (veiGestBD != null) {
                         rotas = veiGestBD.getAllRoutesBD();
-                        if (rotasListener != null) {
-                            rotasListener.onRefreshListaRotas(rotas);
-                        }
                     }
-                }
-        ) {
+                    // SEMPRE notificar o listener para parar o loading
+                    if (rotasListener != null) {
+                        rotasListener.onRefreshListaRotas(rotas);
+                    }
+                }) {
+
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
+
         };
         volleyQueue.add(request);
     }
-    
+
     private void adicionarRotasBD(ArrayList<Route> lista) {
         rotas.clear();
         rotas.addAll(lista);
-        
+
         if (veiGestBD != null) {
             veiGestBD.removerAllRoutesBD();
             for (Route r : lista) {
@@ -1189,9 +1118,119 @@ public class SingletonVeiGest {
             }
         }
     }
-    
+
+    /**
+     * Adiciona uma rota via API.
+     */
+    public void adicionarRotaAPI(final Route route) {
+        JSONObject body = routeToJson(route);
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                mUrlAPIRoutes,
+                body,
+                response -> {
+                    try {
+                        // Assumindo que a API retorna a rota criada
+                        Route novaRota = VeiGestJsonParser.parserJsonRoute(response);
+                        if (novaRota != null) {
+                            rotas.add(novaRota);
+                            if (veiGestBD != null) {
+                                veiGestBD.adicionarRouteBD(novaRota);
+                            }
+                        }
+                        // Recarrega a lista para garantir sincronia
+                        getAllRotasAPI();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Erro ao adicionar rota: " + error.toString());
+                }) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return getAuthHeaders();
+            }
+
+        };
+
+        volleyQueue.add(request);
+    }
+
+    /**
+     * Edita uma rota via API.
+     */
+    public void editarRotaAPI(final Route route) {
+        JSONObject body = routeToJson(route);
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.PUT,
+                mUrlAPIRoutes + "/" + route.getId(),
+                body,
+                response -> {
+                    try {
+                        // Recarrega a lista para garantir sincronia e atualizar UI
+                        getAllRotasAPI();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Erro ao editar rota: " + error.toString());
+                }) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return getAuthHeaders();
+            }
+
+        };
+
+        volleyQueue.add(request);
+    }
+
+    /**
+     * Remove uma rota via API.
+     */
+    public void removerRotaAPI(final int routeId) {
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.DELETE,
+                mUrlAPIRoutes + "/" + routeId,
+                null,
+                response -> {
+                    // Remove da lista em memória
+                    for (int i = 0; i < rotas.size(); i++) {
+                        if (rotas.get(i).getId() == routeId) {
+                            rotas.remove(i);
+                            break;
+                        }
+                    }
+                    if (veiGestBD != null) {
+                        veiGestBD.removerRouteBD(routeId);
+                    }
+                    // Notifica atualização (pode ser otimizado para não recarregar tudo)
+                    if (rotasListener != null) {
+                        rotasListener.onRefreshListaRotas(rotas);
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Erro ao remover rota: " + error.toString());
+                }) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return getAuthHeaders();
+            }
+
+        };
+
+        volleyQueue.add(request);
+    }
+
     // ==================== UTILITÁRIOS ====================
-    
+
     /**
      * Obtém headers com autenticação.
      */
@@ -1199,28 +1238,39 @@ public class SingletonVeiGest {
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         headers.put("Accept", "application/json");
-        
+
         String token = getToken();
         if (token != null && !token.isEmpty()) {
             headers.put("Authorization", "Bearer " + token);
         }
-        
+
         return headers;
     }
-    
+
     /**
      * Converte Vehicle para JSON.
      */
     private JSONObject vehicleToJson(Vehicle vehicle) {
         JSONObject jsonBody = new JSONObject();
-        // Preencher jsonBody com dados do veículo
-        // Exemplo:
-        // jsonBody.put("id", vehicle.getId());
-        // jsonBody.put("license_plate", vehicle.getLicensePlate());
-        // ...
+        try {
+            jsonBody.put("license_plate", vehicle.getLicensePlate());
+            jsonBody.put("brand", vehicle.getBrand());
+            jsonBody.put("model", vehicle.getModel());
+            jsonBody.put("year", vehicle.getYear());
+            jsonBody.put("fuel_type", vehicle.getFuelType());
+            jsonBody.put("mileage", vehicle.getMileage());
+            jsonBody.put("status", vehicle.getStatus());
+
+            // Adicionar foto se existir (Base64)
+            if (vehicle.getPhoto() != null && !vehicle.getPhoto().isEmpty()) {
+                jsonBody.put("photo", vehicle.getPhoto());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return jsonBody;
     }
-    
+
     /**
      * Converte Maintenance para JSON.
      */
@@ -1240,7 +1290,7 @@ public class SingletonVeiGest {
         }
         return json;
     }
-    
+
     /**
      * Converte FuelLog para JSON.
      */
@@ -1258,7 +1308,7 @@ public class SingletonVeiGest {
         }
         return json;
     }
-    
+
     /**
      * Carrega dados da BD local para memória.
      */
@@ -1270,11 +1320,26 @@ public class SingletonVeiGest {
             alertas = veiGestBD.getAllAlertsBD();
             documentos = veiGestBD.getAllDocumentsBD();
             rotas = veiGestBD.getAllRoutesBD();
-            
+
             int userId = getUserId();
             if (userId > 0) {
                 utilizadorAtual = veiGestBD.getUserBD(userId);
             }
         }
+    }
+
+    private JSONObject routeToJson(Route route) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("start_location", route.getStartLocation());
+            json.put("end_location", route.getEndLocation());
+            json.put("start_time", route.getStartTime());
+            json.put("vehicle_id", route.getVehicleId());
+            json.put("driver_id", route.getDriverId());
+            json.put("status", route.getStatus());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 }

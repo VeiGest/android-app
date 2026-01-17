@@ -14,84 +14,10 @@
         android:padding="16dp">
 
         <!-- Header -->
-        <TextView
-            android:id="@+id/tv_settings_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_title"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/Black"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- API Settings Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="?attr/TextBox">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_api"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/Black"
-                    android:layout_marginBottom="12dp"/>
-
-                <!-- API URL -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_api_url"
-                    android:textSize="12sp"
-                    android:textColor="@color/TextHintLight"
-                    android:layout_marginBottom="4dp"/>
-
-                <EditText
-                    android:id="@+id/et_api_url"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/settings_api_url_hint"
-                    android:textSize="14sp"
-                    android:textColor="?attr/TextBoxText"
-                    android:textColorHint="?attr/TextHint"
-                    android:background="?attr/Background"
-                    android:padding="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:inputType="textUri"/>
-
-                <!-- API Company -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_api_company"
-                    android:textSize="12sp"
-                    android:textColor="@color/TextHintLight"
-                    android:layout_marginBottom="4dp"/>
-
-                <EditText
-                    android:id="@+id/et_api_company"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/settings_api_company_hint"
-                    android:textSize="14sp"
-                    android:textColor="?attr/TextBoxText"
-                    android:textColorHint="?attr/TextHint"
-                    android:background="?attr/Background"
-                    android:padding="12dp"
-                    android:inputType="number"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        <!-- Header -->
+        <include
+            android:id="@+id/header"
+            layout="@layout/layout_fragment_header"/>
 
         <!-- Appearance Settings Card -->
         <com.google.android.material.card.MaterialCardView

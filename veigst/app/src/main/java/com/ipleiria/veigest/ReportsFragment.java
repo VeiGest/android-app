@@ -53,17 +53,18 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reports, container, false);
-        
+
         initializeViews(view);
         setupListeners();
-        
+
         pdfGenerator = new PDFGenerator(requireContext());
-        
+
         // Carregar dados iniciais
         loadData();
-        
+
         return view;
     }
 
@@ -78,7 +79,27 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
         rvRecentReports = view.findViewById(R.id.rv_recent_reports);
         tvNoReports = view.findViewById(R.id.tv_no_reports);
 
+        rvRecentReports = view.findViewById(R.id.rv_recent_reports);
+        tvNoReports = view.findViewById(R.id.tv_no_reports);
+
         rvRecentReports.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        setupHeader(view);
+    }
+
+    private void setupHeader(View view) {
+        View btnMenu = view.findViewById(R.id.btn_menu_global);
+        TextView tvTitle = view.findViewById(R.id.tv_header_title);
+        if (tvTitle != null) {
+            tvTitle.setText("Relatórios");
+        }
+        if (btnMenu != null) {
+            btnMenu.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).openDrawer();
+                }
+            });
+        }
     }
 
     private void setupListeners() {
@@ -171,7 +192,7 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
         }
 
         showLoading(true);
-        
+
         new Thread(() -> {
             File pdf = pdfGenerator.generateVehicleReport(vehiclesCache);
             requireActivity().runOnUiThread(() -> {
@@ -194,7 +215,7 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
         }
 
         showLoading(true);
-        
+
         new Thread(() -> {
             File pdf = pdfGenerator.generateVehicleReport(vehiclesCache);
             requireActivity().runOnUiThread(() -> {
@@ -202,8 +223,8 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
                 if (pdf != null) {
                     lastGeneratedPdf = pdf;
                     String recipient = etEmailRecipient.getText().toString().trim();
-                    String[] recipients = recipient.isEmpty() ? new String[0] : new String[]{recipient};
-                    pdfGenerator.sendPdfByEmail(pdf, 
+                    String[] recipients = recipient.isEmpty() ? new String[0] : new String[] { recipient };
+                    pdfGenerator.sendPdfByEmail(pdf,
                             "Relatório de Veículos - VeiGest",
                             "Segue em anexo o relatório de veículos da frota.\n\nAtenciosamente,\nVeiGest",
                             recipients);
@@ -221,7 +242,7 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
         }
 
         showLoading(true);
-        
+
         new Thread(() -> {
             File pdf = pdfGenerator.generateMaintenanceReport(maintenancesCache);
             requireActivity().runOnUiThread(() -> {
@@ -244,7 +265,7 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
         }
 
         showLoading(true);
-        
+
         new Thread(() -> {
             File pdf = pdfGenerator.generateMaintenanceReport(maintenancesCache);
             requireActivity().runOnUiThread(() -> {
@@ -252,7 +273,7 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
                 if (pdf != null) {
                     lastGeneratedPdf = pdf;
                     String recipient = etEmailRecipient.getText().toString().trim();
-                    String[] recipients = recipient.isEmpty() ? new String[0] : new String[]{recipient};
+                    String[] recipients = recipient.isEmpty() ? new String[0] : new String[] { recipient };
                     pdfGenerator.sendPdfByEmail(pdf,
                             "Relatório de Manutenções - VeiGest",
                             "Segue em anexo o relatório de manutenções.\n\nAtenciosamente,\nVeiGest",
@@ -271,7 +292,7 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
         }
 
         showLoading(true);
-        
+
         new Thread(() -> {
             // Gera relatório de veículos (o mais completo)
             File pdf = pdfGenerator.generateVehicleReport(vehiclesCache);
@@ -309,10 +330,10 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
     public void onRefreshListaVeiculos(ArrayList<Vehicle> vehicles) {
         if (vehicles != null) {
             vehiclesCache = new ArrayList<>(vehicles);
-            
+
             if (waitingForVehicles) {
                 waitingForVehicles = false;
-                
+
                 if (generateCompleteReport && !waitingForMaintenance) {
                     generateCompletePdf();
                 } else if (!generateCompleteReport) {
@@ -330,10 +351,10 @@ public class ReportsFragment extends Fragment implements VeiculosListener, Manut
     public void onRefreshListaManutencoes(ArrayList<Maintenance> maintenances) {
         if (maintenances != null) {
             maintenancesCache = new ArrayList<>(maintenances);
-            
+
             if (waitingForMaintenance) {
                 waitingForMaintenance = false;
-                
+
                 if (generateCompleteReport && !waitingForVehicles) {
                     generateCompletePdf();
                 } else if (!generateCompleteReport) {

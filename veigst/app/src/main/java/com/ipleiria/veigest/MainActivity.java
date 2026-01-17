@@ -1,6 +1,7 @@
 package com.ipleiria.veigest;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -42,10 +43,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null) {
             // Verificar se o utilizador já tem sessão ativa
             if (singleton.isAuthenticated()) {
-                // Sessão ativa - ir direto para o Dashboard
+                Log.d("MainActivity", "Sessão já autenticada, carregando Dashboard");
                 loadDashboard();
             } else {
-                // Sem sessão - mostrar login
+                Log.d("MainActivity", "Sem sessão, carregando LoginFragment");
                 loadFragment(new LoginFragment());
             }
         }
@@ -53,9 +54,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /**
      * Carrega um fragment no container principal
+     * 
      * @param fragment Fragment a ser carregado
      */
     public void loadFragment(Fragment fragment) {
+        Log.d("MainActivity", "Carregando fragment: " + fragment.getClass().getSimpleName());
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Este método deve ser chamado pelo LoginFragment após autenticação
      */
     public void loadDashboard() {
+        Log.d("MainActivity", "loadDashboard chamado");
         isLoggedIn = true;
         // Habilitar o drawer após login
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
@@ -123,11 +127,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toast.makeText(MainActivity.this, "Sessão terminada com sucesso", Toast.LENGTH_SHORT).show();
         navigateToLogin();
     }
-    
+
     /**
      * Navega para o ecrã de login (usado após logout)
      */
     public void navigateToLogin() {
+        Log.d("MainActivity", "navigateToLogin chamado");
         isLoggedIn = false;
         // Desabilitar o drawer após logout
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);

@@ -70,7 +70,7 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
     private SwipeRefreshLayout swipeRefresh;
     private FloatingActionButton fabAdd;
     private ProgressBar progressBar;
-    private TextView tvEmpty;
+    private android.widget.LinearLayout tvEmpty;
     private TextView tvTitle;
 
     // SDK
@@ -113,63 +113,60 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
     private void setupActivityResultLaunchers() {
         // Camera launcher
         cameraLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    try {
-                        selectedPhotoBitmap = MediaStore.Images.Media.getBitmap(
-                            requireContext().getContentResolver(), photoUri);
-                        if (dialogPhotoView != null) {
-                            dialogPhotoView.setImageBitmap(selectedPhotoBitmap);
-                        }
-                        Log.d(TAG, "Foto da câmara obtida com sucesso");
-                    } catch (IOException e) {
-                        Log.e(TAG, "Erro ao carregar foto da câmara", e);
-                        Toast.makeText(getContext(), "Erro ao carregar foto", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        );
-
-        // Gallery launcher
-        galleryLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Uri selectedImage = result.getData().getData();
-                    if (selectedImage != null) {
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
                         try {
                             selectedPhotoBitmap = MediaStore.Images.Media.getBitmap(
-                                requireContext().getContentResolver(), selectedImage);
+                                    requireContext().getContentResolver(), photoUri);
                             if (dialogPhotoView != null) {
                                 dialogPhotoView.setImageBitmap(selectedPhotoBitmap);
                             }
-                            Log.d(TAG, "Foto da galeria selecionada com sucesso");
+                            Log.d(TAG, "Foto da câmara obtida com sucesso");
                         } catch (IOException e) {
-                            Log.e(TAG, "Erro ao carregar foto da galeria", e);
+                            Log.e(TAG, "Erro ao carregar foto da câmara", e);
                             Toast.makeText(getContext(), "Erro ao carregar foto", Toast.LENGTH_SHORT).show();
                         }
                     }
-                }
-            }
-        );
+                });
+
+        // Gallery launcher
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri selectedImage = result.getData().getData();
+                        if (selectedImage != null) {
+                            try {
+                                selectedPhotoBitmap = MediaStore.Images.Media.getBitmap(
+                                        requireContext().getContentResolver(), selectedImage);
+                                if (dialogPhotoView != null) {
+                                    dialogPhotoView.setImageBitmap(selectedPhotoBitmap);
+                                }
+                                Log.d(TAG, "Foto da galeria selecionada com sucesso");
+                            } catch (IOException e) {
+                                Log.e(TAG, "Erro ao carregar foto da galeria", e);
+                                Toast.makeText(getContext(), "Erro ao carregar foto", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                });
 
         // Permission launcher
         permissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            isGranted -> {
-                if (isGranted) {
-                    openCamera();
-                } else {
-                    Toast.makeText(getContext(), "Permissão de câmara necessária", Toast.LENGTH_SHORT).show();
-                }
-            }
-        );
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        openCamera();
+                    } else {
+                        Toast.makeText(getContext(), "Permissão de câmara necessária", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_vehicles_list, container, false);
 
         // Inicializar views
@@ -193,7 +190,24 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
         fabAdd = view.findViewById(R.id.fab_add_vehicle);
         progressBar = view.findViewById(R.id.progress_bar);
         tvEmpty = view.findViewById(R.id.tv_empty);
-        tvTitle = view.findViewById(R.id.tv_title);
+        // tvTitle = view.findViewById(R.id.tv_title);
+
+        setupHeader(view);
+    }
+
+    private void setupHeader(View view) {
+        View btnMenu = view.findViewById(R.id.btn_menu_global);
+        TextView tvTitle = view.findViewById(R.id.tv_header_title);
+        if (tvTitle != null) {
+            tvTitle.setText(R.string.vehicles_title);
+        }
+        if (btnMenu != null) {
+            btnMenu.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).openDrawer();
+                }
+            });
+        }
     }
 
     private void setupRecyclerView() {
@@ -213,14 +227,14 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
 
     private void loadVehicles() {
         showLoading(true);
-        
+
         // Primeiro carrega dados locais
         ArrayList<Vehicle> localVehicles = singleton.getVeiculos();
         if (!localVehicles.isEmpty()) {
             adapter.setVehicles(localVehicles);
             updateEmptyState();
         }
-        
+
         // Depois busca da API
         singleton.getAllVeiculosAPI();
     }
@@ -229,15 +243,16 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
 
     @Override
     public void onRefreshListaVeiculos(ArrayList<Vehicle> listaVeiculos) {
-        if (getActivity() == null) return;
-        
+        if (getActivity() == null)
+            return;
+
         getActivity().runOnUiThread(() -> {
             showLoading(false);
             swipeRefresh.setRefreshing(false);
-            
+
             adapter.setVehicles(listaVeiculos);
             updateEmptyState();
-            
+
             Log.d(TAG, "Lista de veículos atualizada: " + listaVeiculos.size() + " veículos");
         });
     }
@@ -246,11 +261,12 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
 
     @Override
     public void onRefreshDetalhes(int operacao) {
-        if (getActivity() == null) return;
-        
+        if (getActivity() == null)
+            return;
+
         getActivity().runOnUiThread(() -> {
             showLoading(false);
-            
+
             String message;
             switch (operacao) {
                 case OPERACAO_ADICIONAR:
@@ -265,15 +281,16 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
                 default:
                     message = "Operação concluída!";
             }
-            
+
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-            
+
             // Recarregar lista
             loadVehicles();
         });
     }
 
-    // ==================== Implementação VehicleAdapter.OnVehicleClickListener ====================
+    // ==================== Implementação VehicleAdapter.OnVehicleClickListener
+    // ====================
 
     @Override
     public void onVehicleClick(Vehicle vehicle) {
@@ -298,7 +315,7 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
      */
     private void showVehicleDialog(@Nullable Vehicle vehicle) {
         boolean isEdit = vehicle != null;
-        
+
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_vehicle_form, null);
         builder.setView(dialogView);
@@ -319,15 +336,15 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
         Button btnSave = dialogView.findViewById(R.id.btn_save);
 
         // Configurar dropdowns
-        String[] fuelTypes = {"Diesel", "Gasolina", "Elétrico", "Híbrido", "GPL"};
-        String[] statuses = {"active", "maintenance", "inactive"};
-        
+        String[] fuelTypes = { "Diesel", "Gasolina", "Elétrico", "Híbrido", "GPL" };
+        String[] statuses = { "active", "maintenance", "inactive" };
+
         ArrayAdapter<String> fuelAdapter = new ArrayAdapter<>(
-            requireContext(), android.R.layout.simple_dropdown_item_1line, fuelTypes);
+                requireContext(), android.R.layout.simple_dropdown_item_1line, fuelTypes);
         spFuelType.setAdapter(fuelAdapter);
-        
+
         ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(
-            requireContext(), android.R.layout.simple_dropdown_item_1line, statuses);
+                requireContext(), android.R.layout.simple_dropdown_item_1line, statuses);
         spStatus.setAdapter(statusAdapter);
 
         // Configurar título
@@ -382,8 +399,14 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
             newVehicle.setFuelType(mapFuelType(fuelType));
             newVehicle.setStatus(status);
 
+            // Processar e definir foto (ADENDA 15%)
+            if (selectedPhotoBitmap != null) {
+                String base64Photo = bitmapToBase64(selectedPhotoBitmap);
+                newVehicle.setPhoto(base64Photo);
+            }
+
             showLoading(true);
-            
+
             if (isEdit) {
                 singleton.editarVeiculoAPI(newVehicle);
             } else {
@@ -397,20 +420,33 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
     }
 
     /**
+     * Converte Bitmap para String Base64
+     */
+    private String bitmapToBase64(Bitmap bitmap) {
+        if (bitmap == null)
+            return null;
+
+        java.io.ByteArrayOutputStream byteArrayOutputStream = new java.io.ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
+    }
+
+    /**
      * Mostra confirmação antes de apagar
      */
     private void showDeleteConfirmation(Vehicle vehicle) {
         new AlertDialog.Builder(requireContext())
-            .setTitle("Remover Veículo")
-            .setMessage("Tem a certeza que deseja remover o veículo " + 
-                       vehicle.getLicensePlate() + "?\n\nEsta ação não pode ser desfeita.")
-            .setPositiveButton("Remover", (dialog, which) -> {
-                showLoading(true);
-                singleton.removerVeiculoAPI(vehicle.getId());
-            })
-            .setNegativeButton("Cancelar", null)
-            .setIcon(android.R.drawable.ic_dialog_alert)
-            .show();
+                .setTitle("Remover Veículo")
+                .setMessage("Tem a certeza que deseja remover o veículo " +
+                        vehicle.getLicensePlate() + "?\n\nEsta ação não pode ser desfeita.")
+                .setPositiveButton("Remover", (dialog, which) -> {
+                    showLoading(true);
+                    singleton.removerVeiculoAPI(vehicle.getId());
+                })
+                .setNegativeButton("Cancelar", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     /**
@@ -419,24 +455,23 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
     private void showVehicleDetails(Vehicle vehicle) {
         // Mostrar detalhes num dialog simples por agora
         new AlertDialog.Builder(requireContext())
-            .setTitle(vehicle.getBrand() + " " + vehicle.getModel())
-            .setMessage(
-                "Matrícula: " + vehicle.getLicensePlate() + "\n" +
-                "Ano: " + vehicle.getYear() + "\n" +
-                "Quilometragem: " + vehicle.getMileage() + " km\n" +
-                "Combustível: " + vehicle.getFuelType() + "\n" +
-                "Estado: " + vehicle.getStatus()
-            )
-            .setPositiveButton("Fechar", null)
-            .setNeutralButton("Editar", (dialog, which) -> showVehicleDialog(vehicle))
-            .show();
+                .setTitle(vehicle.getBrand() + " " + vehicle.getModel())
+                .setMessage(
+                        "Matrícula: " + vehicle.getLicensePlate() + "\n" +
+                                "Ano: " + vehicle.getYear() + "\n" +
+                                "Quilometragem: " + vehicle.getMileage() + " km\n" +
+                                "Combustível: " + vehicle.getFuelType() + "\n" +
+                                "Estado: " + vehicle.getStatus())
+                .setPositiveButton("Fechar", null)
+                .setNeutralButton("Editar", (dialog, which) -> showVehicleDialog(vehicle))
+                .show();
     }
 
     // ==================== Foto (ADENDA 15%) ====================
 
     private void checkCameraPermissionAndOpen() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) 
-                == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             openCamera();
         } else {
             permissionLauncher.launch(Manifest.permission.CAMERA);
@@ -454,10 +489,10 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
                 Toast.makeText(getContext(), "Erro ao preparar câmara", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
+
             if (photoFile != null) {
                 photoUri = FileProvider.getUriForFile(requireContext(),
-                    "com.ipleiria.veigest.fileprovider", photoFile);
+                        "com.ipleiria.veigest.fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 cameraLauncher.launch(takePictureIntent);
             }
@@ -483,12 +518,18 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
 
     private String mapFuelType(String displayName) {
         switch (displayName) {
-            case "Diesel": return "diesel";
-            case "Gasolina": return "gasoline";
-            case "Elétrico": return "electric";
-            case "Híbrido": return "hybrid";
-            case "GPL": return "lpg";
-            default: return displayName.toLowerCase();
+            case "Diesel":
+                return "diesel";
+            case "Gasolina":
+                return "gasoline";
+            case "Elétrico":
+                return "electric";
+            case "Híbrido":
+                return "hybrid";
+            case "GPL":
+                return "lpg";
+            default:
+                return displayName.toLowerCase();
         }
     }
 

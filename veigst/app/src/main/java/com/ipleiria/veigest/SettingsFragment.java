@@ -39,8 +39,9 @@ public class SettingsFragment extends Fragment {
     private static final String PREF_AUTO_SYNC = "auto_sync";
 
     // API Settings
-    private EditText etApiUrl;
-    private EditText etApiCompany;
+    // API Settings - Removed as per user request (handled by config)
+    // private EditText etApiUrl;
+    // private EditText etApiCompany;
 
     // Theme Settings
     private RadioGroup rgTheme;
@@ -75,7 +76,7 @@ public class SettingsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         // Inicializar views
@@ -91,26 +92,38 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initializeViews(View view) {
-        etApiUrl = view.findViewById(R.id.et_api_url);
-        etApiCompany = view.findViewById(R.id.et_api_company);
+        // etApiUrl = view.findViewById(R.id.et_api_url);
+        // etApiCompany = view.findViewById(R.id.et_api_company);
         rgTheme = view.findViewById(R.id.rg_theme);
         switchNotifications = view.findViewById(R.id.switch_notifications);
         switchNotificationSound = view.findViewById(R.id.switch_notification_sound);
         switchAutoSync = view.findViewById(R.id.switch_auto_sync);
         btnSaveSettings = view.findViewById(R.id.btn_save_settings);
+
+        setupHeader(view);
+    }
+
+    private void setupHeader(View view) {
+        View btnMenu = view.findViewById(R.id.btn_menu_global);
+        if (btnMenu != null) {
+            btnMenu.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).openDrawer();
+                }
+            });
+        }
     }
 
     /**
      * Carrega configurações guardadas em SharedPreferences
      */
     private void loadSettings() {
-        // URL da API
-        String apiUrl = sharedPreferences.getString(PREF_API_URL, "https://veigestback.dryadlang.org/api");
-        etApiUrl.setText(apiUrl);
-
-        // ID da Empresa
-        String companyId = sharedPreferences.getString(PREF_COMPANY_ID, "1");
-        etApiCompany.setText(companyId);
+        // URL da API e Company ID removidos da UI
+        // String apiUrl = sharedPreferences.getString(PREF_API_URL,
+        // "https://veigestback.dryadlang.org/api");
+        // etApiUrl.setText(apiUrl);
+        // String companyId = sharedPreferences.getString(PREF_COMPANY_ID, "1");
+        // etApiCompany.setText(companyId);
 
         // Tema
         int theme = sharedPreferences.getInt(PREF_THEME, 0); // 0 = Sistema
@@ -158,15 +171,18 @@ public class SettingsFragment extends Fragment {
      */
     private void saveSettings() {
         // Obter valores
-        String apiUrl = etApiUrl.getText().toString().trim();
-        String companyId = etApiCompany.getText().toString().trim();
+        // String apiUrl = etApiUrl.getText().toString().trim();
+        // String companyId = etApiCompany.getText().toString().trim();
 
-        // Validação básica
-        if (apiUrl.isEmpty()) {
-            Toast.makeText(getContext(), "O URL da API é obrigatório", Toast.LENGTH_SHORT).show();
-            etApiUrl.requestFocus();
-            return;
-        }
+        // Validação removida pois os campos não existem mais
+        /*
+         * if (apiUrl.isEmpty()) {
+         * Toast.makeText(getContext(), "O URL da API é obrigatório",
+         * Toast.LENGTH_SHORT).show();
+         * etApiUrl.requestFocus();
+         * return;
+         * }
+         */
 
         // Determinar tema selecionado
         int theme = 0; // Sistema
@@ -177,33 +193,41 @@ public class SettingsFragment extends Fragment {
             theme = 2;
         }
 
+        // Verificar se houve mudança de tema
+        int currentTheme = sharedPreferences.getInt(PREF_THEME, 0);
+        boolean themeChanged = (theme != currentTheme);
+
         // Guardar em SharedPreferences
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PREF_API_URL, apiUrl);
-        editor.putString(PREF_COMPANY_ID, companyId);
+        // editor.putString(PREF_API_URL, apiUrl);
+        // editor.putString(PREF_COMPANY_ID, companyId);
         editor.putInt(PREF_THEME, theme);
         editor.putBoolean(PREF_NOTIFICATIONS, switchNotifications.isChecked());
         editor.putBoolean(PREF_NOTIFICATION_SOUND, switchNotificationSound.isChecked());
         editor.putBoolean(PREF_AUTO_SYNC, switchAutoSync.isChecked());
         editor.apply();
 
-        // Atualizar URL no Singleton
-        singleton.setBaseUrl(apiUrl);
+        // Atualizar URL no Singleton - removido, usa config
+        // singleton.setBaseUrl(apiUrl);
 
         // Aplicar tema
         applyTheme(theme);
 
+        if (themeChanged && getActivity() != null) {
+            getActivity().recreate();
+        }
+
         // Feedback
         String themeLabel = "Sistema";
-        if (theme == 1) themeLabel = "Claro";
-        else if (theme == 2) themeLabel = "Escuro";
+        if (theme == 1)
+            themeLabel = "Claro";
+        else if (theme == 2)
+            themeLabel = "Escuro";
 
-        Toast.makeText(getContext(), 
-            "Configurações guardadas!\n" +
-            "API: " + apiUrl + "\n" +
-            "Empresa: " + companyId + "\n" +
-            "Tema: " + themeLabel, 
-            Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(),
+                "Configurações guardadas!\n" +
+                        "Tema: " + themeLabel,
+                Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -227,18 +251,19 @@ public class SettingsFragment extends Fragment {
      */
     private void clearCache() {
         new android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Limpar Cache")
-            .setMessage("Tem a certeza que deseja limpar todos os dados em cache?\n\nIsto irá remover todos os dados locais guardados.")
-            .setPositiveButton("Limpar", (dialog, which) -> {
-                // Limpar BD local via Singleton
-                if (singleton.getBD() != null) {
-                    singleton.getBD().limparTudo();
-                }
-                Toast.makeText(getContext(), "Cache limpo com sucesso!", Toast.LENGTH_SHORT).show();
-            })
-            .setNegativeButton("Cancelar", null)
-            .setIcon(android.R.drawable.ic_dialog_alert)
-            .show();
+                .setTitle("Limpar Cache")
+                .setMessage(
+                        "Tem a certeza que deseja limpar todos os dados em cache?\n\nIsto irá remover todos os dados locais guardados.")
+                .setPositiveButton("Limpar", (dialog, which) -> {
+                    // Limpar BD local via Singleton
+                    if (singleton.getBD() != null) {
+                        singleton.getBD().limparTudo();
+                    }
+                    Toast.makeText(getContext(), "Cache limpo com sucesso!", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancelar", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     /**

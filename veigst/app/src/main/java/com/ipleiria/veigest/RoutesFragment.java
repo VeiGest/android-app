@@ -1,24 +1,55 @@
 package com.ipleiria.veigest;
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.google.android.material.card.MaterialCardView;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.appcompat.app.AlertDialog;
+import android.widget.Button;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import androidx.core.content.ContextCompat;
+
+import com.ipleiria.veigest.adapters.RouteAdapter;
+import com.veigest.sdk.SingletonVeiGest;
+import com.veigest.sdk.listeners.RotasListener;
+import com.veigest.sdk.models.Route;
+
+import java.util.ArrayList;
 
 /**
  * Routes Fragment - Gerenciamento de Rotas
- * Exibe lista de rotas disponíveis e permite visualizar detalhes
+ * Exibe lista de rotas obtidas da API via SDK.
  */
-public class RoutesFragment extends Fragment {
+public class RoutesFragment extends Fragment implements RotasListener, RouteAdapter.OnRouteClickListener {
 
-    private TextView tvNoData;
-    private MaterialCardView cardRoute1;
-    private MaterialCardView cardRoute2;
-    private MaterialCardView cardRoute3;
+    private static final String TAG = "RoutesFragment";
+
+    private RecyclerView recyclerView;
+    private RouteAdapter adapter;
+    private SwipeRefreshLayout swipeRefresh;
+    private ProgressBar progressBar;
+    private TextView tvEmpty;
+    private TextView tvTitle;
+    private FloatingActionButton fabAddRoute;
+
+    private SingletonVeiGest singleton;
 
     public RoutesFragment() {
         // Required empty public constructor
@@ -31,36 +62,222 @@ public class RoutesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Obter instância do Singleton
+        singleton = SingletonVeiGest.getInstance(requireContext());
+        singleton.setRotasListener(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_routes, container, false);
 
-        // Inicializar views
-        tvNoData = view.findViewById(R.id.tv_no_data);
-        cardRoute1 = view.findViewById(R.id.card_route_1);
-        cardRoute2 = view.findViewById(R.id.card_route_2);
-        cardRoute3 = view.findViewById(R.id.card_route_3);
+        initializeViews(view);
+        setupRecyclerView();
+        setupListeners();
 
-        // Setup click listeners
-        setupClickListeners();
+        // Carregar dados
+        loadRoutes();
 
         return view;
     }
 
-    private void setupClickListeners() {
-        cardRoute1.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Detalhes da Rota 1", Toast.LENGTH_SHORT).show()
-        );
+    private void initializeViews(View view) {
+        recyclerView = view.findViewById(R.id.rv_routes);
+        swipeRefresh = view.findViewById(R.id.swipe_refresh);
+        progressBar = view.findViewById(R.id.progress_bar);
+        tvEmpty = view.findViewById(R.id.tv_empty);
+        fabAddRoute = view.findViewById(R.id.fab_add_route);
+        // tvTitle = view.findViewById(R.id.tv_routes_title);
 
-        cardRoute2.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Detalhes da Rota 2", Toast.LENGTH_SHORT).show()
-        );
+        setupHeader(view);
+    }
 
-        cardRoute3.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Detalhes da Rota 3", Toast.LENGTH_SHORT).show()
-        );
+    private void setupHeader(View view) {
+        View btnMenu = view.findViewById(R.id.btn_menu_global);
+        TextView tvTitle = view.findViewById(R.id.tv_header_title);
+        if (tvTitle != null) {
+            tvTitle.setText(R.string.routes_title);
+        }
+        if (btnMenu != null) {
+            btnMenu.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).openDrawer();
+                }
+            });
+        }
+    }
+
+    private void setupRecyclerView() {
+        adapter = new RouteAdapter(getContext(), this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+
+        // Swipe to Delete
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                    RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                int position = viewHolder.getAdapterPosition();
+                Route route = adapter.getItem(position);
+
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Remover Rota")
+                        .setMessage("Tem a certeza que deseja remover esta rota?")
+                        .setPositiveButton("Sim", (dialog, which) -> {
+                            // Remover via API
+                            singleton.removerRotaAPI(route.getId());
+                            // Atualização otimista
+                            adapter.removeRoute(position);
+                            updateEmptyState();
+                        })
+                        .setNegativeButton("Não", (dialog, which) -> {
+                            adapter.notifyItemChanged(position);
+                        })
+                        .show();
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    private void setupListeners() {
+        swipeRefresh.setOnRefreshListener(this::loadRoutes);
+        swipeRefresh.setColorSchemeResources(R.color.Purple);
+
+        if (fabAddRoute != null) {
+            fabAddRoute.setOnClickListener(v -> showRouteDialog(null));
+        }
+    }
+
+    private void showRouteDialog(Route routeToEdit) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View view = getLayoutInflater().inflate(R.layout.dialog_route_form, null);
+        builder.setView(view);
+
+        final AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        TextView tvTitle = view.findViewById(R.id.tv_dialog_title);
+        TextInputEditText etStart = view.findViewById(R.id.et_start_location);
+        TextInputEditText etEnd = view.findViewById(R.id.et_end_location);
+        TextInputEditText etDate = view.findViewById(R.id.et_date);
+        TextInputEditText etVehicleId = view.findViewById(R.id.et_vehicle_id);
+        Button btnCancel = view.findViewById(R.id.btn_cancel);
+        Button btnSave = view.findViewById(R.id.btn_save);
+
+        if (routeToEdit != null) {
+            tvTitle.setText("Editar Rota");
+            etStart.setText(routeToEdit.getStartLocation());
+            etEnd.setText(routeToEdit.getEndLocation());
+            etDate.setText(routeToEdit.getStartTime()); // Simplificado
+            etVehicleId.setText(String.valueOf(routeToEdit.getVehicleId()));
+        } else {
+            tvTitle.setText("Nova Rota");
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnSave.setOnClickListener(v -> {
+            String start = etStart.getText().toString();
+            String end = etEnd.getText().toString();
+            String date = etDate.getText().toString();
+            String vId = etVehicleId.getText().toString();
+
+            if (start.isEmpty() || end.isEmpty()) {
+                Toast.makeText(getContext(), "Origem e Destino são obrigatórios", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int vehicleId = 0;
+            try {
+                vehicleId = Integer.parseInt(vId);
+            } catch (NumberFormatException e) {
+            }
+
+            Route route = routeToEdit != null ? routeToEdit : new Route();
+            route.setStartLocation(start);
+            route.setEndLocation(end);
+            route.setStartTime(date);
+            route.setVehicleId(vehicleId);
+            route.setDriverId(singleton.getUserId()); // Atribuir ao user atual
+            route.setStatus("scheduled");
+
+            if (routeToEdit != null) {
+                singleton.editarRotaAPI(route);
+            } else {
+                singleton.adicionarRotaAPI(route);
+            }
+            dialog.dismiss();
+            showLoading(true);
+        });
+
+        dialog.show();
+    }
+
+    private void loadRoutes() {
+        showLoading(true);
+
+        // Primeiro tenta dados locais
+        ArrayList<Route> localRoutes = singleton.getRotas();
+        if (!localRoutes.isEmpty()) {
+            adapter.setRoutes(localRoutes);
+            updateEmptyState();
+        }
+
+        // Busca da API
+        singleton.getAllRotasAPI();
+    }
+
+    private void showLoading(boolean show) {
+        if (progressBar != null) {
+            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void updateEmptyState() {
+        if (tvEmpty != null) {
+            tvEmpty.setVisibility(adapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    // ==================== SDK Listener Implementation ====================
+
+    @Override
+    public void onRefreshListaRotas(ArrayList<Route> listaRotas) {
+        if (getActivity() == null)
+            return;
+
+        getActivity().runOnUiThread(() -> {
+            showLoading(false);
+            swipeRefresh.setRefreshing(false);
+
+            adapter.setRoutes(listaRotas);
+            updateEmptyState();
+
+            Log.d(TAG, "Lista de rotas atualizada: " + listaRotas.size());
+        });
+    }
+
+    // ==================== Adapter Listener Implementation ====================
+
+    @Override
+    public void onRouteClick(Route route) {
+        String msg = "Rota: " + route.getStartLocation() + " -> " + route.getEndLocation();
+        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+        // Futuro: Abrir detalhes no Google Maps
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        singleton.setRotasListener(null);
     }
 }

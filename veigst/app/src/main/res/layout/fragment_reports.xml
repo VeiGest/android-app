@@ -14,22 +14,10 @@
         android:padding="16dp">
 
         <!-- Header -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Relatórios"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/Black"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Gere relatórios em PDF e envie por email"
-            android:textSize="14sp"
-            android:textColor="@color/TextHintLight"
-            android:layout_marginBottom="24dp"/>
+        <!-- Header -->
+        <include
+            android:id="@+id/header"
+            layout="@layout/layout_fragment_header"/>
 
         <!-- Card: Relatório de Veículos -->
         <com.google.android.material.card.MaterialCardView

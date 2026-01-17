@@ -14,15 +14,10 @@
         android:padding="16dp">
 
         <!-- Header -->
-        <TextView
-            android:id="@+id/tv_profile_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/profile_title"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/Black"
-            android:layout_marginBottom="16dp"/>
+        <!-- Header -->
+        <include
+            android:id="@+id/header"
+            layout="@layout/layout_fragment_header"/>
 
         <!-- Profile Card -->
         <com.google.android.material.card.MaterialCardView
@@ -56,6 +51,7 @@
                         android:padding="20dp"/>
 
                     <TextView
+                        android:id="@+id/tv_profile_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="João Silva"
@@ -65,6 +61,7 @@
                         android:layout_marginTop="12dp"/>
 
                     <TextView
+                        android:id="@+id/tv_profile_role"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Condutor Profissional"
@@ -95,6 +92,7 @@
                         android:textColor="@color/TextHintLight"/>
 
                     <TextView
+                        android:id="@+id/tv_profile_email"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -183,4 +181,3 @@
 
     </LinearLayout>
 </ScrollView>
-

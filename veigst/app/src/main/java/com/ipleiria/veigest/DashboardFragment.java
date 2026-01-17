@@ -25,7 +25,8 @@ import java.util.ArrayList;
 
 /**
  * Dashboard Fragment - Painel principal do condutor
- * Exibe informações sobre rotas ativas, veículo atual, documentação e ações rápidas
+ * Exibe informações sobre rotas ativas, veículo atual, documentação e ações
+ * rápidas
  * Utiliza o VeiGest SDK (Singleton com Volley)
  */
 public class DashboardFragment extends Fragment implements VeiculosListener, RotasListener {
@@ -69,9 +70,12 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
     private MaterialCardView cardMyRoutes;
     private MaterialCardView cardHistory;
     private MaterialCardView cardSettings;
-    
+
     // Singleton
     private SingletonVeiGest singleton;
+
+    // Listener de documentos
+    private com.veigest.sdk.listeners.DocumentosListener documentosListener;
 
     public DashboardFragment() {
         // Required empty public constructor
@@ -85,18 +89,26 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         // Obter instância do Singleton
         singleton = SingletonVeiGest.getInstance(requireContext());
-        
+
         // Registar listeners
         singleton.setVeiculosListener(this);
         singleton.setRotasListener(this);
+
+        // Listener de documentos
+        documentosListener = listaDocumentos -> {
+            if (getActivity() == null)
+                return;
+            getActivity().runOnUiThread(() -> atualizarDocumentacao(listaDocumentos));
+        };
+        singleton.setDocumentosListener(documentosListener);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
@@ -111,13 +123,14 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
 
         return view;
     }
-    
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         // Remover listeners ao destruir a view
         singleton.setVeiculosListener(null);
         singleton.setRotasListener(null);
+        singleton.setDocumentosListener(null);
     }
 
     private void initializeViews(View view) {
@@ -181,7 +194,8 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
 
         // Vehicle details button
         btnVehicleDetails.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Detalhes do Veículo - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Detalhes do Veículo - Funcionalidade a implementar", Toast.LENGTH_SHORT)
+                    .show();
         });
 
         // View all documents button
@@ -191,19 +205,50 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
 
         // Quick Actions
         cardReportIssue.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Reportar Problema - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
+            // Ir para Reports
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(new ReportsFragment());
+            }
         });
 
         cardMyRoutes.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Minhas Rotas - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
+            // Ir para Routes
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(new RoutesFragment());
+            }
         });
 
         cardHistory.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Histórico - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
+            // Ir para Reports (ou historico especifico se existisse)
+            if (getActivity() instanceof MainActivity) {
+                // Por agora redireciona para Reports, onde tem o historico recente
+                ((MainActivity) getActivity()).loadFragment(new ReportsFragment());
+            }
         });
 
         cardSettings.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Definições - Funcionalidade a implementar", Toast.LENGTH_SHORT).show();
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(new SettingsFragment());
+            }
+        });
+
+        // Card Buttons
+        btnViewRouteDetails.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(new RoutesFragment());
+            }
+        });
+
+        btnVehicleDetails.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(new VehiclesFragment());
+            }
+        });
+
+        btnViewAllDocs.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(new DocumentsFragment());
+            }
         });
     }
 
@@ -226,23 +271,23 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
         // Mock documentation data
         tvLicenseExpiry.setText("Expira: 15/08/2026");
         tvLicenseStatus.setText("Válida");
-        
+
         tvInsuranceExpiry.setText("Expira: 30/06/2025");
         tvInsuranceStatus.setText("Válido");
-        
+
         tvInspectionExpiry.setText("Expira: 22/03/2025");
         tvInspectionStatus.setText("Válida");
     }
-    
+
     /**
      * Carrega os dados do utilizador atual usando o Singleton
      */
     private void loadUserData() {
         Log.d(TAG, "Carregando dados do utilizador...");
-        
+
         // Obter utilizador atual do Singleton (armazenado após login)
         User user = singleton.getUtilizadorAtual();
-        
+
         if (user != null) {
             tvDriverName.setText(user.getUsername());
             Log.d(TAG, "Utilizador: " + user.getUsername());
@@ -250,61 +295,98 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
             // Usar dados mock se não houver utilizador
             tvDriverName.setText("Condutor");
         }
-        
+
         // Carregar veículos e rotas da API
         singleton.getAllVeiculosAPI();
         singleton.getAllRotasAPI();
-        
-        // Carregar dados mock para documentação (até implementar endpoint)
-        loadMockDocumentationData();
+        // Carregar documentos da API
+        singleton.getAllDocumentosAPI();
     }
-    
+
     /**
      * Carrega dados mock de documentação
      */
     private void loadMockDocumentationData() {
-        tvLicenseExpiry.setText("Expira: 15/08/2026");
-        tvLicenseStatus.setText("Válida");
-        
-        tvInsuranceExpiry.setText("Expira: 30/06/2025");
-        tvInsuranceStatus.setText("Válido");
-        
-        tvInspectionExpiry.setText("Expira: 22/03/2025");
-        tvInspectionStatus.setText("Válida");
+        // Não utilizado: agora os dados vêm da API
+        tvLicenseExpiry.setText("-");
+        tvLicenseStatus.setText("-");
+        tvInsuranceExpiry.setText("-");
+        tvInsuranceStatus.setText("-");
+        tvInspectionExpiry.setText("-");
+        tvInspectionStatus.setText("-");
+
     }
-    
+
+    /**
+     * Atualiza os campos de documentação com dados reais da API
+     */
+    private void atualizarDocumentacao(java.util.List<com.veigest.sdk.models.Document> docs) {
+        // Exemplo: buscar por tipo de documento
+        String expiraCarta = "-", statusCarta = "-", expiraSeguro = "-", statusSeguro = "-", expiraInsp = "-",
+                statusInsp = "-";
+        for (com.veigest.sdk.models.Document doc : docs) {
+            if (doc.getType() == null)
+                continue;
+            switch (doc.getType().toLowerCase()) {
+                case "carta":
+                case "carta_conducao":
+                case "licenca":
+                    expiraCarta = doc.getExpiryDate() != null ? "Expira: " + doc.getExpiryDate() : "-";
+                    statusCarta = doc.getStatus() != null ? doc.getStatus() : "-";
+                    break;
+                case "seguro":
+                    expiraSeguro = doc.getExpiryDate() != null ? "Expira: " + doc.getExpiryDate() : "-";
+                    statusSeguro = doc.getStatus() != null ? doc.getStatus() : "-";
+                    break;
+                case "inspecao":
+                case "insp":
+                    expiraInsp = doc.getExpiryDate() != null ? "Expira: " + doc.getExpiryDate() : "-";
+                    statusInsp = doc.getStatus() != null ? doc.getStatus() : "-";
+                    break;
+            }
+        }
+        tvLicenseExpiry.setText(expiraCarta);
+        tvLicenseStatus.setText(statusCarta);
+        tvInsuranceExpiry.setText(expiraSeguro);
+        tvInsuranceStatus.setText(statusSeguro);
+        tvInspectionExpiry.setText(expiraInsp);
+        tvInspectionStatus.setText(statusInsp);
+    }
+
     // ========== Implementação do VeiculosListener ==========
-    
+
     @Override
     public void onRefreshListaVeiculos(ArrayList<Vehicle> listaVeiculos) {
-        if (getActivity() == null) return;
-        
+        if (getActivity() == null)
+            return;
+
         getActivity().runOnUiThread(() -> {
             Log.d(TAG, "Veículos recebidos: " + listaVeiculos.size());
-            
+
             if (!listaVeiculos.isEmpty()) {
                 Vehicle vehicle = listaVeiculos.get(0);
                 tvVehiclePlate.setText(vehicle.getLicensePlate());
                 tvVehicleModel.setText(vehicle.getBrand() + " " + vehicle.getModel());
-                
+
                 int km = vehicle.getMileage();
                 tvVehicleKm.setText(String.format("%,d km", km).replace(",", "."));
-                
+
                 // Combustível - usar valor mock pois não vem da API
                 tvVehicleFuel.setText("--");
             }
         });
     }
-    
+
     // ========== Implementação do RotasListener ==========
-    
+
     @Override
     public void onRefreshListaRotas(ArrayList<Route> listaRotas) {
-        if (getActivity() == null) return;
-        
+        if (getActivity() == null)
+            return;
+
         getActivity().runOnUiThread(() -> {
             Log.d(TAG, "Rotas recebidas: " + listaRotas.size());
-            
+
             if (!listaRotas.isEmpty()) {
                 // Procurar rota ativa (in_progress)
                 Route activeRoute = null;
@@ -314,7 +396,7 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
                         break;
                     }
                 }
-                
+
                 if (activeRoute == null && !listaRotas.isEmpty()) {
                     // Usar primeira rota agendada se não houver ativa
                     for (Route route : listaRotas) {
@@ -324,18 +406,18 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
                         }
                     }
                 }
-                
+
                 if (activeRoute != null) {
                     tvRouteOriginValue.setText(activeRoute.getStartLocation());
                     tvRouteDestinationValue.setText(activeRoute.getEndLocation());
-                    
+
                     // Duração
                     if (activeRoute.getDurationFormatted() != null) {
                         tvRouteEta.setText(activeRoute.getDurationFormatted());
                     } else {
                         tvRouteEta.setText("--");
                     }
-                    
+
                     tvRouteDistance.setText("--"); // Distância não disponível na API atual
                 } else {
                     setNoActiveRoute();
@@ -345,7 +427,7 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
             }
         });
     }
-    
+
     /**
      * Define estado de "sem rota ativa"
      */
@@ -355,16 +437,16 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
         tvRouteDistance.setText("-");
         tvRouteEta.setText("-");
     }
-    
+
     /**
      * Executa o logout
      */
     private void performLogout() {
         // Limpar token e dados locais
         singleton.clearAuth();
-        
+
         Toast.makeText(getContext(), "Sessão terminada", Toast.LENGTH_SHORT).show();
-        
+
         // Navegar para login
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).navigateToLogin();
