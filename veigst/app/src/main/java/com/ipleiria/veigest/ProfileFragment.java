@@ -98,6 +98,67 @@ public class ProfileFragment extends Fragment {
                 }
             });
         }
+        if (btnEditProfile != null) {
+            btnEditProfile.setOnClickListener(v -> showEditProfileDialog());
+        }
+    }
+
+    private void showEditProfileDialog() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
+        View view = getLayoutInflater().inflate(R.layout.dialog_vehicle_form, null); // Reusing/Creating generic form?
+                                                                                     // No, let's create dynamic view or
+                                                                                     // use simpler approach if no
+                                                                                     // layout exists.
+        // Since we don't have a specific dialog_profile_edit, let's build one
+        // programmatically or use a simple one.
+        // Actually, better to check if we can quickly create a layout or just use a
+        // simple view.
+        // For now, let's create a simple view programmatically to avoid layout file
+        // issues if not created.
+
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(getContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(50, 40, 50, 10);
+
+        final android.widget.EditText inputName = new android.widget.EditText(getContext());
+        inputName.setHint("Novo Nome");
+        com.veigest.sdk.models.User user = singleton.getUtilizadorAtual();
+        if (user != null)
+            inputName.setText(user.getUsername());
+        layout.addView(inputName);
+
+        final android.widget.EditText inputEmail = new android.widget.EditText(getContext());
+        inputEmail.setHint("Novo Email");
+        if (user != null)
+            inputEmail.setText(user.getEmail());
+        layout.addView(inputEmail);
+
+        builder.setView(layout);
+        builder.setTitle("Editar Perfil");
+        builder.setPositiveButton("Guardar", (dialog, which) -> {
+            String newName = inputName.getText().toString();
+            String newEmail = inputEmail.getText().toString();
+            // Mock update
+            if (user != null) {
+                user.setUsername(newName);
+                user.setEmail(newEmail);
+                // Need method to save back to singleton/prefs if wanting persistence mock
+                Toast.makeText(getContext(), "Perfil atualizado (Localmente)", Toast.LENGTH_SHORT).show();
+                // Refresh UI
+                setupHeader(getView()); // Re-bind
+            }
+        });
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+
+        // Setup logout (if button exists in layout, though typically in nav drawer)
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).logout();
+                }
+            });
+        }
     }
 
     private void setupListeners() {

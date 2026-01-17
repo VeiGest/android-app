@@ -321,30 +321,36 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
      * Atualiza os campos de documentação com dados reais da API
      */
     private void atualizarDocumentacao(java.util.List<com.veigest.sdk.models.Document> docs) {
-        // Exemplo: buscar por tipo de documento
         String expiraCarta = "-", statusCarta = "-", expiraSeguro = "-", statusSeguro = "-", expiraInsp = "-",
                 statusInsp = "-";
-        for (com.veigest.sdk.models.Document doc : docs) {
-            if (doc.getType() == null)
-                continue;
-            switch (doc.getType().toLowerCase()) {
-                case "carta":
-                case "carta_conducao":
-                case "licenca":
+
+        if (docs != null && !docs.isEmpty()) {
+            for (com.veigest.sdk.models.Document doc : docs) {
+                if (doc.getType() == null)
+                    continue;
+
+                String type = doc.getType().toLowerCase();
+                if (type.contains("carta") || type.contains("licenca")) {
                     expiraCarta = doc.getExpiryDate() != null ? "Expira: " + doc.getExpiryDate() : "-";
                     statusCarta = doc.getStatus() != null ? doc.getStatus() : "-";
-                    break;
-                case "seguro":
+                } else if (type.contains("seguro")) {
                     expiraSeguro = doc.getExpiryDate() != null ? "Expira: " + doc.getExpiryDate() : "-";
                     statusSeguro = doc.getStatus() != null ? doc.getStatus() : "-";
-                    break;
-                case "inspecao":
-                case "insp":
+                } else if (type.contains("inspecao") || type.contains("insp")) {
                     expiraInsp = doc.getExpiryDate() != null ? "Expira: " + doc.getExpiryDate() : "-";
                     statusInsp = doc.getStatus() != null ? doc.getStatus() : "-";
-                    break;
+                }
             }
+        } else {
+            // Lista vazia ou nula: manter os hífens "-"
+            expiraCarta = "Sem dados";
+            statusCarta = "N/A";
+            expiraSeguro = "Sem dados";
+            statusSeguro = "N/A";
+            expiraInsp = "Sem dados";
+            statusInsp = "N/A";
         }
+
         tvLicenseExpiry.setText(expiraCarta);
         tvLicenseStatus.setText(statusCarta);
         tvInsuranceExpiry.setText(expiraSeguro);
@@ -442,14 +448,8 @@ public class DashboardFragment extends Fragment implements VeiculosListener, Rot
      * Executa o logout
      */
     private void performLogout() {
-        // Limpar token e dados locais
-        singleton.clearAuth();
-
-        Toast.makeText(getContext(), "Sessão terminada", Toast.LENGTH_SHORT).show();
-
-        // Navegar para login
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).navigateToLogin();
+            ((MainActivity) getActivity()).logout();
         }
     }
 }

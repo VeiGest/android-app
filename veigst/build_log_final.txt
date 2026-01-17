@@ -1,0 +1,121 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an unnamed module (file:/C:/Users/pedro/.gradle/wrapper/dists/gradle-8.13-bin/5xuhj0ry160q40clulazy9h7d/gradle-8.13/lib/native-platform-0.22-milestone-28.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :veigest-sdk:preBuild UP-TO-DATE
+> Task :veigest-sdk:preDebugBuild UP-TO-DATE
+> Task :veigest-sdk:writeDebugAarMetadata UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :veigest-sdk:processDebugNavigationResources UP-TO-DATE
+> Task :app:processDebugNavigationResources
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :veigest-sdk:generateDebugResValues UP-TO-DATE
+> Task :veigest-sdk:generateDebugResources UP-TO-DATE
+> Task :veigest-sdk:packageDebugResources UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:mergeDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :veigest-sdk:extractDeepLinksDebug UP-TO-DATE
+> Task :veigest-sdk:processDebugManifest UP-TO-DATE
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :veigest-sdk:compileDebugLibraryResources UP-TO-DATE
+> Task :veigest-sdk:parseDebugLocalResources UP-TO-DATE
+> Task :veigest-sdk:generateDebugRFile UP-TO-DATE
+> Task :veigest-sdk:generateDebugBuildConfig UP-TO-DATE
+> Task :veigest-sdk:javaPreCompileDebug UP-TO-DATE
+> Task :veigest-sdk:compileDebugJavaWithJavac UP-TO-DATE
+> Task :veigest-sdk:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :veigest-sdk:mergeDebugShaders UP-TO-DATE
+> Task :veigest-sdk:compileDebugShaders NO-SOURCE
+> Task :veigest-sdk:generateDebugAssets UP-TO-DATE
+> Task :veigest-sdk:mergeDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :veigest-sdk:processDebugJavaRes NO-SOURCE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:processDebugManifestForPackage
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :veigest-sdk:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :veigest-sdk:mergeDebugJniLibFolders UP-TO-DATE
+> Task :veigest-sdk:mergeDebugNativeLibs NO-SOURCE
+> Task :veigest-sdk:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :veigest-sdk:checkDebugAarMetadata UP-TO-DATE
+> Task :veigest-sdk:stripDebugDebugSymbols NO-SOURCE
+> Task :veigest-sdk:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :veigest-sdk:extractDebugAnnotations UP-TO-DATE
+> Task :veigest-sdk:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :veigest-sdk:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :veigest-sdk:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :veigest-sdk:prepareDebugArtProfile UP-TO-DATE
+> Task :veigest-sdk:prepareLintJarForPublish UP-TO-DATE
+> Task :veigest-sdk:mergeDebugJavaResource UP-TO-DATE
+> Task :veigest-sdk:syncDebugLibJars UP-TO-DATE
+> Task :veigest-sdk:bundleDebugAar UP-TO-DATE
+> Task :veigest-sdk:assembleDebug UP-TO-DATE
+> Task :app:processDebugResources
+
+> Task :app:compileDebugJavaWithJavac FAILED
+C:\xampp\htdocs\android-app\veigst\app\src\main\java\com\ipleiria\veigest\DocumentsFragment.java:139: error: Override is not a repeatable annotation interface
+    @Override
+    ^
+C:\xampp\htdocs\android-app\veigst\app\src\main\java\com\ipleiria\veigest\RoutesFragment.java:255: error: Override is not a repeatable annotation interface
+    @Override
+    ^
+C:\xampp\htdocs\android-app\veigst\app\src\main\java\com\ipleiria\veigest\RoutesFragment.java:283: error: Override is not a repeatable annotation interface
+    @Override
+    ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+3 errors
+
+[Incubating] Problems report is available at: file:///C:/xampp/htdocs/android-app/veigst/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugJavaWithJavac'.
+> Compilation failed; see the compiler output below.
+  C:\xampp\htdocs\android-app\veigst\app\src\main\java\com\ipleiria\veigest\DocumentsFragment.java:139: error: Override is not a repeatable annotation interface
+      @Override
+      ^
+  C:\xampp\htdocs\android-app\veigst\app\src\main\java\com\ipleiria\veigest\RoutesFragment.java:255: error: Override is not a repeatable annotation interface
+      @Override
+      ^
+  C:\xampp\htdocs\android-app\veigst\app\src\main\java\com\ipleiria\veigest\RoutesFragment.java:283: error: Override is not a repeatable annotation interface
+      @Override
+      ^
+  Note: Some input files use or override a deprecated API.
+  Note: Recompile with -Xlint:deprecation for details.
+  3 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights.
+
+BUILD FAILED in 4s
+60 actionable tasks: 11 executed, 49 up-to-date

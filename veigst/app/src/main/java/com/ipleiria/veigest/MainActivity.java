@@ -3,6 +3,7 @@ package com.ipleiria.veigest;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
 import com.veigest.sdk.SingletonVeiGest;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -22,9 +25,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView navigationView;
     private boolean isLoggedIn = false;
     private SingletonVeiGest singleton;
+    private static final String PREFS_SETTINGS = "veigest_settings";
+    private static final String PREF_THEME = "theme";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Restaurar tema antes do super.onCreate/setContentView
+        applySavedTheme();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -77,6 +85,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         loadFragment(new DashboardFragment());
         // Selecionar o item Dashboard no menu
         navigationView.setCheckedItem(R.id.nav_dashboard);
+
+        // Populate Header
+        updateNavHeader();
+    }
+
+    public void updateNavHeader() {
+        View headerView = navigationView.getHeaderView(0);
+        android.widget.TextView tvName = headerView.findViewById(R.id.nav_header_name);
+        android.widget.TextView tvEmail = headerView.findViewById(R.id.nav_header_email);
+
+        com.veigest.sdk.models.User user = singleton.getUtilizadorAtual();
+        if (user != null) {
+            if (tvName != null)
+                tvName.setText(user.getUsername());
+            if (tvEmail != null)
+                tvEmail.setText(user.getEmail());
+        }
     }
 
     /**
@@ -89,6 +114,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentTransaction.replace(R.id.fragment_container, new RegisterFragment());
         fragmentTransaction.addToBackStack(null); // Permite voltar ao login com back button
         fragmentTransaction.commit();
+    }
+
+    private void applySavedTheme() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_SETTINGS, MODE_PRIVATE);
+        int theme = prefs.getInt(PREF_THEME, 0); // 0 = Sistema
+        switch (theme) {
+            case 1:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case 2:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            default:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Atualizar header sempre que retomar (caso perfil mude ou dados carreguem)
+        updateNavHeader();
     }
 
     @Override
@@ -110,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (itemId == R.id.nav_settings) {
             loadFragment(new SettingsFragment());
         } else if (itemId == R.id.nav_logout) {
-            performLogout();
+            logout();
         }
 
         // Fechar o drawer após selecionar um item
@@ -119,34 +166,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * Realiza o logout do utilizador
-     */
-    private void performLogout() {
-        // Limpar token local e voltar ao login
-        singleton.clearAuth();
-        Toast.makeText(MainActivity.this, "Sessão terminada com sucesso", Toast.LENGTH_SHORT).show();
-        navigateToLogin();
-    }
-
-    /**
-     * Navega para o ecrã de login (usado após logout)
-     */
-    public void navigateToLogin() {
-        Log.d("MainActivity", "navigateToLogin chamado");
-        isLoggedIn = false;
-        // Desabilitar o drawer após logout
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        // Voltar para a tela de login
-        loadFragment(new LoginFragment());
-    }
-
-    /**
      * Abre o drawer quando chamado (pode ser usado pelos fragments)
      */
     public void openDrawer() {
-        if (isLoggedIn) {
+        if (drawerLayout != null) {
             drawerLayout.openDrawer(GravityCompat.START);
         }
+    }
+
+    /**
+     * Termina a sessão do utilizador
+     */
+    public void logout() {
+        // Limpar autenticação no SDK
+        singleton.clearAuth();
+
+        isLoggedIn = false;
+
+        // Fechar drawer
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
+
+        // Navegar para login
+        loadFragment(new LoginFragment());
+
+        Toast.makeText(this, "Sessão terminada", Toast.LENGTH_SHORT).show();
     }
 
     @Override

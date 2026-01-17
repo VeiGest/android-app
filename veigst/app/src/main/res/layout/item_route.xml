@@ -52,14 +52,32 @@
                 android:textStyle="bold"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_route_duration"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Duração: -"
-            android:textSize="14sp"
-            android:textColor="@color/TextHintLight"
-            android:layout_marginBottom="4dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_route_duration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Duração: -"
+                android:textSize="14sp"
+                android:textColor="@color/TextHintLight"
+                android:layout_marginBottom="4dp"/>
+
+            <ImageButton
+                android:id="@+id/btn_complete_route"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_dashboard_route" 
+                app:tint="@color/Green"
+                android:contentDescription="Concluir Rota"
+                android:visibility="visible"/>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_route_date"

@@ -141,13 +141,21 @@ public class DocumentsFragment extends Fragment implements DocumentosListener, D
             return;
 
         getActivity().runOnUiThread(() -> {
-            showLoading(false);
-            swipeRefresh.setRefreshing(false);
+            // Stop loading animation immediately
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(false);
+            }
+            if (progressBar != null) {
+                progressBar.setVisibility(View.GONE);
+            }
 
-            adapter.setDocuments(listaDocumentos);
+            if (listaDocumentos != null) {
+                adapter.setDocuments(listaDocumentos);
+            }
+
             updateEmptyState();
-
-            Log.d(TAG, "Lista de documentos atualizada: " + listaDocumentos.size());
+            Log.d(TAG,
+                    "Lista de documentos atualizada: " + (listaDocumentos != null ? listaDocumentos.size() : "null"));
         });
     }
 

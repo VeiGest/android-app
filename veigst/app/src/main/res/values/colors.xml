@@ -15,22 +15,22 @@
 
     <!-- LIGHT MODE -->
     <color name="BackgroundLight">#FFFFFF</color>
-    <color name="SurfaceLight">#222222</color>
-    <color name="TextPrimaryLight">#FFFFFF</color>
-    <color name="TextHintLight">#AFAFAF</color>
-    <color name="ButtonBackgroundLight">#333333</color>
+    <color name="SurfaceLight">#F5F5F5</color>
+    <color name="TextPrimaryLight">#000000</color>
+    <color name="TextHintLight">#757575</color>
+    <color name="ButtonBackgroundLight">#11C7A5</color>
     <color name="ButtonTextLight">#FFFFFF</color>
     <color name="CheckboxTextLight">#000000</color>
-    <color name="CheckboxTintLight">#0A0A0A</color>
+    <color name="CheckboxTintLight">#11C7A5</color>
 
     <!-- DARK MODE -->
-    <color name="BackgroundDark">#0A0A0A</color>
-    <color name="SurfaceDark">#F2F2F2</color>
-    <color name="TextPrimaryDark">#000000</color>
-    <color name="TextHintDark">#777777</color>
-    <color name="ButtonBackgroundDark">#0D0D0D</color>
+    <color name="BackgroundDark">#121212</color>
+    <color name="SurfaceDark">#1E1E1E</color>
+    <color name="TextPrimaryDark">#FFFFFF</color>
+    <color name="TextHintDark">#B0B0B0</color>
+    <color name="ButtonBackgroundDark">#11C7A5</color>
     <color name="ButtonTextDark">#FFFFFF</color>
     <color name="CheckboxTextDark">#FFFFFF</color>
-    <color name="CheckboxTintDark">#000000</color>
+    <color name="CheckboxTintDark">#11C7A5</color>
 
 </resources>

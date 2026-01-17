@@ -37,7 +37,8 @@ import java.util.ArrayList;
  * Routes Fragment - Gerenciamento de Rotas
  * Exibe lista de rotas obtidas da API via SDK.
  */
-public class RoutesFragment extends Fragment implements RotasListener, RouteAdapter.OnRouteClickListener {
+public class RoutesFragment extends Fragment
+        implements RotasListener, com.ipleiria.veigest.adapters.RouteAdapter.OnRouteActionListener {
 
     private static final String TAG = "RoutesFragment";
 
@@ -256,13 +257,22 @@ public class RoutesFragment extends Fragment implements RotasListener, RouteAdap
             return;
 
         getActivity().runOnUiThread(() -> {
-            showLoading(false);
-            swipeRefresh.setRefreshing(false);
+            // Stop loading animation immediately
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(false);
+            }
+            if (progressBar != null) {
+                progressBar.setVisibility(View.GONE);
+            }
 
-            adapter.setRoutes(listaRotas);
+            if (listaRotas != null) {
+                adapter.setRoutes(listaRotas);
+            } else {
+                // Even if null, we stop loading. maybe show error
+            }
+
             updateEmptyState();
-
-            Log.d(TAG, "Lista de rotas atualizada: " + listaRotas.size());
+            Log.d(TAG, "Lista de rotas atualizada: " + (listaRotas != null ? listaRotas.size() : "null"));
         });
     }
 
@@ -272,7 +282,24 @@ public class RoutesFragment extends Fragment implements RotasListener, RouteAdap
     public void onRouteClick(Route route) {
         String msg = "Rota: " + route.getStartLocation() + " -> " + route.getEndLocation();
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-        // Futuro: Abrir detalhes no Google Maps
+    }
+
+    @Override
+    public void onRouteComplete(Route route) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Concluir Rota")
+                .setMessage("Deseja marcar esta rota como concluída?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    // Atualizar status localmente e na API
+                    route.setStatus("completed");
+                    // Se houver método de update na API:
+                    singleton.editarRotaAPI(route);
+
+                    Toast.makeText(getContext(), "Rota concluída!", Toast.LENGTH_SHORT).show();
+                    loadRoutes(); // Recarregar para atualizar lista
+                })
+                .setNegativeButton("Não", null)
+                .show();
     }
 
     @Override
