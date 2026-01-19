@@ -101,6 +101,7 @@ public class SingletonVeiGest {
     private AlertasListener alertasListener;
     private DocumentosListener documentosListener;
     private RotasListener rotasListener;
+    private ProfileListener profileListener;
 
     /**
      * Construtor privado - usar getInstance()
@@ -241,6 +242,37 @@ public class SingletonVeiGest {
         return prefs.getInt(PREF_COMPANY_ID, 0);
     }
 
+    /**
+     * Verifica se o utilizador logado tem papel de admin.
+     */
+    public boolean isAdmin() {
+        User user = getUtilizadorAtual();
+        return user != null && user.getRole() != null && user.getRole().trim().equalsIgnoreCase("admin");
+    }
+
+    /**
+     * Verifica se o utilizador logado tem papel de manager.
+     */
+    public boolean isManager() {
+        User user = getUtilizadorAtual();
+        return user != null && user.getRole() != null && user.getRole().trim().equalsIgnoreCase("manager");
+    }
+
+    /**
+     * Verifica se o utilizador logado tem papel de condutor (driver).
+     */
+    public boolean isDriver() {
+        User user = getUtilizadorAtual();
+        return user != null && user.getRole() != null && user.getRole().trim().equalsIgnoreCase("driver");
+    }
+
+    /**
+     * Helper para verificar se o utilizador é gestor ou admin.
+     */
+    public boolean isManagerOrAdmin() {
+        return isManager() || isAdmin();
+    }
+
     // ==================== SETTERS DE LISTENERS ====================
 
     public void setLoginListener(LoginListener listener) {
@@ -277,6 +309,10 @@ public class SingletonVeiGest {
 
     public void setRotasListener(RotasListener listener) {
         this.rotasListener = listener;
+    }
+
+    public void setProfileListener(ProfileListener listener) {
+        this.profileListener = listener;
     }
 
     // ==================== GETTERS DE DADOS ====================
@@ -1341,5 +1377,105 @@ public class SingletonVeiGest {
             e.printStackTrace();
         }
         return json;
+    }
+
+    /**
+     * Obtém os dados do utilizador atual da API para atualizar cache e BD local.
+     */
+    public void getUtilizadorAtualAPI() {
+        int userId = getUserId();
+        if (userId <= 0)
+            return;
+
+        String url = mUrlAPIUsers + "/" + userId;
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    try {
+                        User user = VeiGestJsonParser.parserJsonUser(response);
+                        if (user != null) {
+                            utilizadorAtual = user;
+                            if (veiGestBD != null) {
+                                veiGestBD.adicionarUserBD(user);
+                            }
+                            if (profileListener != null) {
+                                profileListener.onProfileUpdated();
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao processar dados do utilizador", e);
+                    }
+                },
+                error -> Log.e(TAG, "Erro ao obter dados do utilizador: " + error.toString())) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return getAuthHeaders();
+            }
+        };
+
+        volleyQueue.add(request);
+    }
+
+    /**
+     * Edita um utilizador via API.
+     */
+    public void editarUtilizadorAPI(final User user) {
+        if (user == null || user.getId() == 0) {
+            Log.e(TAG, "editarUtilizadorAPI: User inválido");
+            return;
+        }
+
+        JSONObject body = new JSONObject();
+        try {
+            body.put("email", user.getEmail());
+            body.put("phone", user.getPhone());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        String url = mUrlAPIUsers + "/" + user.getId();
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.PUT,
+                url,
+                body,
+                response -> {
+                    try {
+                        User updatedUser = VeiGestJsonParser.parserJsonUser(response);
+                        if (updatedUser != null) {
+                            utilizadorAtual = updatedUser;
+                            if (veiGestBD != null) {
+                                veiGestBD.adicionarUserBD(updatedUser);
+                            }
+                            Log.d(TAG, "Utilizador atualizado com sucesso (API + Local)");
+                            if (profileListener != null) {
+                                profileListener.onProfileUpdated();
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao processar resposta", e);
+                        if (profileListener != null) {
+                            profileListener.onProfileError("Erro ao processar resposta do servidor");
+                        }
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Erro ao editar utilizador: " + error.toString());
+                    if (profileListener != null) {
+                        profileListener.onProfileError("Erro na ligação ao servidor");
+                    }
+                }) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return getAuthHeaders();
+            }
+        };
+
+        volleyQueue.add(request);
     }
 }

@@ -13,18 +13,20 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.card.MaterialCardView;
 import com.veigest.sdk.SingletonVeiGest;
+import com.veigest.sdk.listeners.ProfileListener;
 import com.veigest.sdk.models.User;
 
 /**
  * Profile Fragment - Perfil do Usuário
  * Exibe informações do perfil do condutor obtidas do SDK
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements ProfileListener {
 
     private MaterialCardView cardProfile;
     private ImageView ivProfileDesc;
     private TextView tvName;
     private TextView tvEmail;
+    private TextView tvPhone;
     private TextView tvRole;
     private TextView tvCompany;
 
@@ -61,7 +63,17 @@ public class ProfileFragment extends Fragment {
         // Carregar dados
         loadUserData();
 
+        // Configurar listener de perfil para atualizações
+        singleton.setProfileListener(this);
+
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Limpar listener para evitar vazamentos de memória
+        singleton.setProfileListener(null);
     }
 
     private void initializeViews(View view) {
@@ -77,6 +89,7 @@ public class ProfileFragment extends Fragment {
         // Vou procurar os text views que devem estar lá dentro.
         tvName = view.findViewById(R.id.tv_profile_name);
         tvEmail = view.findViewById(R.id.tv_profile_email);
+        tvPhone = view.findViewById(R.id.tv_profile_phone);
         tvRole = view.findViewById(R.id.tv_profile_role);
 
         btnEditProfile = view.findViewById(R.id.btn_edit_profile);
@@ -98,9 +111,6 @@ public class ProfileFragment extends Fragment {
                 }
             });
         }
-        if (btnEditProfile != null) {
-            btnEditProfile.setOnClickListener(v -> showEditProfileDialog());
-        }
     }
 
     private void showEditProfileDialog() {
@@ -120,32 +130,37 @@ public class ProfileFragment extends Fragment {
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
         layout.setPadding(50, 40, 50, 10);
 
-        final android.widget.EditText inputName = new android.widget.EditText(getContext());
-        inputName.setHint("Novo Nome");
         com.veigest.sdk.models.User user = singleton.getUtilizadorAtual();
-        if (user != null)
-            inputName.setText(user.getUsername());
-        layout.addView(inputName);
 
         final android.widget.EditText inputEmail = new android.widget.EditText(getContext());
-        inputEmail.setHint("Novo Email");
+        inputEmail.setHint("Email");
+        inputEmail.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         if (user != null)
             inputEmail.setText(user.getEmail());
         layout.addView(inputEmail);
 
+        final android.widget.EditText inputPhone = new android.widget.EditText(getContext());
+        inputPhone.setHint("Telefone");
+        inputPhone.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        if (user != null && user.getPhone() != null)
+            inputPhone.setText(user.getPhone());
+        layout.addView(inputPhone);
+
         builder.setView(layout);
         builder.setTitle("Editar Perfil");
         builder.setPositiveButton("Guardar", (dialog, which) -> {
-            String newName = inputName.getText().toString();
             String newEmail = inputEmail.getText().toString();
-            // Mock update
+            String newPhone = inputPhone.getText().toString();
+
             if (user != null) {
-                user.setUsername(newName);
                 user.setEmail(newEmail);
-                // Need method to save back to singleton/prefs if wanting persistence mock
-                Toast.makeText(getContext(), "Perfil atualizado (Localmente)", Toast.LENGTH_SHORT).show();
-                // Refresh UI
-                setupHeader(getView()); // Re-bind
+                user.setPhone(newPhone);
+
+                // Call API to update user profile
+                singleton.editarUtilizadorAPI(user);
+
+                Toast.makeText(getContext(), "A atualizar perfil...", Toast.LENGTH_SHORT).show();
+                // Removido o loadUserData() daqui pois agora é chamado via listener
             }
         });
         builder.setNegativeButton("Cancelar", null);
@@ -162,8 +177,9 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setupListeners() {
-        btnEditProfile.setOnClickListener(
-                v -> Toast.makeText(getContext(), "Editar Perfil (em breve)", Toast.LENGTH_SHORT).show());
+        if (btnEditProfile != null) {
+            btnEditProfile.setOnClickListener(v -> showEditProfileDialog());
+        }
     }
 
     private void loadUserData() {
@@ -174,12 +190,14 @@ public class ProfileFragment extends Fragment {
                 tvName.setText(user.getUsername());
             if (tvEmail != null)
                 tvEmail.setText(user.getEmail());
+            if (tvPhone != null)
+                tvPhone.setText(user.getPhone() != null ? user.getPhone() : "");
 
             String role = user.getRole();
-            if (role != null) {
+            if (role != null && !role.isEmpty()) {
                 // Capitalize first letter
                 role = role.substring(0, 1).toUpperCase() + role.substring(1);
-            } else {
+            } else if (role == null || role.isEmpty()) {
                 role = "Utilizador";
             }
             if (tvRole != null)
@@ -196,7 +214,28 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Recarregar dados caso tenham mudado
+        // Recarregar dados locais primeiro
         loadUserData();
+        // Tentar atualizar da API
+        if (singleton != null) {
+            singleton.getUtilizadorAtualAPI();
+        }
+    }
+
+    @Override
+    public void onProfileUpdated() {
+        if (isAdded()) {
+            Toast.makeText(getContext(), "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show();
+            loadUserData();
+        }
+    }
+
+    @Override
+    public void onProfileError(String message) {
+        if (isAdded()) {
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+            // Recarregar dados originais se necessário
+            loadUserData();
+        }
     }
 }

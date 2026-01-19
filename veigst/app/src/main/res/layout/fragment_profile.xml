@@ -57,7 +57,7 @@
                         android:text="João Silva"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="@color/Black"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginTop="12dp"/>
 
                     <TextView
@@ -98,7 +98,7 @@
                         android:layout_weight="1"
                         android:text="joao.silva@veigest.com"
                         android:textSize="14sp"
-                        android:textColor="@color/Black"/>
+                        android:textColor="?attr/colorOnSurface"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -115,12 +115,13 @@
                         android:textColor="@color/TextHintLight"/>
 
                     <TextView
+                        android:id="@+id/tv_profile_phone"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="+351 912 345 678"
                         android:textSize="14sp"
-                        android:textColor="@color/Black"/>
+                        android:textColor="?attr/colorOnSurface"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -142,7 +143,7 @@
                         android:layout_weight="1"
                         android:text="PT123456789"
                         android:textSize="14sp"
-                        android:textColor="@color/Black"/>
+                        android:textColor="?attr/colorOnSurface"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -164,7 +165,7 @@
                         android:layout_weight="1"
                         android:text="VeiGest Demo"
                         android:textSize="14sp"
-                        android:textColor="@color/Black"/>
+                        android:textColor="?attr/colorOnSurface"/>
                 </LinearLayout>
 
                 <!-- Edit Button -->

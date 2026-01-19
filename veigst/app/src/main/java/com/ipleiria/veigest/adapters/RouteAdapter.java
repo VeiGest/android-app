@@ -150,23 +150,13 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
 
             android.widget.ImageButton btnComplete = itemView.findViewById(R.id.btn_complete_route);
             if (btnComplete != null) {
-                // Show completion button only for active/scheduled routes
+                // Show completion/status button for active or scheduled routes
+                // Drivers NEED to be able to complete routes
                 if (route.isInProgress() || route.isScheduled()) {
                     btnComplete.setVisibility(View.VISIBLE);
                     btnComplete.setOnClickListener(v -> {
-                        // Implement completion logic
-                        // Ideally we should add a specific method to interface, but for now we can use
-                        // onRouteClick or similar
-                        // Let's assume we want to just notify the user it's a future feature or handle
-                        // it
-                        // For now, let's trigger a click but usually we'd want a separate action
-                        if (listener != null) {
-                            // Assuming we extend listener or handle it.
-                            // For simplicity given current interface, we will just Toast or Log?
-                            // No, let's extend the interface properly.
-                            if (listener instanceof OnRouteActionListener) {
-                                ((OnRouteActionListener) listener).onRouteComplete(route);
-                            }
+                        if (listener instanceof OnRouteActionListener) {
+                            ((OnRouteActionListener) listener).onRouteComplete(route);
                         }
                     });
                 } else {

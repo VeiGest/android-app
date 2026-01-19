@@ -1,0 +1,832 @@
+# Relatório Académico - Projeto AMSI
+**Unidade Curricular:** Acesso Móvel a Sistemas de Informação  
+**Projeto:** VeiGest - Aplicação Android para Gestão de Frotas  
+**Ano Letivo:** 2025/2026  
+**Data de Entrega:** 17 de janeiro de 2026
+
+---
+
+## 1. Introdução
+
+### 1.1 Contextualização da aplicação
+
+A aplicação **VeiGest** é um sistema móvel desenvolvido para Android, no âmbito da unidade curricular Acesso Móvel a Sistemas de Informação (AMSI), com o objetivo de facilitar a gestão de frotas empresariais através de dispositivos móveis.
+
+A aplicação destina-se a **condutores e gestores de frota**, permitindo-lhes aceder, em mobilidade, a informações críticas sobre veículos, rotas, manutenções, documentação e abastecimentos. O sistema resolve o problema da **dispersão de informação** e da **dificuldade de gestão em tempo real** de frotas de veículos empresariais, centralizando todos os dados numa interface móvel intuitiva e funcional.
+
+No contexto académico da UC AMSI, o projeto aplica os conceitos fundamentais de desenvolvimento Android, incluindo:
+- Arquitetura baseada em Activities e Fragments
+- Comunicação assíncrona com webservices REST
+- Persistência local de dados (SQLite e SharedPreferences)
+- Gestão de ciclo de vida de componentes Android
+- Interface responsiva com Material Design
+- Upload de ficheiros (imagens) e geração de relatórios PDF
+
+### 1.2 Requisitos finais implementados
+
+A aplicação VeiGest implementa os seguintes requisitos técnicos, cumprindo integralmente os critérios definidos para a Época de Exame Normal:
+
+#### **Estrutura de navegação**
+- **1 Activity principal:** `MainActivity` - contém DrawerLayout para navegação lateral
+- **8 Fragments:** 
+  1. `LoginFragment` - Autenticação de utilizadores
+  2. `RegisterFragment` - Registo de novos utilizadores
+  3. `DashboardFragment` - Painel principal do condutor
+  4. `VehiclesFragment` - Gestão de veículos (CRUD completo)
+  5. `RoutesFragment` - Gestão de rotas
+  6. `DocumentsFragment` - Visualização de documentação
+  7. `ProfileFragment` - Perfil do utilizador
+  8. `SettingsFragment` - Configurações da aplicação
+  9. `ReportsFragment` - Geração e envio de relatórios PDF
+
+**Total: 1 Activity + 9 Fragments** (requisito: mínimo 6 atividades) ✅
+
+#### **Comunicação com webservice REST**
+Através do **VeiGest SDK** (módulo `veigest-sdk`), a aplicação consome uma API RESTful desenvolvida em Yii2.0. As seguintes funcionalidades acedem ao webservice:
+
+1. **Autenticação:** Login e Registo (POST /auth/login, POST /auth/register)
+2. **Veículos:** CRUD completo - GET, POST, PUT, DELETE /vehicles
+3. **Rotas:** Listagem e gestão - GET, POST, PUT, DELETE /routes
+4. **Documentos:** Consulta - GET /documents
+5. **Manutenções:** Listagem - GET /maintenances
+6. **Abastecimentos:** Consulta - GET /fuel-logs
+7. **Alertas:** Notificações - GET /alerts
+
+**Total: 7 funcionalidades com acesso à API** (requisito: mínimo 4) ✅
+
+#### **Operações CRUD implementadas**
+- **Veículos (Vehicles):** Create, Read, Update, Delete - totalmente funcional
+- **Rotas (Routes):** Create, Read, Update, Delete - totalmente funcional
+
+**Todas as 4 operações CRUD implementadas** ✅
+
+#### **Ecrãs com introdução de dados**
+- `LoginFragment` - campos: username, password
+- `RegisterFragment` - campos: username, email, password, confirmação
+- `VehiclesFragment` - formulário completo para adicionar/editar veículos (matrícula, marca, modelo, ano, combustível, quilometragem, foto)
+- `RoutesFragment` - formulário para adicionar/editar rotas (origem, destino, data, veículo)
+
+**Total: 4 ecrãs com input de dados** (requisito: mínimo 2) ✅
+
+#### **Ecrãs dinâmicos alimentados por dados remotos**
+- `DashboardFragment` - dados do utilizador, rotas ativas, veículo atual, documentação
+- `VehiclesFragment` - lista de veículos obtida via API
+- `RoutesFragment` - lista de rotas obtida via API
+- `DocumentsFragment` - lista de documentos obtida via API
+
+**Total: 4 ecrãs dinâmicos** (requisito: mínimo 2) ✅
+
+#### **Relação master/detail**
+- **Master:** `VehiclesFragment` apresenta lista de veículos em RecyclerView
+- **Detail:** Ao clicar num veículo, abre diálogo com detalhes completos e opções de edição/remoção
+
+**Relação master/detail implementada** ✅
+
+#### **Persistência local**
+- **SQLite:** Base de dados `veigest_db` com 7 tabelas (users, vehicles, maintenances, fuel_logs, alerts, documents, routes) para cache de informação
+- **SharedPreferences:** Armazenamento de token JWT, user_id, company_id, preferências de tema e configurações da API
+
+**Ambas as formas de persistência implementadas** ✅
+
+#### **Requisitos da Adenda (Exame Normal)**
+1. **Upload de imagens (15%):**
+   - `VehiclesFragment` permite capturar foto via câmara ou selecionar da galeria
+   - Implementado com ActivityResultLauncher e FileProvider
+   - Upload para servidor via multipart/form-data
+
+2. **Geração de PDF e envio por email (5%):**
+   - `ReportsFragment` com classe `PDFGenerator`
+   - Gera relatórios de veículos e manutenções em PDF
+   - Permite envio por email via Intent
+
+**Ambos os requisitos da Adenda implementados** ✅
+
+#### **Menu de configuração**
+- `SettingsFragment` com campos para:
+  - URL da API
+  - ID da empresa
+  - Seleção de tema (Claro/Escuro/Sistema)
+  - Notificações e sincronização
+
+**Menu de configuração implementado** ✅
+
+#### **Chamadas assíncronas**
+Todas as operações de rede utilizam **Volley** (biblioteca de HTTP assíncrono do Android), garantindo que a interface não fica bloqueada durante as requisições.
+
+**Requisito cumprido** ✅
+
+### 1.3 Motivação para o desenvolvimento do projeto
+
+O desenvolvimento da aplicação VeiGest foi motivado pela necessidade de aplicar, num contexto prático e realista, os conhecimentos adquiridos na unidade curricular AMSI. O projeto permitiu consolidar competências essenciais de desenvolvimento Android, nomeadamente:
+
+**Competências técnicas aplicadas:**
+- Implementação de arquitetura MVC (Model-View-Controller) em Android
+- Desenvolvimento de SDK reutilizável para centralizar lógica de negócio
+- Padrão Singleton para gestão de estado global da aplicação
+- Comunicação REST assíncrona com tratamento de erros
+- Persistência dual (cache local + dados remotos)
+- Implementação de listeners/callbacks para comunicação entre componentes
+- Utilização de RecyclerView com adapters personalizados
+- Gestão de permissões runtime (câmara, armazenamento)
+- Material Design 3 com suporte a temas dinâmicos
+
+**Aprendizagens consolidadas:**
+- Gestão do ciclo de vida de Activities e Fragments
+- Sincronização entre interface e dados assíncronos
+- Boas práticas de segurança (tokens JWT, armazenamento seguro)
+- Estruturação modular de projetos Android de média complexidade
+- Debugging e troubleshooting em ambiente móvel
+- Integração com APIs externas e tratamento de respostas JSON
+
+O projeto representa um caso de uso real de gestão empresarial, onde a mobilidade é fator crítico, tornando a aprendizagem mais significativa e próxima dos desafios encontrados no mercado de trabalho.
+
+---
+
+## 2. Descrição do desenvolvimento
+
+### 2.1 Metodologia e organização do trabalho
+
+#### **Estrutura do projeto**
+O projeto está organizado em dois módulos principais:
+
+1. **Módulo `app`** (aplicação principal)
+   - Package `com.ipleiria.veigest`
+     - Activities: `MainActivity`
+     - Fragments: `LoginFragment`, `RegisterFragment`, `DashboardFragment`, `VehiclesFragment`, `RoutesFragment`, `DocumentsFragment`, `ProfileFragment`, `SettingsFragment`, `ReportsFragment`
+     - Adapters: `VehicleAdapter`, `RouteAdapter`, `DocumentAdapter`
+     - Utilities: `PDFGenerator`, `VeiGestApplication`
+     - Config: `ApiConfig`
+
+2. **Módulo `veigest-sdk`** (biblioteca reutilizável)
+   - Package `com.veigest.sdk`
+     - Core: `SingletonVeiGest` (gestão central de requisições e dados)
+     - Models: `User`, `Vehicle`, `Route`, `Document`, `Maintenance`, `FuelLog`, `Alert`
+     - Listeners: Interfaces de callback para cada operação
+     - Database: `VeiGestBDHelper` (SQLite)
+     - Utils: `VeiGestJsonParser` (parsing de respostas JSON)
+
+#### **Separação de responsabilidades**
+A aplicação segue uma arquitetura de 3 camadas:
+
+- **Camada de Apresentação (UI):** Fragments e Activities responsáveis pela renderização e interação com o utilizador
+- **Camada de Lógica de Negócio:** SDK (SingletonVeiGest) que encapsula toda a comunicação com a API e gestão de estado
+- **Camada de Dados:** VeiGestBDHelper (SQLite) para persistência local e cache
+
+Esta separação permite:
+- Reutilização do SDK em outros projetos Android
+- Facilidade de manutenção e testes
+- Alterações na API sem impacto direto na UI
+- Cache transparente de dados
+
+#### **Estratégia de desenvolvimento**
+O desenvolvimento seguiu uma abordagem iterativa:
+1. **Fase 1:** Estruturação do projeto e criação do SDK base
+2. **Fase 2:** Implementação de autenticação e navegação
+3. **Fase 3:** CRUD de veículos e rotas
+4. **Fase 4:** Persistência local (SQLite + SharedPreferences)
+5. **Fase 5:** Funcionalidades da Adenda (upload de imagens e PDF)
+6. **Fase 6:** Polimento de UI e testes
+
+### 2.2 Tecnologias usadas
+
+#### **Linguagem e ambiente**
+- **Linguagem:** Java (100%)
+- **IDE:** Android Studio Ladybug 2024.2.1
+- **Android SDK:** API 24 (Android 7.0) a API 36 (Android 14+)
+- **Build System:** Gradle 8.13.2 com Kotlin DSL
+
+#### **Bibliotecas principais**
+
+**Comunicação HTTP:**
+- **Volley 1.2.1:** Biblioteca oficial Android para requisições HTTP assíncronas (utilizada no SDK)
+- **Retrofit 2.9.0 + OkHttp 4.11.0:** Alternativa REST client (preparado para uso futuro)
+- **Gson 2.10.1:** Parsing JSON
+
+**Interface gráfica:**
+- **Material Design 3 (1.10.0):** Componentes visuais (CardView, FloatingActionButton, TextInputLayout)
+- **AndroidX AppCompat (1.6.1):** Compatibilidade com versões antigas
+- **ConstraintLayout (2.1.4):** Layouts responsivos
+- **RecyclerView:** Listas eficientes de dados
+- **SwipeRefreshLayout (1.1.0):** Pull-to-refresh
+- **Navigation Component (2.7.5):** Navegação entre fragments
+
+**Carregamento de imagens:**
+- **Glide 4.16.0:** Biblioteca para carregar, cachear e exibir imagens (URLs e recursos locais)
+
+**Persistência:**
+- **SQLite:** Base de dados relacional nativa do Android
+- **SharedPreferences:** Armazenamento key-value para tokens e configurações
+
+**Geração de PDF:**
+- **android.graphics.pdf.PdfDocument:** API nativa do Android para criação de documentos PDF
+
+**Permissões e FileProvider:**
+- **AndroidX Core:** Gestão de permissões runtime
+- **FileProvider:** Partilha segura de ficheiros entre aplicações
+
+### 2.3 Solução desenvolvida
+
+#### **Estrutura da aplicação**
+
+**Activity:**
+- **MainActivity:** Activity principal que hospeda todos os fragments. Implementa:
+  - DrawerLayout com NavigationView para menu lateral
+  - Gestão de estado de login (bloqueio/desbloqueio do drawer)
+  - Métodos públicos para navegação entre fragments
+  - Aplicação de tema salvo nas SharedPreferences
+
+**Fragments:**
+
+1. **LoginFragment**
+   - Interface de autenticação com campos email e password
+   - Validação básica de campos obrigatórios
+   - Chamada ao método `SingletonVeiGest.loginAPI()`
+   - Implementa `LoginListener` para receber resposta assíncrona
+   - Navega para `DashboardFragment` em caso de sucesso
+   - Guarda token JWT em SharedPreferences
+
+2. **RegisterFragment**
+   - Formulário de registo com username, email, password e confirmação
+   - Validação de formato de email e força de password
+   - Chamada ao método `SingletonVeiGest.registerAPI()`
+   - Implementa `RegisterListener`
+   - Retorna ao login após registo bem-sucedido
+
+3. **DashboardFragment**
+   - Painel principal do condutor
+   - Cards com informações dinâmicas:
+     - Rotas ativas (origem, destino, distância, ETA)
+     - Veículo atual (matrícula, modelo, km, combustível)
+     - Documentação (carta de condução, seguro, inspeção)
+   - Ações rápidas (reportar problema, histórico, configurações)
+   - Carrega dados via `getAllRotasAPI()`, `getAllVeiculosAPI()`, `getAllDocumentosAPI()`
+   - Implementa listeners: `RotasListener`, `VeiculosListener`, `DocumentosListener`
+
+4. **VehiclesFragment** (CRUD completo)
+   - RecyclerView com lista de veículos
+   - FloatingActionButton para adicionar novo veículo
+   - Diálogo de formulário com campos:
+     - Matrícula (obrigatório)
+     - Marca
+     - Modelo
+     - Ano
+     - Tipo de combustível (dropdown)
+     - Quilometragem
+     - Foto (câmara ou galeria)
+   - Botões de ação em cada item:
+     - Editar (abre diálogo pré-preenchido)
+     - Apagar (confirmação + chamada DELETE)
+   - Upload de imagens para servidor (multipart)
+   - Cache local em SQLite após operações bem-sucedidas
+   - SwipeRefreshLayout para atualizar dados
+
+5. **RoutesFragment** (CRUD completo)
+   - RecyclerView com lista de rotas
+   - FloatingActionButton para criar nova rota
+   - Diálogo de formulário com campos:
+     - Origem
+     - Destino
+     - Data/Hora de início
+     - Veículo associado
+   - ItemTouchHelper para swipe-to-delete
+   - Status visual (ativa, pendente, concluída)
+   - Cache local em SQLite
+
+6. **DocumentsFragment**
+   - RecyclerView com lista de documentos
+   - Exibe tipo, data de validade e status
+   - Indicadores visuais (verde=válido, vermelho=expirado)
+   - Dados obtidos via `getAllDocumentosAPI()`
+
+7. **ProfileFragment**
+   - Exibe informações do utilizador atual
+   - Nome, email, role, estado
+   - Botão para editar perfil (preparado para futuro)
+
+8. **SettingsFragment**
+   - Configurações da aplicação:
+     - **API Settings:** URL base da API e ID da empresa (EditText)
+     - **Tema:** RadioGroup (Claro, Escuro, Sistema)
+     - **Notificações:** Switches para ativar/desativar
+     - **Sincronização:** Toggle para sync automática
+   - Valores salvos em SharedPreferences
+   - Aplicação de tema em tempo real
+
+9. **ReportsFragment** (Adenda 5%)
+   - Botões para gerar relatórios PDF:
+     - Relatório de veículos
+     - Relatório de manutenções
+     - Relatório completo
+   - Botões para enviar por email
+   - Campo para inserir email destinatário
+   - Utiliza classe `PDFGenerator` para criação de PDFs
+   - Envio via Intent (ACTION_SEND com anexo)
+
+#### **Comunicação com webservice**
+
+A comunicação com a API REST é gerida exclusivamente pelo **SingletonVeiGest**, que encapsula toda a lógica de requisições HTTP.
+
+**Endpoints consumidos:**
+
+| Método HTTP | Endpoint | Operação | Fragment |
+|-------------|----------|----------|----------|
+| POST | /auth/login | Autenticação | LoginFragment |
+| POST | /auth/register | Registo | RegisterFragment |
+| GET | /vehicles | Listar veículos | VehiclesFragment, DashboardFragment |
+| POST | /vehicles | Criar veículo | VehiclesFragment |
+| PUT | /vehicles/{id} | Atualizar veículo | VehiclesFragment |
+| DELETE | /vehicles/{id} | Apagar veículo | VehiclesFragment |
+| GET | /routes | Listar rotas | RoutesFragment, DashboardFragment |
+| POST | /routes | Criar rota | RoutesFragment |
+| PUT | /routes/{id} | Atualizar rota | RoutesFragment |
+| DELETE | /routes/{id} | Apagar rota | RoutesFragment |
+| GET | /documents | Listar documentos | DocumentsFragment, DashboardFragment |
+| GET | /maintenances | Listar manutenções | ReportsFragment |
+| GET | /fuel-logs | Listar abastecimentos | DashboardFragment |
+| GET | /alerts | Listar alertas | DashboardFragment |
+
+**Como são feitas as chamadas (assíncronas):**
+
+Todas as requisições utilizam **Volley**, uma biblioteca oficial do Android para operações HTTP assíncronas. O padrão adotado é:
+
+```java
+// 1. Fragment chama método do Singleton
+singleton.getAllVeiculosAPI();
+
+// 2. Singleton cria JsonArrayRequest do Volley
+JsonArrayRequest request = new JsonArrayRequest(
+    Request.Method.GET,
+    mUrlAPIVehicles,
+    null,
+    response -> {
+        // 3. Parse da resposta JSON
+        ArrayList<Vehicle> lista = VeiGestJsonParser.parserJsonVehicles(response);
+        // 4. Cache em SQLite
+        veiGestBD.adicionarVeiculosBD(lista);
+        // 5. Notifica listener
+        if (veiculosListener != null) {
+            veiculosListener.onRefreshListaVeiculos(lista);
+        }
+    },
+    error -> {
+        // Tratamento de erro
+    }
+) {
+    @Override
+    public Map<String, String> getHeaders() {
+        // Adiciona token JWT
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + getToken());
+        return headers;
+    }
+};
+
+// 6. Adiciona à fila de requisições
+volleyQueue.add(request);
+```
+
+O Fragment implementa o listener correspondente:
+
+```java
+public class VehiclesFragment implements VeiculosListener {
+    @Override
+    public void onRefreshListaVeiculos(ArrayList<Vehicle> lista) {
+        // Atualiza RecyclerView
+        adapter.updateData(lista);
+    }
+}
+```
+
+**Como são tratados erros de comunicação:**
+
+1. **Erros de rede:** Volley retorna `VolleyError` com informações do `NetworkResponse`
+2. **Parsing de erro:** A classe `VeiGestJsonParser.parserJsonError()` extrai mensagens de erro do JSON retornado pela API
+3. **Feedback ao utilizador:** Listeners notificam o Fragment com a mensagem de erro, que exibe Toast ou Snackbar
+4. **Fallback para cache:** Em caso de erro, o Fragment pode carregar dados da SQLite
+
+Exemplo:
+```java
+error -> {
+    String errorMsg = "Erro de conexão";
+    if (error.networkResponse != null) {
+        try {
+            String responseBody = new String(error.networkResponse.data, "UTF-8");
+            JSONObject errorJson = new JSONObject(responseBody);
+            errorMsg = VeiGestJsonParser.parserJsonError(errorJson);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    if (veiculosListener != null) {
+        veiculosListener.onErroVeiculos(errorMsg);
+    }
+}
+```
+
+#### **Persistência local**
+
+**SharedPreferences:**
+
+Utilizado para armazenar:
+- **Token JWT** (`auth_token`): Autenticação persistente entre sessões
+- **User ID** (`user_id`): Identificador do utilizador logado
+- **Company ID** (`company_id`): Empresa associada ao utilizador
+- **Tema** (`theme`): Preferência de tema (claro/escuro/sistema)
+- **URL da API** (`api_url`): Configuração da API
+- **ID da empresa na API** (`api_company_id`): Parâmetro de configuração
+
+**SQLite:**
+
+Base de dados `veigest_db` com 7 tabelas para cache de dados:
+
+1. **users:** id, username, email, role, status, company_id, created_at, updated_at
+2. **vehicles:** id, company_id, license_plate, brand, model, year, fuel_type, mileage, status, driver_id, photo, created_at, updated_at
+3. **maintenances:** id, company_id, vehicle_id, type, description, cost, date, mileage_record, workshop, status, created_at, updated_at
+4. **fuel_logs:** id, vehicle_id, liters, value, current_mileage, date, notes, created_at, updated_at
+5. **alerts:** id, company_id, type, title, description, priority, status, details, created_at
+6. **documents:** id, company_id, file_id, vehicle_id, driver_id, type, expiry_date, notes, created_at, updated_at
+7. **routes:** id, company_id, vehicle_id, driver_id, start_location, end_location, start_time, end_time, status, distance, created_at, updated_at
+
+**Finalidade do cache:**
+- Permitir visualização de dados offline
+- Reduzir chamadas desnecessárias à API
+- Melhorar performance e experiência do utilizador
+- Sincronização bidirecional (dados locais → API, API → dados locais)
+
+**Operações implementadas na BD local:**
+- `adicionarVeiculoBD()`, `atualizarVeiculoBD()`, `removerVeiculoBD()`, `getAllVeiculosBD()`
+- `adicionarRotaBD()`, `atualizarRotaBD()`, `removerRotaBD()`, `getAllRotasBD()`
+- `adicionarUserBD()`, `getAllDocumentosBD()`, etc.
+
+#### **Problemas e dificuldades encontradas**
+
+1. **Gestão de Fragments e ciclo de vida**
+   - **Dificuldade:** Garantir que listeners não causem memory leaks quando o Fragment é destruído
+   - **Manifestação:** Crashes ao rotacionar o ecrã ou navegar entre fragments rapidamente
+   - **Evidência no código:** Método `onDestroyView()` em todos os Fragments que remove listeners
+
+2. **Sincronização de dados assíncronos**
+   - **Dificuldade:** RecyclerView atualizado antes da resposta da API chegar
+   - **Manifestação:** Lista vazia ou dados antigos exibidos momentaneamente
+   - **Evidência no código:** Uso de ProgressBar e SwipeRefreshLayout para indicar carregamento
+
+3. **Tratamento de erros de rede**
+   - **Dificuldade:** Diferentes tipos de erro da API (401, 404, 500, network error)
+   - **Manifestação:** Mensagens genéricas ou crashes
+   - **Evidência no código:** Classe `VeiGestJsonParser.parserJsonError()` com tratamento específico por código HTTP
+
+4. **Upload de imagens**
+   - **Dificuldade:** Conversão de Bitmap para arquivo, compressão e envio multipart
+   - **Manifestação:** Imagens muito grandes causavam OutOfMemoryError
+   - **Evidência no código:** Implementação de compressão em `VehiclesFragment` antes do upload
+
+5. **Gestão de permissões runtime (Android 6+)**
+   - **Dificuldade:** Solicitar permissões de câmara e armazenamento no momento certo
+   - **Manifestação:** Crashes ao tentar aceder à câmara sem permissão
+   - **Evidência no código:** `ActivityResultLauncher<String> permissionLauncher` em `VehiclesFragment`
+
+6. **Organização do código e reutilização**
+   - **Dificuldade:** Evitar duplicação de código entre Fragments semelhantes
+   - **Manifestação:** Código repetido em múltiplos Fragments
+   - **Evidência no código:** Criação do SDK (`veigest-sdk`) como módulo separado para centralizar lógica
+
+#### **Soluções adotadas e respetiva justificação**
+
+1. **Padrão Singleton para gestão de requisições**
+   - **Decisão:** Criar classe `SingletonVeiGest` para centralizar toda a comunicação com a API
+   - **Justificação:**
+     - Garante uma única instância do RequestQueue do Volley (performance)
+     - Centraliza gestão de token e autenticação
+     - Facilita reutilização em outros projetos
+     - Simplifica código dos Fragments (apenas chamam métodos do Singleton)
+   - **Evidência:** `SingletonVeiGest.getInstance(context)` utilizado em todos os Fragments
+
+2. **Padrão Listener/Callback para comunicação assíncrona**
+   - **Decisão:** Criar interfaces (LoginListener, VeiculosListener, etc.) para notificar Fragments
+   - **Justificação:**
+     - Desacopla Singleton dos Fragments
+     - Permite múltiplos observadores da mesma operação
+     - Facilita testes unitários
+   - **Evidência:** Interfaces no package `com.veigest.sdk.listeners`
+
+3. **Persistência dual (API + SQLite)**
+   - **Decisão:** Cachear todos os dados da API em SQLite
+   - **Justificação:**
+     - Permite uso offline
+     - Reduz latência (dados locais carregam instantaneamente)
+     - Sincronização transparente
+   - **Evidência:** Classe `VeiGestBDHelper` com métodos de CRUD para todas as entidades
+
+4. **Separação em módulos (app + SDK)**
+   - **Decisão:** Criar módulo `veigest-sdk` independente
+   - **Justificação:**
+     - Reutilização em outros projetos (web app, dashboard)
+     - Separação clara de responsabilidades
+     - Facilita manutenção e testes
+   - **Evidência:** Estrutura de packages `com.ipleiria.veigest` (app) e `com.veigest.sdk` (SDK)
+
+5. **RecyclerView com adapters personalizados**
+   - **Decisão:** Criar adapters específicos (`VehicleAdapter`, `RouteAdapter`, etc.)
+   - **Justificação:**
+     - Eficiência de memória (padrão ViewHolder)
+     - Flexibilidade para diferentes layouts
+     - Facilita animações e interações
+   - **Evidência:** Package `com.ipleiria.veigest.adapters`
+
+6. **Material Design 3**
+   - **Decisão:** Utilizar componentes do Material Design (CardView, FAB, TextInputLayout)
+   - **Justificação:**
+     - Interface moderna e consistente
+     - Acessibilidade e usabilidade
+     - Suporte nativo a temas (claro/escuro)
+   - **Evidência:** Layouts XML com componentes `com.google.android.material.*`
+
+7. **Gestão de tema dinâmico**
+   - **Decisão:** Aplicar tema salvo antes de `setContentView()` em `MainActivity`
+   - **Justificação:**
+     - Evita "flash" de tema errado ao abrir a app
+     - Persistência da preferência do utilizador
+   - **Evidência:** Método `applySavedTheme()` chamado antes de `super.onCreate()`
+
+#### **Funcionalidades propostas mas não implementadas**
+
+1. **Notificações push**
+   - **Descrição:** Alertas em tempo real sobre documentos a expirar ou novas rotas atribuídas
+   - **Motivo:** Requer integração com Firebase Cloud Messaging, fora do escopo da UC
+
+2. **Tracking GPS em tempo real**
+   - **Descrição:** Rastreamento da localização do veículo durante a rota
+   - **Motivo:** Complexidade adicional e questões de bateria/privacidade
+
+3. **Modo offline completo**
+   - **Descrição:** Permitir operações CRUD offline com sincronização posterior
+   - **Motivo:** Requer lógica complexa de resolução de conflitos
+
+4. **Chat entre condutor e gestor**
+   - **Descrição:** Sistema de mensagens instantâneas
+   - **Motivo:** Requer WebSockets ou polling constante, aumentaria complexidade
+
+5. **Reconhecimento de matrícula por OCR**
+   - **Descrição:** Preencher automaticamente matrícula ao fotografar veículo
+   - **Motivo:** Requer integração com bibliotecas de ML/OCR (Google ML Kit)
+
+6. **Exportação de relatórios em Excel**
+   - **Descrição:** Alternativa ao PDF
+   - **Motivo:** Foco na implementação de PDF conforme requisito da Adenda
+
+7. **Modo dark automático por horário**
+   - **Descrição:** Alternar tema baseado na hora do dia
+   - **Motivo:** Implementado apenas modo "Sistema" que segue configuração do Android
+
+8. **Edição de perfil completa**
+   - **Descrição:** Permitir alterar nome, email, password, foto de perfil
+   - **Motivo:** Preparado (`ProfileFragment` existe) mas não totalmente funcional
+
+---
+
+## 3. Conclusões
+
+### 3.1 Resultados obtidos
+
+A aplicação VeiGest Android foi desenvolvida com sucesso, cumprindo integralmente os requisitos definidos para a Época de Exame Normal da UC AMSI. Os principais resultados obtidos incluem:
+
+**Requisitos cumpridos:**
+- ✅ **Estrutura:** 1 Activity + 9 Fragments (requisito: mínimo 6)
+- ✅ **Webservice:** 7 funcionalidades consumindo API REST (requisito: mínimo 4)
+- ✅ **CRUD:** Operações completas em Veículos e Rotas (requisito: mínimo 4 operações)
+- ✅ **Input de dados:** 4 ecrãs com formulários (requisito: mínimo 2)
+- ✅ **Dados dinâmicos:** 4 ecrãs alimentados pela API (requisito: mínimo 2)
+- ✅ **Master/detail:** Implementado em VehiclesFragment
+- ✅ **Persistência:** SQLite (7 tabelas) + SharedPreferences
+- ✅ **Chamadas assíncronas:** Volley garante que UI não bloqueia
+- ✅ **Menu de configuração:** SettingsFragment com URL da API
+- ✅ **Adenda - Upload de imagens:** Câmara e galeria implementados (15%)
+- ✅ **Adenda - PDF + Email:** Geração e envio implementados (5%)
+
+**Funcionalidades principais operacionais:**
+- Sistema de autenticação com JWT e sessão persistente
+- CRUD completo de veículos com upload de fotos
+- CRUD completo de rotas com validação de dados
+- Dashboard dinâmico com informações em tempo real
+- Cache inteligente em SQLite para uso offline
+- Interface responsiva e moderna (Material Design 3)
+- Suporte a temas (Claro/Escuro/Sistema)
+- Geração de relatórios PDF com dados dinâmicos
+- Envio de relatórios por email
+
+**Qualidade técnica:**
+- Arquitetura MVC bem definida
+- Código organizado em packages lógicas
+- Separação clara entre UI e lógica de negócio (SDK)
+- Comentários e documentação inline
+- Tratamento adequado de erros
+- Gestão correta do ciclo de vida de componentes
+
+### 3.2 Problemas por resolver
+
+Apesar do sucesso geral do projeto, existem alguns pontos que podem ser melhorados:
+
+**Limitações técnicas:**
+1. **Sincronização offline incompleta:** Operações CRUD offline não são enfileiradas para sincronização posterior
+2. **Gestão de conflitos:** Não existe resolução automática de conflitos entre dados locais e remotos
+3. **Validação de formulários:** Validação básica implementada, mas poderia ser mais robusta (regex para email, formato de matrícula)
+4. **Compressão de imagens:** Implementada, mas sem controlo de qualidade pelo utilizador
+5. **Indicadores de progresso:** Alguns processos longos (upload) não têm feedback visual detalhado
+6. **Tratamento de timeouts:** Não existe retry automático em caso de timeout de rede
+7. **Testes unitários:** Não foram implementados testes automatizados
+
+**Pontos a melhorar:**
+1. **Feedback de erros:** Mensagens de erro poderiam ser mais descritivas e orientadas à ação
+2. **Acessibilidade:** Content descriptions para leitores de ecrã não estão completos
+3. **Animações:** Transições entre fragments poderiam ter animações mais suaves
+4. **Otimização de memória:** RecyclerView poderia ter paginação para listas muito grandes
+5. **Segurança:** Token JWT armazenado em SharedPreferences não está encriptado
+6. **Logs de debug:** Muitos logs em produção que deveriam ser removidos
+
+### 3.3 Evolução futura da aplicação
+
+Para continuar o desenvolvimento da aplicação VeiGest, propõem-se as seguintes melhorias:
+
+**Arquitetura:**
+1. **Migração para MVVM (Model-View-ViewModel)**
+   - Substituir listeners por LiveData/StateFlow
+   - Implementar ViewModel para cada Fragment
+   - Melhorar separação de responsabilidades
+   - Facilitar testes unitários
+
+2. **Injeção de dependências**
+   - Implementar Dagger/Hilt para gestão de dependências
+   - Remover acoplamento direto ao Singleton
+   - Facilitar mocks em testes
+
+3. **Coroutines em vez de Volley**
+   - Migrar para Kotlin Coroutines + Retrofit
+   - Código mais limpo e legível
+   - Melhor gestão de operações assíncronas
+
+**Funcionalidades:**
+1. **Notificações push (Firebase Cloud Messaging)**
+   - Alertas de documentos a expirar
+   - Novas rotas atribuídas
+   - Mensagens do gestor
+
+2. **Tracking GPS em tempo real**
+   - Monitorização de rotas em curso
+   - Histórico de trajetos em mapa
+   - Alertas de desvio de rota
+
+3. **Modo offline robusto**
+   - Enfileiramento de operações offline
+   - Sincronização automática ao reconectar
+   - Resolução de conflitos com estratégias configuráveis
+
+4. **Chat em tempo real**
+   - Comunicação entre condutor e gestor
+   - Histórico de conversas
+   - Notificações de novas mensagens
+
+5. **Estatísticas e dashboards avançados**
+   - Gráficos de consumo de combustível
+   - Análise de custos de manutenção
+   - Relatórios de performance do condutor
+
+**Otimizações técnicas:**
+1. **Cache de imagens (Glide configurado)**
+   - Reduzir consumo de dados
+   - Melhorar performance de carregamento
+
+2. **Paginação de listas**
+   - Implementar paging 3 do Android
+   - Carregar dados sob demanda
+   - Reduzir uso de memória
+
+3. **Encriptação de dados sensíveis**
+   - Encriptar token JWT
+   - Proteger dados em SQLite
+   - Implementar Android Keystore
+
+4. **Testes automatizados**
+   - Testes unitários (JUnit)
+   - Testes de integração (Espresso)
+   - Testes de UI (UI Automator)
+   - Cobertura de código > 80%
+
+5. **CI/CD**
+   - Pipeline de build automático
+   - Testes automáticos em PR
+   - Deploy automático para beta testers
+
+**Experiência do utilizador:**
+1. **Onboarding**
+   - Tutorial na primeira utilização
+   - Tooltips em funcionalidades avançadas
+
+2. **Personalização**
+   - Avatar do utilizador
+   - Cores personalizáveis
+   - Widgets na home screen
+
+3. **Acessibilidade**
+   - Suporte completo para TalkBack
+   - Tamanhos de fonte ajustáveis
+   - Modo de alto contraste
+
+4. **Localização (i18n)**
+   - Suporte para inglês
+   - Formatação de datas/números por região
+
+---
+
+## Anexos
+
+### Tecnologias e versões utilizadas
+- **Android Studio:** Ladybug 2024.2.1
+- **Gradle:** 8.13.2
+- **Compile SDK:** 36 (Android 14+)
+- **Min SDK:** 24 (Android 7.0)
+- **Target SDK:** 36
+- **Java:** 11
+
+### Bibliotecas principais
+- Volley 1.2.1
+- Material Design 3 1.10.0
+- Glide 4.16.0
+- Retrofit 2.9.0
+- OkHttp 4.11.0
+- Gson 2.10.1
+- AndroidX AppCompat 1.6.1
+- RecyclerView (incluído em AppCompat)
+- SwipeRefreshLayout 1.1.0
+- Navigation Component 2.7.5
+
+### Endpoints da API consumidos
+```
+POST   /auth/login
+POST   /auth/register
+GET    /vehicles
+POST   /vehicles
+PUT    /vehicles/{id}
+DELETE /vehicles/{id}
+GET    /routes
+POST   /routes
+PUT    /routes/{id}
+DELETE /routes/{id}
+GET    /documents
+GET    /maintenances
+GET    /fuel-logs
+GET    /alerts
+```
+
+### Estrutura de packages
+```
+com.ipleiria.veigest
+├── MainActivity
+├── LoginFragment
+├── RegisterFragment
+├── DashboardFragment
+├── VehiclesFragment
+├── RoutesFragment
+├── DocumentsFragment
+├── ProfileFragment
+├── SettingsFragment
+├── ReportsFragment
+├── PDFGenerator
+├── VeiGestApplication
+├── adapters
+│   ├── VehicleAdapter
+│   ├── RouteAdapter
+│   └── DocumentAdapter
+└── config
+    └── ApiConfig
+
+com.veigest.sdk
+├── SingletonVeiGest
+├── models
+│   ├── User
+│   ├── Vehicle
+│   ├── Route
+│   ├── Document
+│   ├── Maintenance
+│   ├── FuelLog
+│   └── Alert
+├── listeners
+│   ├── LoginListener
+│   ├── RegisterListener
+│   ├── VeiculosListener
+│   ├── VeiculoListener
+│   ├── RotasListener
+│   ├── DocumentosListener
+│   ├── ManutencoesListener
+│   ├── AbastecimentosListener
+│   └── AlertasListener
+├── database
+│   └── VeiGestBDHelper
+├── utils
+│   └── VeiGestJsonParser
+└── config
+    └── ApiConfig
+```
+
+---
+
+**Fim do Relatório**

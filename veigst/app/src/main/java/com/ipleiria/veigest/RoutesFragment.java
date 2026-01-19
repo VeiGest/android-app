@@ -5,13 +5,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -45,7 +43,6 @@ public class RoutesFragment extends Fragment
     private RecyclerView recyclerView;
     private RouteAdapter adapter;
     private SwipeRefreshLayout swipeRefresh;
-    private ProgressBar progressBar;
     private TextView tvEmpty;
     private TextView tvTitle;
     private FloatingActionButton fabAddRoute;
@@ -87,9 +84,12 @@ public class RoutesFragment extends Fragment
     private void initializeViews(View view) {
         recyclerView = view.findViewById(R.id.rv_routes);
         swipeRefresh = view.findViewById(R.id.swipe_refresh);
-        progressBar = view.findViewById(R.id.progress_bar);
         tvEmpty = view.findViewById(R.id.tv_empty);
         fabAddRoute = view.findViewById(R.id.fab_add_route);
+        // RBAC: Hide FAB if not manager/admin
+        if (!singleton.isManagerOrAdmin()) {
+            fabAddRoute.setVisibility(View.GONE);
+        }
         // tvTitle = view.findViewById(R.id.tv_routes_title);
 
         setupHeader(view);
@@ -115,13 +115,22 @@ public class RoutesFragment extends Fragment
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
-        // Swipe to Delete
+        // Swipe to Delete - RBAC restricted
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                     RecyclerView.ViewHolder target) {
                 return false;
+            }
+
+            @Override
+            public int getSwipeDirs(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                // RBAC: Only managers can swipe to delete
+                if (!singleton.isManagerOrAdmin()) {
+                    return 0;
+                }
+                return super.getSwipeDirs(recyclerView, viewHolder);
             }
 
             @Override
@@ -217,15 +226,12 @@ public class RoutesFragment extends Fragment
                 singleton.adicionarRotaAPI(route);
             }
             dialog.dismiss();
-            showLoading(true);
         });
 
         dialog.show();
     }
 
     private void loadRoutes() {
-        showLoading(true);
-
         // Primeiro tenta dados locais
         ArrayList<Route> localRoutes = singleton.getRotas();
         if (!localRoutes.isEmpty()) {
@@ -235,12 +241,6 @@ public class RoutesFragment extends Fragment
 
         // Busca da API
         singleton.getAllRotasAPI();
-    }
-
-    private void showLoading(boolean show) {
-        if (progressBar != null) {
-            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
     }
 
     private void updateEmptyState() {
@@ -257,18 +257,43 @@ public class RoutesFragment extends Fragment
             return;
 
         getActivity().runOnUiThread(() -> {
-            // Stop loading animation immediately
+            // Stop swipe refresh animation
             if (swipeRefresh != null) {
                 swipeRefresh.setRefreshing(false);
             }
-            if (progressBar != null) {
-                progressBar.setVisibility(View.GONE);
-            }
+
+            ArrayList<Route> filteredRoutes = new ArrayList<>();
 
             if (listaRotas != null) {
-                adapter.setRoutes(listaRotas);
-            } else {
-                // Even if null, we stop loading. maybe show error
+                // FILTERING LOGIC
+                if (singleton.isAdmin()) {
+                    // Admin: Show NO routes (as requested)
+                    Log.d(TAG, "User is Admin: Showing 0 routes");
+                } else if (singleton.isManager()) {
+                    // Manager: Show ALL routes
+                    filteredRoutes.addAll(listaRotas);
+                    Log.d(TAG, "User is Manager: Showing all " + listaRotas.size() + " routes");
+                } else if (singleton.isDriver()) {
+                    // Driver: Show ONLY assigned routes
+                    int myId = 0;
+                    // Get user ID from utilizadorAtual
+                    if (singleton.getUtilizadorAtual() != null) {
+                        myId = singleton.getUtilizadorAtual().getId();
+                    }
+
+                    for (Route r : listaRotas) {
+                        if (r.getDriverId() == myId) {
+                            filteredRoutes.add(r);
+                        }
+                    }
+                    Log.d(TAG, "User is Driver (ID=" + myId + "): Filtering routes. Found " + filteredRoutes.size());
+                } else {
+                    // Fallback for other roles (Viewer, etc): Show none or all?
+                    // Assuming strict RBAC, show none if not explicitly allowed.
+                    Log.d(TAG, "Unknown role: showing 0 routes");
+                }
+
+                adapter.setRoutes(filteredRoutes);
             }
 
             updateEmptyState();
@@ -286,19 +311,41 @@ public class RoutesFragment extends Fragment
 
     @Override
     public void onRouteComplete(Route route) {
-        new AlertDialog.Builder(getContext())
-                .setTitle("Concluir Rota")
-                .setMessage("Deseja marcar esta rota como concluída?")
-                .setPositiveButton("Sim", (dialog, which) -> {
-                    // Atualizar status localmente e na API
-                    route.setStatus("completed");
-                    // Se houver método de update na API:
-                    singleton.editarRotaAPI(route);
+        // Dialog to change status
+        String[] options = { "Iniciar Rota (Em Progresso)", "Concluir Rota", "Cancelar Rota" };
 
-                    Toast.makeText(getContext(), "Rota concluída!", Toast.LENGTH_SHORT).show();
-                    loadRoutes(); // Recarregar para atualizar lista
+        new AlertDialog.Builder(getContext())
+                .setTitle("Alterar Estado da Rota")
+                .setItems(options, (dialog, which) -> {
+                    String newStatus = "";
+                    switch (which) {
+                        case 0:
+                            newStatus = "in_progress";
+                            break;
+                        case 1:
+                            newStatus = "completed";
+                            break;
+                        case 2:
+                            newStatus = "cancelled";
+                            break;
+                    }
+
+                    if (!newStatus.isEmpty()) {
+                        // Optimistic update
+                        route.setStatus(newStatus);
+                        adapter.notifyDataSetChanged();
+
+                        // API Call
+                        if (singleton != null) {
+                            // We use edit route API for status update
+                            // Assuming API supports partial updates or handles full object update
+                            singleton.editarRotaAPI(route);
+                        }
+
+                        Toast.makeText(getContext(), "Estado atualizado!", Toast.LENGTH_SHORT).show();
+                    }
                 })
-                .setNegativeButton("Não", null)
+                .setNegativeButton("Fechar", null)
                 .show();
     }
 

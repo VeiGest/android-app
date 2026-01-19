@@ -32,7 +32,9 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.VehicleV
      */
     public interface OnVehicleClickListener {
         void onVehicleClick(Vehicle vehicle);
+
         void onEditClick(Vehicle vehicle);
+
         void onDeleteClick(Vehicle vehicle);
     }
 
@@ -162,31 +164,48 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.VehicleV
                 }
             });
 
-            btnEdit.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onEditClick(vehicle);
-                }
-            });
+            // RBAC: Check permissions
+            boolean canEdit = com.veigest.sdk.SingletonVeiGest.getInstance(itemView.getContext()).isManagerOrAdmin();
 
-            btnDelete.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onDeleteClick(vehicle);
-                }
-            });
+            if (canEdit) {
+                btnEdit.setVisibility(View.VISIBLE);
+                btnDelete.setVisibility(View.VISIBLE);
+
+                btnEdit.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onEditClick(vehicle);
+                    }
+                });
+
+                btnDelete.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onDeleteClick(vehicle);
+                    }
+                });
+            } else {
+                btnEdit.setVisibility(View.GONE);
+                btnDelete.setVisibility(View.GONE);
+            }
         }
 
         private String getStatusLabel(String status) {
-            if (status == null) return "Desconhecido";
+            if (status == null)
+                return "Desconhecido";
             switch (status.toLowerCase()) {
-                case "active": return "Ativo";
-                case "maintenance": return "Manutenção";
-                case "inactive": return "Inativo";
-                default: return status;
+                case "active":
+                    return "Ativo";
+                case "maintenance":
+                    return "Manutenção";
+                case "inactive":
+                    return "Inativo";
+                default:
+                    return status;
             }
         }
 
         private void setStatusColor(TextView tv, String status) {
-            if (status == null) status = "";
+            if (status == null)
+                status = "";
             switch (status.toLowerCase()) {
                 case "active":
                     tv.setTextColor(0xFF11C7A5);
@@ -207,18 +226,25 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.VehicleV
         }
 
         private String getFuelTypeLabel(String fuelType) {
-            if (fuelType == null) return "N/D";
+            if (fuelType == null)
+                return "N/D";
             switch (fuelType.toLowerCase()) {
-                case "diesel": return "Diesel";
+                case "diesel":
+                    return "Diesel";
                 case "gasoline":
-                case "gasolina": return "Gasolina";
+                case "gasolina":
+                    return "Gasolina";
                 case "electric":
-                case "eletrico": return "Elétrico";
+                case "eletrico":
+                    return "Elétrico";
                 case "hybrid":
-                case "hibrido": return "Híbrido";
+                case "hibrido":
+                    return "Híbrido";
                 case "lpg":
-                case "gpl": return "GPL";
-                default: return fuelType;
+                case "gpl":
+                    return "GPL";
+                default:
+                    return fuelType;
             }
         }
     }

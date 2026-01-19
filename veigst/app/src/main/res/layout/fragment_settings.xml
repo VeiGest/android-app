@@ -40,7 +40,7 @@
                     android:text="@string/settings_appearance"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/Black"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginBottom="12dp"/>
 
                 <!-- Theme Selection -->
@@ -62,7 +62,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_theme_light"
-                        android:textColor="@color/Black"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="14sp"
                         android:buttonTint="?attr/CheckboxTint"/>
 
@@ -71,7 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_theme_dark"
-                        android:textColor="@color/Black"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="14sp"
                         android:buttonTint="?attr/CheckboxTint"/>
 
@@ -80,7 +80,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_theme_system"
-                        android:textColor="@color/Black"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="14sp"
                         android:buttonTint="?attr/CheckboxTint"/>
                 </RadioGroup>
@@ -108,7 +108,7 @@
                     android:text="@string/settings_notifications"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/Black"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginBottom="12dp"/>
 
                 <!-- Notifications Enabled -->
@@ -125,7 +125,7 @@
                         android:layout_weight="1"
                         android:text="@string/settings_notifications_enabled"
                         android:textSize="14sp"
-                        android:textColor="@color/Black"/>
+                        android:textColor="?attr/colorOnSurface"/>
 
                     <Switch
                         android:id="@+id/switch_notifications"
@@ -148,7 +148,7 @@
                         android:layout_weight="1"
                         android:text="@string/settings_notifications_sound"
                         android:textSize="14sp"
-                        android:textColor="@color/Black"/>
+                        android:textColor="?attr/colorOnSurface"/>
 
                     <Switch
                         android:id="@+id/switch_notification_sound"
@@ -181,7 +181,7 @@
                     android:text="@string/settings_sync"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/Black"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginBottom="12dp"/>
 
                 <!-- Auto Sync -->
@@ -197,7 +197,7 @@
                         android:layout_weight="1"
                         android:text="@string/settings_sync_auto"
                         android:textSize="14sp"
-                        android:textColor="@color/Black"/>
+                        android:textColor="?attr/colorOnSurface"/>
 
                     <Switch
                         android:id="@+id/switch_auto_sync"
@@ -230,7 +230,7 @@
                     android:text="@string/settings_about"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/Black"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginBottom="12dp"/>
 
                 <LinearLayout
@@ -244,7 +244,7 @@
                         android:layout_weight="1"
                         android:text="@string/settings_version"
                         android:textSize="14sp"
-                        android:textColor="@color/Black"/>
+                        android:textColor="?attr/colorOnSurface"/>
 
                     <TextView
                         android:layout_width="wrap_content"

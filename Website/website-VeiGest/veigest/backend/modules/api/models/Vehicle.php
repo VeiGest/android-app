@@ -38,7 +38,10 @@ class Vehicle extends ActiveRecord
     public function behaviors()
     {
         return [
-            TimestampBehavior::class,
+            [
+                'class' => TimestampBehavior::class,
+                'value' => new \yii\db\Expression('NOW()'),
+            ],
         ];
     }
 
@@ -250,7 +253,7 @@ class Vehicle extends ActiveRecord
         $totalLiters = 0;
 
         for ($i = 1; $i < count($fuelLogs); $i++) {
-            $distance = $fuelLogs[$i]->quilometragem - $fuelLogs[$i-1]->quilometragem;
+            $distance = $fuelLogs[$i]->quilometragem - $fuelLogs[$i - 1]->quilometragem;
             if ($distance > 0) {
                 $totalDistance += $distance;
                 $totalLiters += $fuelLogs[$i]->litros;

@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +31,6 @@ public class DocumentsFragment extends Fragment implements DocumentosListener, D
     private RecyclerView recyclerView;
     private DocumentAdapter adapter;
     private SwipeRefreshLayout swipeRefresh;
-    private ProgressBar progressBar;
     private TextView tvEmpty;
     private TextView tvTitle;
 
@@ -73,7 +71,6 @@ public class DocumentsFragment extends Fragment implements DocumentosListener, D
     private void initializeViews(View view) {
         recyclerView = view.findViewById(R.id.rv_documents);
         swipeRefresh = view.findViewById(R.id.swipe_refresh);
-        progressBar = view.findViewById(R.id.progress_bar);
         tvEmpty = view.findViewById(R.id.tv_empty);
         tvEmpty = view.findViewById(R.id.tv_empty);
         // tvTitle = view.findViewById(R.id.tv_documents_title); Removed
@@ -108,8 +105,6 @@ public class DocumentsFragment extends Fragment implements DocumentosListener, D
     }
 
     private void loadDocuments() {
-        showLoading(true);
-
         // Primeiro tenta dados locais
         ArrayList<Document> localDocs = singleton.getDocumentos();
         if (!localDocs.isEmpty()) {
@@ -119,12 +114,6 @@ public class DocumentsFragment extends Fragment implements DocumentosListener, D
 
         // Busca da API
         singleton.getAllDocumentosAPI();
-    }
-
-    private void showLoading(boolean show) {
-        if (progressBar != null) {
-            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
     }
 
     private void updateEmptyState() {
@@ -141,12 +130,9 @@ public class DocumentsFragment extends Fragment implements DocumentosListener, D
             return;
 
         getActivity().runOnUiThread(() -> {
-            // Stop loading animation immediately
+            // Stop swipe refresh animation
             if (swipeRefresh != null) {
                 swipeRefresh.setRefreshing(false);
-            }
-            if (progressBar != null) {
-                progressBar.setVisibility(View.GONE);
             }
 
             if (listaDocumentos != null) {

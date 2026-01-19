@@ -47,7 +47,7 @@
                     android:text="Mercedes Actros"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/Black"/>
+                    android:textColor="?attr/colorOnSurface"/>
 
                 <TextView
                     android:id="@+id/tv_vehicle_plate"
@@ -113,7 +113,7 @@
                     android:text="245,892 km"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="@color/Black"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginTop="2dp"/>
             </LinearLayout>
 
@@ -137,7 +137,7 @@
                     android:text="Diesel"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="@color/Black"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginTop="2dp"/>
             </LinearLayout>
 

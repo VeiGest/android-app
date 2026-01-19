@@ -37,7 +37,7 @@
                 android:text="Origem -> Destino"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@color/Black"/>
+                android:textColor="?attr/colorOnSurface"/>
 
             <TextView
                 android:id="@+id/tv_route_status"

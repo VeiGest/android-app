@@ -1,0 +1,263 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+
+% Personalização dos títulos dos índices
+\renewcommand{\contentsname}{Índice}
+\renewcommand{\listfigurename}{Lista de Figuras}
+
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{xcolor}
+\usepackage{caption}
+
+% Configuração das Margens
+\geometry{
+    a4paper,
+    top=2.5cm,
+    bottom=2.5cm,
+    left=2.5cm,
+    right=2.5cm
+}
+
+% Ajuste da altura do cabeçalho
+\setlength{\headheight}{14pt}
+
+% Cabeçalho e Rodapé
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small \textbf{VeiGest} - Relatório de Projeto}
+\fancyhead[R]{\small AMSI 2025/2026}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+
+% Formatação de Títulos
+\titleformat{\section}
+{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+% Espaçamento de 1.5 linhas
+\onehalfspacing
+
+% Configuração de Links PDF
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Relatório VeiGest},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+% -------------------------------------------------------------------
+% CAPA
+% -------------------------------------------------------------------
+\begin{titlepage}
+    \begin{center}
+        
+        \includegraphics[width=0.5\textwidth]{relatorio_imgs/politecnico_leiria.png}
+        
+        \vspace{0.6cm}
+        
+        {\Large \textbf{Escola Superior de Tecnologia e Gestão}} \\
+        \vspace{0.6cm}
+        {\large TeSP em Programação de Sistemas de Informação} \\
+        \vspace{0.6cm}
+        {\large Unidade Curricular: Acesso Móvel a Sistemas de Informação}
+        
+        \vspace{1.5cm}
+        
+        \includegraphics[width=0.5\textwidth]{relatorio_imgs/veigestlogo_projeto.png}
+        
+        \vspace{0.6cm}
+        
+        {\Huge \textbf{VeiGest}} \\
+        \vspace{0.6cm}
+        {\Large \textbf{Aplicação Android para Gestão de Frotas}}
+        
+        \vfill
+        
+        \begin{center}
+            Edo Pedroso dos Santos (Nº 2231440) \\
+            Leonardo Daniel Neves Pereira (Nº 2241550) \\
+            Pedro Kaleb De Jesus (Nº 2240103)
+        \end{center}
+        
+        \vspace{0.6cm}
+        
+        {\large Leiria, 17 de janeiro de 2026}
+        
+    \end{center}
+\end{titlepage}
+
+% -------------------------------------------------------------------
+% ÍNDICES
+% -------------------------------------------------------------------
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+
+% -------------------------------------------------------------------
+% INTRODUÇÃO
+% -------------------------------------------------------------------
+\section{Introdução}
+
+No panorama empresarial contemporâneo, a mobilidade e o acesso imediato à informação são fatores críticos de sucesso. A gestão de frotas, em particular, exige um controlo rigoroso sobre múltiplos ativos em circulação. O projeto \textbf{VeiGest}, desenvolvido no âmbito da unidade curricular de Acesso Móvel a Sistemas de Informação (AMSI), visa dar resposta a esta necessidade através de uma solução móvel nativa para o sistema operativo Android.
+
+A aplicação foi concebida para servir dois perfis principais de utilizadores: os gestores de frota, que necessitam de supervisionar a operação global, e os condutores, que carecem de uma ferramenta prática para consultar atribuições e reportar atividade. O sistema integra funcionalidades de gestão de veículos, planeamento de rotas, consulta de documentação legal e registo de manutenções, tudo centralizado numa única plataforma acessível via smartphone.
+
+Este relatório detalha o processo de desenvolvimento da aplicação, desde a conceção da arquitetura até à implementação final, descrevendo as opções técnicas tomadas, as dificuldades encontradas e as soluções adotadas para cumprir os requisitos académicos e funcionais propostos.
+
+\subsection{Requisitos Finais Implementados}
+
+A aplicação final respeita integralmente o enunciado do projeto, apresentando uma estrutura robusta baseada numa \texttt{MainActivity} que orquestra a navegação entre nove fragmentos distintos. Esta arquitetura "Single Activity" promove uma experiência de utilização fluida e consistente.
+
+Foram implementadas operações CRUD (Create, Read, Update, Delete) completas para as entidades nucleares do sistema: \textbf{Veículos} e \textbf{Rotas}. A aplicação comunica com um servidor remoto através de uma API RESTful, permitindo a sincronização bidirecional de dados. Funcionalidades adicionais incluem autenticação segura (com persistência de sessão), visualização de documentos com alertas de validade, e um sistema de relatórios capaz de gerar ficheiros PDF e enviá-los por email.
+
+\subsection{Motivação}
+
+A escolha deste tema prende-se com a vontade de aplicar os conhecimentos teóricos num cenário realista. A gestão de frotas apresenta desafios técnicos interessantes, como a necessidade de lidar com dados complexos, garantir a integridade da informação entre o dispositivo móvel e o servidor, e fornecer uma interface que seja utilizável em contexto de trabalho, muitas vezes em movimento. Um foco especial foi dado à criação do \textbf{VeiGest SDK}, uma biblioteca modular que encapsula a lógica de negócio, permitindo a sua reutilização e testes isolados.
+
+% -------------------------------------------------------------------
+% DESENVOLVIMENTO
+% -------------------------------------------------------------------
+\section{Descrição do Desenvolvimento}
+
+\subsection{Metodologia e Arquitetura}
+
+A abordagem ao desenvolvimento seguiu uma metodologia modular e iterativa. Reconhecendo a importância da organização do código e da separação de responsabilidades, o projeto foi dividido em dois módulos distintos e interdependentes:
+
+\begin{enumerate}
+    \item \textbf{Módulo de Aplicação (app):} Responsável exclusivamente pela interface gráfica (UI) e interação com o utilizador. Contém as Activities, Fragments e Adapters.
+    \item \textbf{Módulo SDK (veigest-sdk):} Encapsula toda a lógica de negócio, modelos de dados, persistência local e comunicação com a API.
+\end{enumerate}
+
+Esta separação arquitetural foi fundamental para permitir o desenvolvimento paralelo entre os membros da equipa. Enquanto parte do grupo se focava no design e usabilidade dos ecrãs, outra parte dedicava-se à robustez das comunicações de rede e gestão de base de dados.
+
+O padrão de desenho \textbf{Singleton} foi utilizado na classe \texttt{SingletonVeiGest} para centralizar a gestão do estado da aplicação e a fila de requisições de rede. Para gerir a assincronia inerente às comunicações móveis, implementou-se o padrão \textbf{Observer} através de interfaces de \textit{Listener}, garantindo que a UI reagisse apenas quando os dados estivessem disponíveis, evitando bloqueios na \textit{Main Thread}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{relatorio_imgs/login_page.png}
+    \caption{Ecrã de Login com autenticação centralizada no SDK.}
+    \label{fig:login}
+\end{figure}
+
+\subsection{Tecnologias Usadas}
+
+O núcleo da aplicação foi desenvolvido em linguagem \textbf{Java}, utilizando o Android Studio. A escolha tecnológica recaiu sobre bibliotecas, robustas e amplamente testadas pela comunidade:
+
+\begin{itemize}
+    \item \textbf{Volley:} Para a camada de rede. A sua gestão automática de filas de pedidos e cache transparente torna-o ideal para aplicações intensivas em dados.
+    \item \textbf{Glide:} Para o carregamento e cache de imagens assíncrono, essencial para a performance das listas de veículos.
+    \item \textbf{SQLite:} Para a persistência de dados estruturados offline.
+    \item \textbf{SharedPreferences:} Para armazenamento de configurações e tokens de sessão.
+\end{itemize}
+
+\subsection{Solução Desenvolvida}
+
+A interface do utilizador segue as diretrizes do \textbf{Material Design 3}, garantindo uma experiência moderna e acessível. A navegação baseia-se num menu lateral (\textit{Navigation Drawer}) que permite o acesso rápido a todos os módulos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{relatorio_imgs/sidebar.png}
+    \caption{Menu lateral de navegação (Navigation Drawer).}
+    \label{fig:sidebar}
+\end{figure}
+
+O \textbf{Dashboard} atua como o centro de operações, agregando widgets com informação crítica: rota ativa, veículo em uso e estado da documentação.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{relatorio_imgs/dashboard.png}
+    \caption{Dashboard principal com widgets informativos.}
+    \label{fig:dashboard}
+\end{figure}
+
+A gestão de \textbf{Veículos} (Figura \ref{fig:vehicles}) e \textbf{Rotas} (Figura \ref{fig:routes}) constitui o núcleo funcional da aplicação. Os formulários de criação e edição foram desenhados para serem preenchidos rapidamente, com validações de input em tempo real. O upload de imagens de veículos inclui um passo de compressão no cliente para otimizar o uso de dados móveis.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{relatorio_imgs/vehicles.png}
+    \caption{Módulo de gestão de veículos com suporte a imagens.}
+    \label{fig:vehicles}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{relatorio_imgs/routes.png}
+    \caption{Listagem e gestão de estados de rotas.}
+    \label{fig:routes}
+\end{figure}
+
+A funcionalidade de \textbf{Relatórios} demonstra a capacidade da aplicação de gerar artefactos complexos (PDFs) utilizando as APIs de impressão nativas do Android, permitindo a desmaterialização de processos burocráticos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{relatorio_imgs/relatorios.png}
+    \caption{Geração de relatórios PDF e envio por email.}
+    \label{fig:reports}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{relatorio_imgs/documents.png}
+    \caption{Monitorização de validade de documentos.}
+    \label{fig:documents}
+\end{figure}
+
+% Pula para a próxima página
+\newpage
+
+% -------------------------------------------------------------------
+% CONCLUSÕES
+% -------------------------------------------------------------------
+\section{Conclusões}
+
+O desenvolvimento da VeiGest cumpriu os objetivos académicos e técnicos propostos. A aplicação resultante é uma ferramenta de gestão de frotas funcional, que tira partido das capacidades nativas do Android para resolver problemas reais de mobilidade empresarial.
+
+A separação entre SDK e aplicação provou ser uma estratégia vencedora, simplificando os testes e permitindo uma evolução futura mais ágil. As principais dificuldades, relacionadas com a assincronia e gestão de memória (imagens), foram ultrapassadas através da aplicação correta de padrões de desenho de software.
+
+Para evoluções futuras, prevê-se a implementação de sincronização de dados em segundo plano (via WorkManager) e um sistema de notificações push para aumentar a proatividade da aplicação.
+
+% Pula para a próxima página
+\newpage
+
+% -------------------------------------------------------------------
+% REFERÊNCIAS
+% -------------------------------------------------------------------
+\begin{thebibliography}{9}
+
+\bibitem{android_dev}
+  Google Developers,
+  \emph{Guide to App Architecture},
+  Android Developers Documentation,
+  \url{https://developer.android.com/jetpack/guide}
+
+\bibitem{volley}
+  Google Developers,
+  \emph{Transmit network data using Volley},
+  Android Developers Documentation,
+  \url{https://developer.android.com/training/volley}
+
+\bibitem{material}
+  Google,
+  \emph{Material Design 3 Guidelines},
+  \url{https://m3.material.io/}
+
+\bibitem{glide}
+  Bumptech,
+  \emph{Glide: An image loading and caching library for Android},
+  \url{https://github.com/bumptech/glide}
+
+\end{thebibliography}
+
+\end{document}

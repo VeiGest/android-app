@@ -35,7 +35,10 @@ class FuelLog extends ActiveRecord
     public function behaviors()
     {
         return [
-            TimestampBehavior::class,
+            [
+                'class' => TimestampBehavior::class,
+                'value' => new \yii\db\Expression('NOW()'),
+            ],
         ];
     }
 
@@ -49,9 +52,13 @@ class FuelLog extends ActiveRecord
             [['vehicle_id', 'current_mileage'], 'integer'],
             [['liters', 'value', 'price_per_liter'], 'number', 'min' => 0],
             [['date'], 'date', 'format' => 'php:Y-m-d H:i:s'],
-            [['date'], 'default', 'value' => function() {
-                return date('Y-m-d H:i:s');
-            }],
+            [
+                ['date'],
+                'default',
+                'value' => function () {
+                    return date('Y-m-d H:i:s');
+                }
+            ],
             [['notes'], 'string'],
             [['current_mileage'], 'integer', 'min' => 0],
         ];
@@ -132,7 +139,7 @@ class FuelLog extends ActiveRecord
             if ($this->liters > 0 && $this->value > 0) {
                 $this->price_per_liter = round($this->value / $this->liters, 3);
             }
-            
+
             return true;
         }
         return false;

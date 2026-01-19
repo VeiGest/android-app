@@ -60,7 +60,7 @@
                             android:text="Relatório de Veículos"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/Black"/>
+                            android:textColor="?attr/colorOnSurface"/>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -139,7 +139,7 @@
                             android:text="Relatório de Manutenções"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/Black"/>
+                            android:textColor="?attr/colorOnSurface"/>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -218,7 +218,7 @@
                             android:text="Relatório Completo"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/Black"/>
+                            android:textColor="?attr/colorOnSurface"/>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -317,7 +317,7 @@
             android:text="Últimos Relatórios"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/Black"
+            android:textColor="?attr/colorOnSurface"
             android:layout_marginTop="24dp"
             android:layout_marginBottom="12dp"/>
 

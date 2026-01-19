@@ -14,7 +14,7 @@
         android:text="Adicionar Veículo"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/Black"
+        android:textColor="?attr/colorOnSurface"
         android:layout_marginBottom="16dp"/>
 
     <!-- Matrícula -->

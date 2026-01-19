@@ -188,6 +188,12 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
         recyclerView = view.findViewById(R.id.rv_vehicles);
         swipeRefresh = view.findViewById(R.id.swipe_refresh);
         fabAdd = view.findViewById(R.id.fab_add_vehicle);
+
+        // RBAC: Hide FAB if not manager/admin
+        if (!singleton.isManagerOrAdmin()) {
+            fabAdd.setVisibility(View.GONE);
+        }
+
         progressBar = view.findViewById(R.id.progress_bar);
         tvEmpty = view.findViewById(R.id.tv_empty);
         // tvTitle = view.findViewById(R.id.tv_title);
@@ -289,6 +295,17 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
         });
     }
 
+    @Override
+    public void onOperacaoError(String message) {
+        if (getActivity() == null)
+            return;
+
+        getActivity().runOnUiThread(() -> {
+            showLoading(false);
+            Toast.makeText(getContext(), "Erro: " + message, Toast.LENGTH_LONG).show();
+        });
+    }
+
     // ==================== Implementação VehicleAdapter.OnVehicleClickListener
     // ====================
 
@@ -314,6 +331,12 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
      * Mostra dialog para adicionar ou editar veículo
      */
     private void showVehicleDialog(@Nullable Vehicle vehicle) {
+        // RBAC Security Check
+        if (!singleton.isManagerOrAdmin()) {
+            Toast.makeText(getContext(), "Não tem permissão para realizar esta operação.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         boolean isEdit = vehicle != null;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -452,9 +475,12 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
     /**
      * Mostra detalhes do veículo (Master/Detail)
      */
+    /**
+     * Mostra detalhes do veículo (Master/Detail)
+     */
     private void showVehicleDetails(Vehicle vehicle) {
         // Mostrar detalhes num dialog simples por agora
-        new AlertDialog.Builder(requireContext())
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
                 .setTitle(vehicle.getBrand() + " " + vehicle.getModel())
                 .setMessage(
                         "Matrícula: " + vehicle.getLicensePlate() + "\n" +
@@ -462,9 +488,14 @@ public class VehiclesFragment extends Fragment implements VeiculosListener, Veic
                                 "Quilometragem: " + vehicle.getMileage() + " km\n" +
                                 "Combustível: " + vehicle.getFuelType() + "\n" +
                                 "Estado: " + vehicle.getStatus())
-                .setPositiveButton("Fechar", null)
-                .setNeutralButton("Editar", (dialog, which) -> showVehicleDialog(vehicle))
-                .show();
+                .setPositiveButton("Fechar", null);
+
+        // RBAC: Only managers can edit
+        if (singleton.isManagerOrAdmin()) {
+            builder.setNeutralButton("Editar", (dialog, which) -> showVehicleDialog(vehicle));
+        }
+
+        builder.show();
     }
 
     // ==================== Foto (ADENDA 15%) ====================

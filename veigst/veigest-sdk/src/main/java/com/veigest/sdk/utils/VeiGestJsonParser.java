@@ -17,22 +17,23 @@ import java.util.ArrayList;
  * Converte respostas da API em objetos do modelo.
  */
 public class VeiGestJsonParser {
-    
+
     // ==================== LOGIN ====================
-    
+
     /**
      * Parse da resposta de login.
      * Formato da nova API:
      * {
-     *   "success": true,
-     *   "data": {
-     *     "access_token": "...",
-     *     "user": {...},
-     *     "company": {...},
-     *     "roles": [...],
-     *     "permissions": [...]
-     *   }
+     * "success": true,
+     * "data": {
+     * "access_token": "...",
+     * "user": {...},
+     * "company": {...},
+     * "roles": [...],
+     * "permissions": [...]
      * }
+     * }
+     * 
      * @param response JSON da resposta
      * @return Array com [token, User] ou null em caso de erro
      */
@@ -46,12 +47,12 @@ public class VeiGestJsonParser {
                 if (token == null || token.isEmpty()) {
                     token = data.optString("token", null);
                 }
-                
+
                 JSONObject userJson = data.optJSONObject("user");
                 User user = null;
                 if (userJson != null) {
                     user = parserJsonUser(userJson);
-                    
+
                     // Tenta obter company_id do objeto company se não estiver no user
                     if (user.getCompanyId() == 0) {
                         JSONObject companyJson = data.optJSONObject("company");
@@ -59,38 +60,67 @@ public class VeiGestJsonParser {
                             user.setCompanyId(companyJson.optInt("id", 0));
                         }
                     }
+
+                    // FIX RBAC: Check for roles array if role is missing in user object
+                    if (user.getRole() == null || user.getRole().isEmpty()) {
+                        JSONArray rolesJson = data.optJSONArray("roles");
+                        if (rolesJson != null && rolesJson.length() > 0) {
+                            try {
+                                // Assume first role is the primary one
+                                // Check if it's array of strings or objects
+                                Object firstRole = rolesJson.get(0);
+                                if (firstRole instanceof String) {
+                                    user.setRole((String) firstRole);
+                                } else if (firstRole instanceof JSONObject) {
+                                    // if role object has "name" or "slug"
+                                    user.setRole(((JSONObject) firstRole).optString("name", ""));
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
-                
-                return new Object[]{token, user};
+
+                return new Object[] { token, user };
             }
-            
+
             // Formato antigo sem wrapper "data"
             String token = response.optString("access_token", null);
             if (token == null || token.isEmpty()) {
                 token = response.optString("token", null);
             }
-            
+
             JSONObject userJson = response.optJSONObject("user");
             User user = null;
             if (userJson != null) {
                 user = parserJsonUser(userJson);
             }
-            
-            return new Object[]{token, user};
+
+            return new Object[] { token, user };
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-    
+
     // ==================== USER ====================
-    
+
     public static User parserJsonUser(JSONObject json) {
         try {
+            // Check for data wrapper
+            if (json.has("data")) {
+                JSONObject data = json.optJSONObject("data");
+                if (data != null) {
+                    json = data;
+                }
+            }
+
             User user = new User();
             user.setId(json.optInt("id", 0));
             user.setUsername(json.optString("username", ""));
             user.setEmail(json.optString("email", ""));
+            user.setPhone(json.optString("phone", ""));
             user.setRole(json.optString("role", ""));
             user.setStatus(json.optString("status", "active"));
             user.setCompanyId(json.optInt("company_id", 0));
@@ -102,7 +132,7 @@ public class VeiGestJsonParser {
             return null;
         }
     }
-    
+
     public static ArrayList<User> parserJsonUsers(JSONArray jsonArray) {
         ArrayList<User> users = new ArrayList<>();
         try {
@@ -117,11 +147,19 @@ public class VeiGestJsonParser {
         }
         return users;
     }
-    
+
     // ==================== VEHICLE ====================
-    
+
     public static Vehicle parserJsonVehicle(JSONObject json) {
         try {
+            // Check for data wrapper
+            if (json.has("data")) {
+                JSONObject data = json.optJSONObject("data");
+                if (data != null) {
+                    json = data;
+                }
+            }
+
             Vehicle vehicle = new Vehicle();
             vehicle.setId(json.optInt("id", 0));
             vehicle.setCompanyId(json.optInt("company_id", 0));
@@ -143,7 +181,7 @@ public class VeiGestJsonParser {
             return null;
         }
     }
-    
+
     public static ArrayList<Vehicle> parserJsonVehicles(JSONArray jsonArray) {
         ArrayList<Vehicle> vehicles = new ArrayList<>();
         try {
@@ -158,11 +196,19 @@ public class VeiGestJsonParser {
         }
         return vehicles;
     }
-    
+
     // ==================== MAINTENANCE ====================
-    
+
     public static Maintenance parserJsonMaintenance(JSONObject json) {
         try {
+            // Check for data wrapper
+            if (json.has("data")) {
+                JSONObject data = json.optJSONObject("data");
+                if (data != null) {
+                    json = data;
+                }
+            }
+
             Maintenance maintenance = new Maintenance();
             maintenance.setId(json.optInt("id", 0));
             maintenance.setCompanyId(json.optInt("company_id", 0));
@@ -185,7 +231,7 @@ public class VeiGestJsonParser {
             return null;
         }
     }
-    
+
     public static ArrayList<Maintenance> parserJsonMaintenances(JSONArray jsonArray) {
         ArrayList<Maintenance> maintenances = new ArrayList<>();
         try {
@@ -200,11 +246,19 @@ public class VeiGestJsonParser {
         }
         return maintenances;
     }
-    
+
     // ==================== FUEL LOG ====================
-    
+
     public static FuelLog parserJsonFuelLog(JSONObject json) {
         try {
+            // Check for data wrapper
+            if (json.has("data")) {
+                JSONObject data = json.optJSONObject("data");
+                if (data != null) {
+                    json = data;
+                }
+            }
+
             FuelLog fuelLog = new FuelLog();
             fuelLog.setId(json.optInt("id", 0));
             fuelLog.setVehicleId(json.optInt("vehicle_id", 0));
@@ -222,7 +276,7 @@ public class VeiGestJsonParser {
             return null;
         }
     }
-    
+
     public static ArrayList<FuelLog> parserJsonFuelLogs(JSONArray jsonArray) {
         ArrayList<FuelLog> fuelLogs = new ArrayList<>();
         try {
@@ -237,11 +291,19 @@ public class VeiGestJsonParser {
         }
         return fuelLogs;
     }
-    
+
     // ==================== ALERT ====================
-    
+
     public static Alert parserJsonAlert(JSONObject json) {
         try {
+            // Check for data wrapper
+            if (json.has("data")) {
+                JSONObject data = json.optJSONObject("data");
+                if (data != null) {
+                    json = data;
+                }
+            }
+
             Alert alert = new Alert();
             alert.setId(json.optInt("id", 0));
             alert.setCompanyId(json.optInt("company_id", 0));
@@ -263,7 +325,7 @@ public class VeiGestJsonParser {
             return null;
         }
     }
-    
+
     public static ArrayList<Alert> parserJsonAlerts(JSONArray jsonArray) {
         ArrayList<Alert> alerts = new ArrayList<>();
         try {
@@ -278,11 +340,19 @@ public class VeiGestJsonParser {
         }
         return alerts;
     }
-    
+
     // ==================== DOCUMENT ====================
-    
+
     public static Document parserJsonDocument(JSONObject json) {
         try {
+            // Check for data wrapper
+            if (json.has("data")) {
+                JSONObject data = json.optJSONObject("data");
+                if (data != null) {
+                    json = data;
+                }
+            }
+
             Document document = new Document();
             document.setId(json.optInt("id", 0));
             document.setCompanyId(json.optInt("company_id", 0));
@@ -303,7 +373,7 @@ public class VeiGestJsonParser {
             return null;
         }
     }
-    
+
     public static ArrayList<Document> parserJsonDocuments(JSONArray jsonArray) {
         ArrayList<Document> documents = new ArrayList<>();
         try {
@@ -318,11 +388,19 @@ public class VeiGestJsonParser {
         }
         return documents;
     }
-    
+
     // ==================== ROUTE ====================
-    
+
     public static Route parserJsonRoute(JSONObject json) {
         try {
+            // Check for data wrapper
+            if (json.has("data")) {
+                JSONObject data = json.optJSONObject("data");
+                if (data != null) {
+                    json = data;
+                }
+            }
+
             Route route = new Route();
             route.setId(json.optInt("id", 0));
             route.setCompanyId(json.optInt("company_id", 0));
@@ -344,7 +422,7 @@ public class VeiGestJsonParser {
             return null;
         }
     }
-    
+
     public static ArrayList<Route> parserJsonRoutes(JSONArray jsonArray) {
         ArrayList<Route> routes = new ArrayList<>();
         try {
@@ -359,9 +437,9 @@ public class VeiGestJsonParser {
         }
         return routes;
     }
-    
+
     // ==================== UTILITÁRIOS ====================
-    
+
     /**
      * Verifica se há conexão com a internet.
      */
@@ -373,7 +451,7 @@ public class VeiGestJsonParser {
         }
         return false;
     }
-    
+
     /**
      * Extrai mensagem de erro do JSON de resposta.
      */
@@ -397,7 +475,7 @@ public class VeiGestJsonParser {
         }
         return "Erro ao processar resposta";
     }
-    
+
     /**
      * Extrai array de items da resposta paginada.
      * Suporta múltiplos formatos:
@@ -414,7 +492,7 @@ public class VeiGestJsonParser {
                     return (JSONArray) data;
                 }
             }
-            
+
             // Formato alternativo com "items"
             if (response.has("items")) {
                 return response.getJSONArray("items");

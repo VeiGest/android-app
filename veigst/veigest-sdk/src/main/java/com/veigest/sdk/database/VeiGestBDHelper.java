@@ -25,11 +25,11 @@ import java.util.ArrayList;
  * - Operações CRUD para todas as entidades
  */
 public class VeiGestBDHelper extends SQLiteOpenHelper {
-    
+
     // Configuração da BD
     private static final String DB_NAME = "veigest_db";
-    private static final int DB_VERSION = 1;
-    
+    private static final int DB_VERSION = 2;
+
     // Tabelas
     public static final String TABLE_USERS = "users";
     public static final String TABLE_VEHICLES = "vehicles";
@@ -38,19 +38,20 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
     public static final String TABLE_ALERTS = "alerts";
     public static final String TABLE_DOCUMENTS = "documents";
     public static final String TABLE_ROUTES = "routes";
-    
+
     // Colunas comuns
     public static final String COL_ID = "id";
     public static final String COL_COMPANY_ID = "company_id";
     public static final String COL_CREATED_AT = "created_at";
     public static final String COL_UPDATED_AT = "updated_at";
-    
+
     // Colunas Users
     public static final String COL_USERNAME = "username";
     public static final String COL_EMAIL = "email";
     public static final String COL_ROLE = "role";
     public static final String COL_STATUS = "status";
-    
+    public static final String COL_PHONE = "phone";
+
     // Colunas Vehicles
     public static final String COL_LICENSE_PLATE = "license_plate";
     public static final String COL_BRAND = "brand";
@@ -60,7 +61,7 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
     public static final String COL_MILEAGE = "mileage";
     public static final String COL_DRIVER_ID = "driver_id";
     public static final String COL_PHOTO = "photo";
-    
+
     // Colunas Maintenances
     public static final String COL_VEHICLE_ID = "vehicle_id";
     public static final String COL_TYPE = "type";
@@ -69,35 +70,35 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
     public static final String COL_DATE = "date";
     public static final String COL_MILEAGE_RECORD = "mileage_record";
     public static final String COL_WORKSHOP = "workshop";
-    
+
     // Colunas Fuel Logs
     public static final String COL_LITERS = "liters";
     public static final String COL_VALUE = "value";
     public static final String COL_CURRENT_MILEAGE = "current_mileage";
     public static final String COL_NOTES = "notes";
-    
+
     // Colunas Alerts
     public static final String COL_TITLE = "title";
     public static final String COL_PRIORITY = "priority";
     public static final String COL_DETAILS = "details";
-    
+
     // Colunas Routes
     public static final String COL_START_LOCATION = "start_location";
     public static final String COL_END_LOCATION = "end_location";
     public static final String COL_START_TIME = "start_time";
     public static final String COL_END_TIME = "end_time";
-    
+
     // Colunas Documents
     public static final String COL_FILE_ID = "file_id";
     public static final String COL_EXPIRY_DATE = "expiry_date";
-    
+
     private final SQLiteDatabase database;
-    
+
     public VeiGestBDHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         this.database = this.getWritableDatabase();
     }
-    
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         // Tabela Users
@@ -107,12 +108,13 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
                 COL_EMAIL + " TEXT, " +
                 COL_ROLE + " TEXT, " +
                 COL_STATUS + " TEXT, " +
+                COL_PHONE + " TEXT, " +
                 COL_COMPANY_ID + " INTEGER, " +
                 COL_CREATED_AT + " TEXT, " +
                 COL_UPDATED_AT + " TEXT" +
                 ");";
         db.execSQL(createUsersTable);
-        
+
         // Tabela Vehicles
         String createVehiclesTable = "CREATE TABLE " + TABLE_VEHICLES + " (" +
                 COL_ID + " INTEGER PRIMARY KEY, " +
@@ -130,7 +132,7 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
                 COL_UPDATED_AT + " TEXT" +
                 ");";
         db.execSQL(createVehiclesTable);
-        
+
         // Tabela Maintenances
         String createMaintenancesTable = "CREATE TABLE " + TABLE_MAINTENANCES + " (" +
                 COL_ID + " INTEGER PRIMARY KEY, " +
@@ -147,7 +149,7 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
                 COL_UPDATED_AT + " TEXT" +
                 ");";
         db.execSQL(createMaintenancesTable);
-        
+
         // Tabela Fuel Logs
         String createFuelLogsTable = "CREATE TABLE " + TABLE_FUEL_LOGS + " (" +
                 COL_ID + " INTEGER PRIMARY KEY, " +
@@ -161,7 +163,7 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
                 COL_UPDATED_AT + " TEXT" +
                 ");";
         db.execSQL(createFuelLogsTable);
-        
+
         // Tabela Alerts
         String createAlertsTable = "CREATE TABLE " + TABLE_ALERTS + " (" +
                 COL_ID + " INTEGER PRIMARY KEY, " +
@@ -175,7 +177,7 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
                 COL_CREATED_AT + " TEXT" +
                 ");";
         db.execSQL(createAlertsTable);
-        
+
         // Tabela Documents
         String createDocumentsTable = "CREATE TABLE " + TABLE_DOCUMENTS + " (" +
                 COL_ID + " INTEGER PRIMARY KEY, " +
@@ -190,7 +192,7 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
                 COL_UPDATED_AT + " TEXT" +
                 ");";
         db.execSQL(createDocumentsTable);
-        
+
         // Tabela Routes
         String createRoutesTable = "CREATE TABLE " + TABLE_ROUTES + " (" +
                 COL_ID + " INTEGER PRIMARY KEY, " +
@@ -207,7 +209,7 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
                 ");";
         db.execSQL(createRoutesTable);
     }
-    
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Apaga tabelas e recria
@@ -220,9 +222,9 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROUTES);
         onCreate(db);
     }
-    
+
     // ==================== USERS ====================
-    
+
     public void adicionarUserBD(User user) {
         ContentValues values = new ContentValues();
         values.put(COL_ID, user.getId());
@@ -230,15 +232,16 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         values.put(COL_EMAIL, user.getEmail());
         values.put(COL_ROLE, user.getRole());
         values.put(COL_STATUS, user.getStatus());
+        values.put(COL_PHONE, user.getPhone());
         values.put(COL_COMPANY_ID, user.getCompanyId());
         this.database.insertWithOnConflict(TABLE_USERS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
-    
+
     public User getUserBD(int id) {
         Cursor cursor = this.database.rawQuery(
                 "SELECT * FROM " + TABLE_USERS + " WHERE " + COL_ID + " = ?",
-                new String[]{String.valueOf(id)});
-        
+                new String[] { String.valueOf(id) });
+
         if (cursor.moveToFirst()) {
             User user = cursorToUser(cursor);
             cursor.close();
@@ -247,15 +250,15 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return null;
     }
-    
+
     public void removerUserBD(int id) {
-        this.database.delete(TABLE_USERS, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        this.database.delete(TABLE_USERS, COL_ID + " = ?", new String[] { String.valueOf(id) });
     }
-    
+
     public void removerAllUsersBD() {
         this.database.delete(TABLE_USERS, null, null);
     }
-    
+
     private User cursorToUser(Cursor cursor) {
         User user = new User();
         user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)));
@@ -263,12 +266,13 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(COL_EMAIL)));
         user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(COL_ROLE)));
         user.setStatus(cursor.getString(cursor.getColumnIndexOrThrow(COL_STATUS)));
+        user.setPhone(cursor.getString(cursor.getColumnIndexOrThrow(COL_PHONE)));
         user.setCompanyId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_COMPANY_ID)));
         return user;
     }
-    
+
     // ==================== VEHICLES ====================
-    
+
     public void adicionarVehicleBD(Vehicle vehicle) {
         ContentValues values = new ContentValues();
         values.put(COL_ID, vehicle.getId());
@@ -284,11 +288,11 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         values.put(COL_PHOTO, vehicle.getPhoto());
         this.database.insertWithOnConflict(TABLE_VEHICLES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
-    
+
     public ArrayList<Vehicle> getAllVehiclesBD() {
         ArrayList<Vehicle> vehicles = new ArrayList<>();
         Cursor cursor = this.database.rawQuery("SELECT * FROM " + TABLE_VEHICLES, null);
-        
+
         if (cursor.moveToFirst()) {
             do {
                 vehicles.add(cursorToVehicle(cursor));
@@ -297,12 +301,12 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return vehicles;
     }
-    
+
     public Vehicle getVehicleBD(int id) {
         Cursor cursor = this.database.rawQuery(
                 "SELECT * FROM " + TABLE_VEHICLES + " WHERE " + COL_ID + " = ?",
-                new String[]{String.valueOf(id)});
-        
+                new String[] { String.valueOf(id) });
+
         if (cursor.moveToFirst()) {
             Vehicle vehicle = cursorToVehicle(cursor);
             cursor.close();
@@ -311,7 +315,7 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return null;
     }
-    
+
     public boolean editarVehicleBD(Vehicle vehicle) {
         ContentValues values = new ContentValues();
         values.put(COL_LICENSE_PLATE, vehicle.getLicensePlate());
@@ -323,18 +327,18 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         values.put(COL_STATUS, vehicle.getStatus());
         values.put(COL_DRIVER_ID, vehicle.getDriverId());
         values.put(COL_PHOTO, vehicle.getPhoto());
-        return this.database.update(TABLE_VEHICLES, values, COL_ID + " = ?", 
-                new String[]{String.valueOf(vehicle.getId())}) > 0;
+        return this.database.update(TABLE_VEHICLES, values, COL_ID + " = ?",
+                new String[] { String.valueOf(vehicle.getId()) }) > 0;
     }
-    
+
     public void removerVehicleBD(int id) {
-        this.database.delete(TABLE_VEHICLES, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        this.database.delete(TABLE_VEHICLES, COL_ID + " = ?", new String[] { String.valueOf(id) });
     }
-    
+
     public void removerAllVehiclesBD() {
         this.database.delete(TABLE_VEHICLES, null, null);
     }
-    
+
     private Vehicle cursorToVehicle(Cursor cursor) {
         Vehicle vehicle = new Vehicle();
         vehicle.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)));
@@ -350,9 +354,9 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         vehicle.setPhoto(cursor.getString(cursor.getColumnIndexOrThrow(COL_PHOTO)));
         return vehicle;
     }
-    
+
     // ==================== MAINTENANCES ====================
-    
+
     public void adicionarMaintenanceBD(Maintenance maintenance) {
         ContentValues values = new ContentValues();
         values.put(COL_ID, maintenance.getId());
@@ -367,11 +371,11 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         values.put(COL_STATUS, maintenance.getStatus());
         this.database.insertWithOnConflict(TABLE_MAINTENANCES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
-    
+
     public ArrayList<Maintenance> getAllMaintenancesBD() {
         ArrayList<Maintenance> maintenances = new ArrayList<>();
         Cursor cursor = this.database.rawQuery("SELECT * FROM " + TABLE_MAINTENANCES, null);
-        
+
         if (cursor.moveToFirst()) {
             do {
                 maintenances.add(cursorToMaintenance(cursor));
@@ -380,13 +384,13 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return maintenances;
     }
-    
+
     public ArrayList<Maintenance> getMaintenancesByVehicleBD(int vehicleId) {
         ArrayList<Maintenance> maintenances = new ArrayList<>();
         Cursor cursor = this.database.rawQuery(
                 "SELECT * FROM " + TABLE_MAINTENANCES + " WHERE " + COL_VEHICLE_ID + " = ?",
-                new String[]{String.valueOf(vehicleId)});
-        
+                new String[] { String.valueOf(vehicleId) });
+
         if (cursor.moveToFirst()) {
             do {
                 maintenances.add(cursorToMaintenance(cursor));
@@ -395,15 +399,15 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return maintenances;
     }
-    
+
     public void removerMaintenanceBD(int id) {
-        this.database.delete(TABLE_MAINTENANCES, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        this.database.delete(TABLE_MAINTENANCES, COL_ID + " = ?", new String[] { String.valueOf(id) });
     }
-    
+
     public void removerAllMaintenancesBD() {
         this.database.delete(TABLE_MAINTENANCES, null, null);
     }
-    
+
     private Maintenance cursorToMaintenance(Cursor cursor) {
         Maintenance maintenance = new Maintenance();
         maintenance.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)));
@@ -418,9 +422,9 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         maintenance.setStatus(cursor.getString(cursor.getColumnIndexOrThrow(COL_STATUS)));
         return maintenance;
     }
-    
+
     // ==================== FUEL LOGS ====================
-    
+
     public void adicionarFuelLogBD(FuelLog fuelLog) {
         ContentValues values = new ContentValues();
         values.put(COL_ID, fuelLog.getId());
@@ -432,11 +436,11 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         values.put(COL_NOTES, fuelLog.getNotes());
         this.database.insertWithOnConflict(TABLE_FUEL_LOGS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
-    
+
     public ArrayList<FuelLog> getAllFuelLogsBD() {
         ArrayList<FuelLog> fuelLogs = new ArrayList<>();
         Cursor cursor = this.database.rawQuery("SELECT * FROM " + TABLE_FUEL_LOGS, null);
-        
+
         if (cursor.moveToFirst()) {
             do {
                 fuelLogs.add(cursorToFuelLog(cursor));
@@ -445,13 +449,13 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return fuelLogs;
     }
-    
+
     public ArrayList<FuelLog> getFuelLogsByVehicleBD(int vehicleId) {
         ArrayList<FuelLog> fuelLogs = new ArrayList<>();
         Cursor cursor = this.database.rawQuery(
                 "SELECT * FROM " + TABLE_FUEL_LOGS + " WHERE " + COL_VEHICLE_ID + " = ?",
-                new String[]{String.valueOf(vehicleId)});
-        
+                new String[] { String.valueOf(vehicleId) });
+
         if (cursor.moveToFirst()) {
             do {
                 fuelLogs.add(cursorToFuelLog(cursor));
@@ -460,15 +464,15 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return fuelLogs;
     }
-    
+
     public void removerFuelLogBD(int id) {
-        this.database.delete(TABLE_FUEL_LOGS, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        this.database.delete(TABLE_FUEL_LOGS, COL_ID + " = ?", new String[] { String.valueOf(id) });
     }
-    
+
     public void removerAllFuelLogsBD() {
         this.database.delete(TABLE_FUEL_LOGS, null, null);
     }
-    
+
     private FuelLog cursorToFuelLog(Cursor cursor) {
         FuelLog fuelLog = new FuelLog();
         fuelLog.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)));
@@ -480,9 +484,9 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         fuelLog.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(COL_NOTES)));
         return fuelLog;
     }
-    
+
     // ==================== ALERTS ====================
-    
+
     public void adicionarAlertBD(Alert alert) {
         ContentValues values = new ContentValues();
         values.put(COL_ID, alert.getId());
@@ -495,11 +499,11 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         values.put(COL_DETAILS, alert.getDetails());
         this.database.insertWithOnConflict(TABLE_ALERTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
-    
+
     public ArrayList<Alert> getAllAlertsBD() {
         ArrayList<Alert> alerts = new ArrayList<>();
         Cursor cursor = this.database.rawQuery("SELECT * FROM " + TABLE_ALERTS, null);
-        
+
         if (cursor.moveToFirst()) {
             do {
                 alerts.add(cursorToAlert(cursor));
@@ -508,15 +512,15 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return alerts;
     }
-    
+
     public void removerAlertBD(int id) {
-        this.database.delete(TABLE_ALERTS, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        this.database.delete(TABLE_ALERTS, COL_ID + " = ?", new String[] { String.valueOf(id) });
     }
-    
+
     public void removerAllAlertsBD() {
         this.database.delete(TABLE_ALERTS, null, null);
     }
-    
+
     private Alert cursorToAlert(Cursor cursor) {
         Alert alert = new Alert();
         alert.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)));
@@ -529,9 +533,9 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         alert.setDetails(cursor.getString(cursor.getColumnIndexOrThrow(COL_DETAILS)));
         return alert;
     }
-    
+
     // ==================== DOCUMENTS ====================
-    
+
     public void adicionarDocumentBD(Document document) {
         ContentValues values = new ContentValues();
         values.put(COL_ID, document.getId());
@@ -544,11 +548,11 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         values.put(COL_NOTES, document.getNotes());
         this.database.insertWithOnConflict(TABLE_DOCUMENTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
-    
+
     public ArrayList<Document> getAllDocumentsBD() {
         ArrayList<Document> documents = new ArrayList<>();
         Cursor cursor = this.database.rawQuery("SELECT * FROM " + TABLE_DOCUMENTS, null);
-        
+
         if (cursor.moveToFirst()) {
             do {
                 documents.add(cursorToDocument(cursor));
@@ -557,15 +561,15 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return documents;
     }
-    
+
     public void removerDocumentBD(int id) {
-        this.database.delete(TABLE_DOCUMENTS, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        this.database.delete(TABLE_DOCUMENTS, COL_ID + " = ?", new String[] { String.valueOf(id) });
     }
-    
+
     public void removerAllDocumentsBD() {
         this.database.delete(TABLE_DOCUMENTS, null, null);
     }
-    
+
     private Document cursorToDocument(Cursor cursor) {
         Document document = new Document();
         document.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)));
@@ -578,9 +582,9 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         document.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(COL_NOTES)));
         return document;
     }
-    
+
     // ==================== ROUTES ====================
-    
+
     public void adicionarRouteBD(Route route) {
         ContentValues values = new ContentValues();
         values.put(COL_ID, route.getId());
@@ -594,11 +598,11 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         values.put(COL_STATUS, route.getStatus());
         this.database.insertWithOnConflict(TABLE_ROUTES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
-    
+
     public ArrayList<Route> getAllRoutesBD() {
         ArrayList<Route> routes = new ArrayList<>();
         Cursor cursor = this.database.rawQuery("SELECT * FROM " + TABLE_ROUTES, null);
-        
+
         if (cursor.moveToFirst()) {
             do {
                 routes.add(cursorToRoute(cursor));
@@ -607,15 +611,15 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         cursor.close();
         return routes;
     }
-    
+
     public void removerRouteBD(int id) {
-        this.database.delete(TABLE_ROUTES, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        this.database.delete(TABLE_ROUTES, COL_ID + " = ?", new String[] { String.valueOf(id) });
     }
-    
+
     public void removerAllRoutesBD() {
         this.database.delete(TABLE_ROUTES, null, null);
     }
-    
+
     private Route cursorToRoute(Cursor cursor) {
         Route route = new Route();
         route.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)));
@@ -629,9 +633,9 @@ public class VeiGestBDHelper extends SQLiteOpenHelper {
         route.setStatus(cursor.getString(cursor.getColumnIndexOrThrow(COL_STATUS)));
         return route;
     }
-    
+
     // ==================== UTILITÁRIOS ====================
-    
+
     /**
      * Limpa todos os dados da base de dados.
      */
