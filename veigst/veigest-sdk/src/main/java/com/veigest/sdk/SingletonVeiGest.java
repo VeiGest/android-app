@@ -432,108 +432,6 @@ public class SingletonVeiGest {
         volleyQueue.add(request);
     }
 
-    // ==================== REGISTER API ====================
-
-    /**
-     * Realiza registro de novo utilizador na API.
-     * Notifica através do RegisterListener.
-     * 
-     * @param username Nome de utilizador (obrigatório)
-     * @param email    Email do utilizador (obrigatório)
-     * @param password Password (obrigatório, mínimo 6 caracteres)
-     * @param role     Função do utilizador (ex: "driver", "manager"). Se null, será
-     *                 "driver"
-     */
-    public void registerAPI(final String username, final String email, final String password, final String role) {
-        JSONObject body = new JSONObject();
-        try {
-            body.put("username", username);
-            body.put("email", email);
-            body.put("password", password);
-            body.put("role", role != null ? role : "driver");
-        } catch (JSONException e) {
-            e.printStackTrace();
-            if (registerListener != null) {
-                registerListener.onRegisterError("Erro ao criar requisição");
-            }
-            return;
-        }
-
-        Log.d(TAG, "Tentando registro: " + username + ", " + email);
-
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST,
-                mUrlAPIRegister,
-                body,
-                response -> {
-                    try {
-                        Log.d(TAG, "Register response: " + response.toString());
-
-                        // Parse da resposta - pode retornar o utilizador criado
-                        User user = VeiGestJsonParser.parserJsonUser(response);
-
-                        // Persiste na BD local se tiver dados
-                        if (user != null && veiGestBD != null) {
-                            veiGestBD.adicionarUserBD(user);
-                        }
-
-                        if (registerListener != null) {
-                            registerListener.onRegisterSuccess(user);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        if (registerListener != null) {
-                            registerListener.onRegisterError("Erro ao processar resposta");
-                        }
-                    }
-                },
-                error -> {
-                    Log.e(TAG, "Register error: " + error.toString());
-                    String errorMsg = "Erro de conexão";
-
-                    if (error.networkResponse != null) {
-                        int statusCode = error.networkResponse.statusCode;
-                        try {
-                            String responseBody = new String(error.networkResponse.data, "UTF-8");
-                            Log.e(TAG, "Register error response: " + responseBody);
-                            JSONObject errorJson = new JSONObject(responseBody);
-                            errorMsg = VeiGestJsonParser.parserJsonError(errorJson);
-
-                            // Tratamento de erros específicos de registro
-                            if (statusCode == 422) {
-                                // Validação falhou (email/username já existe, etc)
-                                if (responseBody.contains("email")) {
-                                    errorMsg = "Email já registrado";
-                                } else if (responseBody.contains("username")) {
-                                    errorMsg = "Nome de utilizador já existe";
-                                }
-                            } else if (statusCode == 401 || statusCode == 403) {
-                                errorMsg = "Sem permissão para criar utilizador";
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    if (registerListener != null) {
-                        registerListener.onRegisterError(errorMsg);
-                    }
-                });
-
-        volleyQueue.add(request);
-    }
-
-    /**
-     * Realiza registro de novo utilizador na API com role padrão "driver".
-     * 
-     * @param username Nome de utilizador
-     * @param email    Email do utilizador
-     * @param password Password
-     */
-    public void registerAPI(final String username, final String email, final String password) {
-        registerAPI(username, email, password, "driver");
-    }
-
     /**
      * Realiza registro de novo utilizador na API com todos os campos.
      * 
@@ -1108,9 +1006,11 @@ public class SingletonVeiGest {
      * Obtém todas as rotas da API.
      */
     public void getAllRotasAPI() {
+        String url = mUrlAPIRoutes;
+        Log.d(TAG, "GET " + url + " | headers=" + getAuthHeaders());
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET,
-                mUrlAPIRoutes,
+                url,
                 null,
                 response -> {
                     try {
@@ -1125,20 +1025,24 @@ public class SingletonVeiGest {
                 },
                 error -> {
                     Log.e(TAG, "Erro ao obter rotas: " + error.toString());
+                    if (error.networkResponse != null) {
+                        try {
+                            String resp = new String(error.networkResponse.data, "UTF-8");
+                            Log.e(TAG, "GET rotas - status=" + error.networkResponse.statusCode + " body=" + resp);
+                        } catch (Exception ex) {
+                            /* ignore */ }
+                    }
                     if (veiGestBD != null) {
                         rotas = veiGestBD.getAllRoutesBD();
                     }
-                    // SEMPRE notificar o listener para parar o loading
                     if (rotasListener != null) {
                         rotasListener.onRefreshListaRotas(rotas);
                     }
                 }) {
-
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
-
         };
         volleyQueue.add(request);
     }
@@ -1160,14 +1064,14 @@ public class SingletonVeiGest {
      */
     public void adicionarRotaAPI(final Route route) {
         JSONObject body = routeToJson(route);
-
+        String url = mUrlAPIRoutes;
+        Log.d(TAG, "POST " + url + " | body=" + body.toString() + " | headers=" + getAuthHeaders());
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
-                mUrlAPIRoutes,
+                url,
                 body,
                 response -> {
                     try {
-                        // Assumindo que a API retorna a rota criada
                         Route novaRota = VeiGestJsonParser.parserJsonRoute(response);
                         if (novaRota != null) {
                             rotas.add(novaRota);
@@ -1175,7 +1079,6 @@ public class SingletonVeiGest {
                                 veiGestBD.adicionarRouteBD(novaRota);
                             }
                         }
-                        // Recarrega a lista para garantir sincronia
                         getAllRotasAPI();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -1183,15 +1086,19 @@ public class SingletonVeiGest {
                 },
                 error -> {
                     Log.e(TAG, "Erro ao adicionar rota: " + error.toString());
+                    if (error.networkResponse != null) {
+                        try {
+                            String resp = new String(error.networkResponse.data, "UTF-8");
+                            Log.e(TAG, "POST rota - status=" + error.networkResponse.statusCode + " body=" + resp);
+                        } catch (Exception ex) {
+                            /* ignore */ }
+                    }
                 }) {
-
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
-
         };
-
         volleyQueue.add(request);
     }
 
@@ -1215,6 +1122,13 @@ public class SingletonVeiGest {
                 },
                 error -> {
                     Log.e(TAG, "Erro ao editar rota: " + error.toString());
+                    if (error.networkResponse != null) {
+                        try {
+                            String resp = new String(error.networkResponse.data, "UTF-8");
+                            Log.e(TAG, "PUT rota - status=" + error.networkResponse.statusCode + " body=" + resp);
+                        } catch (Exception ex) {
+                            /* ignore */ }
+                    }
                 }) {
 
             @Override
@@ -1228,15 +1142,56 @@ public class SingletonVeiGest {
     }
 
     /**
+     * Conclui uma rota via API (POST /route/{id}/complete).
+     */
+    public void concluirRotaAPI(final int routeId) {
+        String url = baseUrl + "/routes/" + routeId + "/complete";
+        Log.d(TAG, "POST " + url + " | headers=" + getAuthHeaders());
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                url,
+                null,
+                response -> {
+                    try {
+                        Log.d(TAG, "Rota concluída com sucesso via API");
+                        // Recarrega a lista para atualizar UI
+                        getAllRotasAPI();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Erro ao concluir rota: " + error.toString());
+                    if (error.networkResponse != null) {
+                        try {
+                            String resp = new String(error.networkResponse.data, "UTF-8");
+                            Log.e(TAG, "POST complete rota - status=" + error.networkResponse.statusCode + " body="
+                                    + resp);
+                        } catch (Exception ex) {
+                            /* ignore */ }
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return getAuthHeaders();
+            }
+        };
+
+        volleyQueue.add(request);
+    }
+
+    /**
      * Remove uma rota via API.
      */
     public void removerRotaAPI(final int routeId) {
+        String url = mUrlAPIRoutes + "/" + routeId;
+        Log.d(TAG, "DELETE " + url + " | headers=" + getAuthHeaders());
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.DELETE,
-                mUrlAPIRoutes + "/" + routeId,
+                url,
                 null,
                 response -> {
-                    // Remove da lista em memória
                     for (int i = 0; i < rotas.size(); i++) {
                         if (rotas.get(i).getId() == routeId) {
                             rotas.remove(i);
@@ -1246,22 +1201,25 @@ public class SingletonVeiGest {
                     if (veiGestBD != null) {
                         veiGestBD.removerRouteBD(routeId);
                     }
-                    // Notifica atualização (pode ser otimizado para não recarregar tudo)
                     if (rotasListener != null) {
                         rotasListener.onRefreshListaRotas(rotas);
                     }
                 },
                 error -> {
                     Log.e(TAG, "Erro ao remover rota: " + error.toString());
+                    if (error.networkResponse != null) {
+                        try {
+                            String resp = new String(error.networkResponse.data, "UTF-8");
+                            Log.e(TAG, "DELETE rota - status=" + error.networkResponse.statusCode + " body=" + resp);
+                        } catch (Exception ex) {
+                            /* ignore */ }
+                    }
                 }) {
-
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return getAuthHeaders();
             }
-
         };
-
         volleyQueue.add(request);
     }
 

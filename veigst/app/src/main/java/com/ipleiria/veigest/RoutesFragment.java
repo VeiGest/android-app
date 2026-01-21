@@ -221,8 +221,18 @@ public class RoutesFragment extends Fragment
             route.setStatus("scheduled");
 
             if (routeToEdit != null) {
+                // Ensure date format is Y-m-d H:i:s
+                if (!date.contains(":") && !date.isEmpty()) {
+                    date += " 00:00:00"; // Simple fallback if only date is provided
+                }
+                route.setStartTime(date);
                 singleton.editarRotaAPI(route);
             } else {
+                // Ensure date format is Y-m-d H:i:s
+                if (!date.contains(":") && !date.isEmpty()) {
+                    date += " 00:00:00";
+                }
+                route.setStartTime(date);
                 singleton.adicionarRotaAPI(route);
             }
             dialog.dismiss();
@@ -331,15 +341,22 @@ public class RoutesFragment extends Fragment
                     }
 
                     if (!newStatus.isEmpty()) {
-                        // Optimistic update
+                        // Optimistic update for UI
                         route.setStatus(newStatus);
                         adapter.notifyDataSetChanged();
 
                         // API Call
                         if (singleton != null) {
-                            // We use edit route API for status update
-                            // Assuming API supports partial updates or handles full object update
-                            singleton.editarRotaAPI(route);
+                            if (newStatus.equals("completed")) {
+                                // Use the specialized completion endpoint
+                                singleton.concluirRotaAPI(route.getId());
+                            } else {
+                                // For other status changes, we might still need to update timestamps
+                                // or handle them differently depending on backend logic.
+                                // For now, we use edit route API for status updates like 'in_progress' or
+                                // 'cancelled'
+                                singleton.editarRotaAPI(route);
+                            }
                         }
 
                         Toast.makeText(getContext(), "Estado atualizado!", Toast.LENGTH_SHORT).show();
