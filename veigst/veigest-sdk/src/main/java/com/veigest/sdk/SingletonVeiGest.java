@@ -64,6 +64,7 @@ public class SingletonVeiGest {
     // SharedPreferences para token e configurações
     private static final String PREFS_NAME = "veigest_prefs";
     private static final String PREF_TOKEN = "auth_token";
+    private static final String PREF_API_URL = "api_url";
     private static final String PREF_USER_ID = "user_id";
     private static final String PREF_COMPANY_ID = "company_id";
     private SharedPreferences prefs;
@@ -108,6 +109,14 @@ public class SingletonVeiGest {
      */
     private SingletonVeiGest(Context context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+        String savedApiUrl = prefs.getString("api_url", ApiConfig.API_BASE_URL);
+        if (savedApiUrl != null && !savedApiUrl.isEmpty()) {
+            this.baseUrl = savedApiUrl;
+        } else {
+            this.baseUrl = ApiConfig.API_BASE_URL;
+        }
+
         veiculos = new ArrayList<>();
         manutencoes = new ArrayList<>();
         abastecimentos = new ArrayList<>();

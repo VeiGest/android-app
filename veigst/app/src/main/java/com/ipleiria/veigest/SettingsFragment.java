@@ -36,11 +36,12 @@ public class SettingsFragment extends Fragment {
     private static final String PREF_THEME = "theme";
     private static final String PREF_NOTIFICATIONS = "notifications_enabled";
     private static final String PREF_NOTIFICATION_SOUND = "notification_sound";
-    private static final String PREF_AUTO_SYNC = "auto_sync";
+    // private static final String PREF_AUTO_SYNC = "auto_sync";
 
     // API Settings
     // API Settings - Removed as per user request (handled by config)
-    // private EditText etApiUrl;
+    // API Settings
+    private EditText etApiUrl;
     // private EditText etApiCompany;
 
     // Theme Settings
@@ -51,7 +52,8 @@ public class SettingsFragment extends Fragment {
     private Switch switchNotificationSound;
 
     // Sync Settings
-    private Switch switchAutoSync;
+    // Sync Settings - REMOVED
+    // private Switch switchAutoSync;
 
     // Actions
     private Button btnSaveSettings;
@@ -92,12 +94,12 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initializeViews(View view) {
-        // etApiUrl = view.findViewById(R.id.et_api_url);
+        etApiUrl = view.findViewById(R.id.et_api_url);
         // etApiCompany = view.findViewById(R.id.et_api_company);
         rgTheme = view.findViewById(R.id.rg_theme);
         switchNotifications = view.findViewById(R.id.switch_notifications);
         switchNotificationSound = view.findViewById(R.id.switch_notification_sound);
-        switchAutoSync = view.findViewById(R.id.switch_auto_sync);
+        // switchAutoSync = view.findViewById(R.id.switch_auto_sync);
         btnSaveSettings = view.findViewById(R.id.btn_save_settings);
 
         setupHeader(view);
@@ -118,6 +120,12 @@ public class SettingsFragment extends Fragment {
      * Carrega configurações guardadas em SharedPreferences
      */
     private void loadSettings() {
+        // Obter URL da API
+        String apiUrl = sharedPreferences.getString(PREF_API_URL, com.veigest.sdk.config.ApiConfig.API_BASE_URL);
+        if (etApiUrl != null) {
+            etApiUrl.setText(apiUrl);
+        }
+
         // URL da API e Company ID removidos da UI
         // String apiUrl = sharedPreferences.getString(PREF_API_URL,
         // "https://veigestback.dryadlang.org/api");
@@ -146,8 +154,9 @@ public class SettingsFragment extends Fragment {
         switchNotificationSound.setChecked(notificationSoundEnabled);
 
         // Sincronização automática
-        boolean autoSyncEnabled = sharedPreferences.getBoolean(PREF_AUTO_SYNC, true);
-        switchAutoSync.setChecked(autoSyncEnabled);
+        // Sincronização automática - REMOVIDO
+        // boolean autoSyncEnabled = sharedPreferences.getBoolean(PREF_AUTO_SYNC, true);
+        // switchAutoSync.setChecked(autoSyncEnabled);
 
         // Atualizar estado do switch de som baseado no estado das notificações
         switchNotificationSound.setEnabled(notificationsEnabled);
@@ -171,10 +180,9 @@ public class SettingsFragment extends Fragment {
      */
     private void saveSettings() {
         // Obter valores
-        // String apiUrl = etApiUrl.getText().toString().trim();
+        String apiUrl = etApiUrl.getText().toString().trim();
         // String companyId = etApiCompany.getText().toString().trim();
 
-        // Validação removida pois os campos não existem mais
         /*
          * if (apiUrl.isEmpty()) {
          * Toast.makeText(getContext(), "O URL da API é obrigatório",
@@ -183,6 +191,12 @@ public class SettingsFragment extends Fragment {
          * return;
          * }
          */
+
+        if (apiUrl.isEmpty()) {
+            Toast.makeText(getContext(), "O URL da API é obrigatório", Toast.LENGTH_SHORT).show();
+            etApiUrl.requestFocus();
+            return;
+        }
 
         // Determinar tema selecionado
         int theme = 0; // Sistema
@@ -198,17 +212,18 @@ public class SettingsFragment extends Fragment {
         boolean themeChanged = (theme != currentTheme);
 
         // Guardar em SharedPreferences
+        // Guardar em SharedPreferences
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        // editor.putString(PREF_API_URL, apiUrl);
+        editor.putString(PREF_API_URL, apiUrl);
         // editor.putString(PREF_COMPANY_ID, companyId);
         editor.putInt(PREF_THEME, theme);
         editor.putBoolean(PREF_NOTIFICATIONS, switchNotifications.isChecked());
         editor.putBoolean(PREF_NOTIFICATION_SOUND, switchNotificationSound.isChecked());
-        editor.putBoolean(PREF_AUTO_SYNC, switchAutoSync.isChecked());
+        // editor.putBoolean(PREF_AUTO_SYNC, switchAutoSync.isChecked());
         editor.apply();
 
-        // Atualizar URL no Singleton - removido, usa config
-        // singleton.setBaseUrl(apiUrl);
+        // Atualizar URL no Singleton
+        singleton.setBaseUrl(apiUrl);
 
         // Aplicar tema
         applyTheme(theme);
@@ -275,8 +290,10 @@ public class SettingsFragment extends Fragment {
     }
 
     public static boolean isAutoSyncEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getBoolean(PREF_AUTO_SYNC, true);
+        // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME,
+        // Context.MODE_PRIVATE);
+        // return prefs.getBoolean(PREF_AUTO_SYNC, true);
+        return false; // Auto sync disabled
     }
 
     public static boolean areNotificationsEnabled(Context context) {
